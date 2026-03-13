@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Family Wallet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #0A0A14;
+    --bg2: #12121E;
+    --bg3: #1A1A2E;
+    --accent: #6C63FF;
+    --accent2: #4ECDC4;
+    --green: #69D2A0;
+    --red: #FF6B6B;
+    --yellow: #FFE66D;
+    --text: #F0EEF6;
+    --muted: #8A88AA;
+    --dim: #5A587A;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overflow: hidden; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+  }
+
+  #app {
+    width: 100%;
+    max-width: 430px;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* scrollable content area */
+  .page {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 90px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page::-webkit-scrollbar { display: none; }
+
+  /* BG glows */
+  .glow1 {
+    position: fixed; top: -80px; right: -80px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  .glow2 {
+    position: fixed; bottom: 60px; left: -60px;
+    width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(78,205,196,0.10), transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── Typography ── */
+  .label { font-size: 11px; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--bg3);
+    border: 1px solid rgba(108,99,255,0.2);
+    border-radius: 22px;
+    box-shadow: 0 0 40px rgba(108,99,255,0.12), 0 8px 32px rgba(0,0,0,0.35);
+  }
+
+  .surface {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+  }
+
+  /* ── Buttons ── */
+  button { cursor: pointer; font-family: 'Sora', sans-serif; border: none; transition: all 0.18s; }
+  button:active { transform: scale(0.95); opacity: 0.85; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 17px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    box-shadow: 0 8px 24px rgba(108,99,255,0.35);
+  }
+
+  .btn-ghost {
+    background: none;
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 0;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  /* ── Tabs ── */
+  .tab-bar {
+    display: flex;
+    background: rgba(255,255,255,0.05);
+    border-radius: 14px;
+    padding: 4px;
+    margin: 18px 22px 0;
+  }
+  .tab-btn {
+    flex: 1; padding: 10px; border-radius: 11px;
+    font-size: 13px; font-weight: 600; text-transform: capitalize;
+    color: var(--dim); background: transparent;
+  }
+  .tab-btn.active {
+    background: rgba(108,99,255,0.8);
+    color: #fff;
+  }
+
+  /* ── Member pills ── */
+  .member-scroll {
+    display: flex; gap: 8px;
+    padding: 18px 22px 0;
+    overflow-x: auto;
+  }
+  .member-scroll::-webkit-scrollbar { display: none; }
+
+  .member-pill {
+    flex-shrink: 0;
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    background: rgba(255,255,255,0.07);
+    color: var(--muted);
+  }
+  .member-pill.active { color: #fff; }
+
+  /* ── Balance card ── */
+  .balance-card { margin: 18px 22px 0; padding: 26px; }
+  .balance-amount {
+    font-family: 'DM Mono', monospace;
+    font-size: 38px; font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .mini-cards { display: flex; gap: 12px; margin-top: 18px; }
+  .mini-card {
+    flex: 1; border-radius: 14px; padding: 13px 15px;
+    border: 1px solid;
+  }
+  .mini-card .mc-label { font-size: 10px; letter-spacing: 0.1em; margin-bottom: 4px; }
+  .mini-card .mc-val { font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500; }
+  .mini-card.income { background: rgba(105,210,160,0.1); border-color: rgba(105,210,160,0.2); }
+  .mini-card.income .mc-label, .mini-card.income .mc-val { color: var(--green); }
+  .mini-card.expense { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.2); }
+  .mini-card.expense .mc-label, .mini-card.expense .mc-val { color: var(--red); }
+
+  /* ── Transaction rows ── */
+  .tx-group { padding: 0 22px; margin-top: 20px; }
+  .tx-date-label { font-size: 11px; color: var(--dim); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
+  .tx-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .tx-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 15px; border-radius: 15px; cursor: pointer;
+  }
+  .tx-row:active { transform: scale(0.98); }
+
+  .tx-icon {
+    width: 42px; height: 42px; border-radius: 13px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .tx-info { flex: 1; min-width: 0; }
+  .tx-desc { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-meta { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+  .tag {
+    font-size: 10px; border-radius: 6px;
+    padding: 2px 7px; font-weight: 600;
+  }
+  .tx-amount { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 600; flex-shrink: 0; }
+
+  /* ── Analytics ── */
+  .analytics-section { padding: 0 22px; margin-top: 20px; }
+  .cat-bar-row { margin-bottom: 14px; }
+  .cat-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px; }
+  .cat-bar-track { height: 6px; border-radius: 999px; background: rgba(255,255,255,0.07); overflow: hidden; }
+  .cat-bar-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+
+  .debt-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 15px; border-radius: 14px; margin-bottom: 8px;
+  }
+
+  /* ── Add form ── */
+  .add-page { padding: 50px 22px 100px; }
+  .form-section { margin-bottom: 16px; }
+  .input-card { padding: 16px 18px; border-radius: 17px; }
+  .input-card input, .input-card select {
+    background: none; border: none; outline: none;
+    color: var(--text); font-family: 'Sora', sans-serif;
+    width: 100%;
+  }
+  .big-input { font-family: 'DM Mono', monospace; font-size: 34px; font-weight: 700; }
+  .normal-input { font-size: 15px; }
+
+  .type-toggle {
+    display: flex; background: rgba(255,255,255,0.05);
+    border-radius: 14px; padding: 4px; margin-bottom: 22px;
+  }
+  .type-btn {
+    flex: 1; padding: 12px; border-radius: 11px;
+    font-size: 14px; font-weight: 700; background: transparent; color: var(--dim);
+  }
+  .type-btn.active-expense { background: var(--red); color: #fff; }
+  .type-btn.active-income { background: var(--green); color: #fff; }
+
+  .chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 8px 13px; border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    background: rgba(255,255,255,0.06); color: var(--muted);
+  }
+  .chip.active { color: #fff; }
+
+  .member-grid { display: flex; gap: 8px; }
+  .member-box {
+    flex: 1; padding: 10px 6px; border-radius: 13px;
+    text-align: center; font-size: 12px; font-weight: 600;
+    background: rgba(255,255,255,0.06); color: var(--muted);
+  }
+  .member-box .m-avatar { font-size: 20px; margin-bottom: 3px; }
+  .member-box.active { color: #fff; }
+
+  .split-hint { font-size: 12px; color: var(--accent); text-align: center; margin-top: 10px; }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+    width: 100%; max-width: 430px;
+    background: rgba(10,10,20,0.92);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    padding: 10px 30px 24px;
+    display: flex; justify-content: space-around; align-items: center;
+    z-index: 50;
+  }
+  .nav-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    background: none; color: var(--dim);
+    font-size: 11px; font-weight: 600; padding: 4px 12px;
+  }
+  .nav-btn.active { color: var(--accent); }
+  .nav-btn .nav-icon { font-size: 22px; }
+
+  .fab {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    font-size: 28px; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(108,99,255,0.4);
+    margin-top: -18px; color: #fff;
+  }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 100;
+    display: flex; align-items: flex-end; justify-content: center;
+  }
+  .modal-sheet {
+    width: 100%; max-width: 430px;
+    background: var(--bg2);
+    border-radius: 24px 24px 0 0;
+    padding: 26px 22px 48px;
+    border: 1px solid rgba(255,255,255,0.09);
+    animation: slideUp 0.3s cubic-bezier(.22,.68,0,1.15) both;
+  }
+  .modal-handle {
+    width: 40px; height: 4px; border-radius: 999px;
+    background: rgba(255,255,255,0.2); margin: 0 auto 22px;
+  }
+
+  /* ── Animations ── */
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(30px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity:0; } to { opacity:1; }
+  }
+  .fade-in { animation: fadeIn 0.3s ease both; }
+  .slide-up { animation: slideUp 0.35s cubic-bezier(.22,.68,0,1.2) both; }
+
+  /* ── Empty state ── */
+  .empty { text-align: center; color: var(--dim); padding: 50px 20px; font-size: 14px; }
+
+  /* ── Delete button ── */
+  .delete-btn {
+    font-size: 11px; background: rgba(255,107,107,0.15);
+    color: var(--red); border-radius: 8px; padding: 4px 10px;
+    font-weight: 600;
+  }
+
+  /* ── Settings page ── */
+  .settings-page { padding: 50px 22px 100px; }
+  .settings-section { margin-bottom: 24px; }
+  .settings-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; border-radius: 14px; margin-bottom: 8px;
+  }
+  .settings-row .sr-left { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+  .clear-btn {
+    width: 100%; padding: 14px; border-radius: 14px;
+    background: rgba(255,107,107,0.12); color: var(--red);
+    font-size: 14px; font-weight: 600; border: 1px solid rgba(255,107,107,0.2);
+  }
+  .export-btn {
+    width: 100%; padding: 14px; border-radius: 14px;
+    background: rgba(108,99,255,0.12); color: var(--accent);
+    font-size: 14px; font-weight: 600; border: 1px solid rgba(108,99,255,0.2);
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="glow1"></div>
+  <div class="glow2"></div>
+  <div class="page" id="mainPage"></div>
+  <div id="modalContainer"></div>
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<script>
+// ═══════════════════════════════
+//  DATA & STORAGE
+// ═══════════════════════════════
+const STORE_KEY = 'familyWallet_v2';
+
+const CATEGORIES = {
+  food:          { icon: '🍜', label: 'Food & Dining',   color: '#FF6B6B' },
+  transport:     { icon: '🚌', label: 'Transport',       color: '#4ECDC4' },
+  shopping:      { icon: '🛍️', label: 'Shopping',       color: '#FFE66D' },
+  utilities:     { icon: '💡', label: 'Utilities',       color: '#A8E6CF' },
+  health:        { icon: '💊', label: 'Health',          color: '#FF8B94' },
+  entertainment: { icon: '🎬', label: 'Entertainment',   color: '#B4A7D6' },
+  income:        { icon: '💰', label: 'Income',          color: '#69D2A0' },
+  other:         { icon: '📦', label: 'Other',           color: '#C9C9C9' },
+};
+
+const DEFAULT_MEMBERS = [
+  { id: 'dad',  name: 'Dad',  avatar: '👨', color: '#FF6B6B' },
+  { id: 'mom',  name: 'Mom',  avatar: '👩', color: '#FF8B94' },
+  { id: 'kid1', name: 'Alex', avatar: '🧒', color: '#4ECDC4' },
+  { id: 'kid2', name: 'Sam',  avatar: '👦', color: '#FFE66D' },
+];
+
+const SAMPLE = [
+  { id: 1, type:'expense', amount:45.80,  category:'food',          description:'Lunch at hawker centre', member:'dad',  date:today(), splitWith:['mom'] },
+  { id: 2, type:'expense', amount:12.50,  category:'transport',     description:'MRT top-up',             member:'mom',  date:today(), splitWith:[] },
+  { id: 3, type:'income',  amount:3200,   category:'income',        description:'Monthly salary',         member:'dad',  date:prevDay(1), splitWith:[] },
+  { id: 4, type:'expense', amount:89.90,  category:'shopping',      description:'Groceries – Giant',      member:'mom',  date:prevDay(1), splitWith:['dad'] },
+  { id: 5, type:'expense', amount:15.00,  category:'entertainment', description:'Movie tickets',          member:'kid1', date:prevDay(2), splitWith:['kid2'] },
+  { id: 6, type:'income',  amount:2800,   category:'income',        description:'Monthly salary',         member:'mom',  date:prevDay(2), splitWith:[] },
+  { id: 7, type:'expense', amount:32.40,  category:'health',        description:'Pharmacy',               member:'mom',  date:prevDay(3), splitWith:[] },
+  { id: 8, type:'expense', amount:120.00, category:'utilities',     description:'Electric bill',          member:'dad',  date:prevDay(4), splitWith:['mom'] },
+];
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+function prevDay(n) {
+  const d = new Date(); d.setDate(d.getDate()-n);
+  return d.toISOString().slice(0,10);
+}
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { transactions: SAMPLE, members: DEFAULT_MEMBERS };
+}
+
+function saveData() {
+  localStorage.setItem(STORE_KEY, JSON.stringify(state.data));
+}
+
+// ═══════════════════════════════
+//  STATE
+// ═══════════════════════════════
+const state = {
+  data: loadData(),
+  view: 'home',          // home | add | settings
+  tab: 'transactions',   // transactions | analytics
+  filterMember: 'all',
+  addForm: {
+    type: 'expense', amount: '', category: 'food',
+    description: '', member: '', splitWith: [], date: today()
+  },
+  splitModal: null,
+};
+
+// ═══════════════════════════════
+//  HELPERS
+// ═══════════════════════════════
+function fmt(n) {
+  return 'RM ' + Number(n).toFixed(2);
+}
+
+function dateLabel(str) {
+  const t = new Date(); t.setHours(0,0,0,0);
+  const d = new Date(str + 'T00:00:00');
+  const diff = Math.round((t - d) / 86400000);
+  if (diff === 0) return 'Today';
+  if (diff === 1) return 'Yesterday';
+  return d.toLocaleDateString('en-MY', { weekday:'short', month:'short', day:'numeric' });
+}
+
+function getMember(id) {
+  return state.data.members.find(m => m.id === id) || { id, name: id, avatar: '👤', color: '#999' };
+}
+
+function getFiltered() {
+  const fm = state.filterMember;
+  if (fm === 'all') return state.data.transactions;
+  return state.data.transactions.filter(t => t.member === fm || (t.splitWith||[]).includes(fm));
+}
+
+function getSplitDebts() {
+  const debts = {};
+  state.data.transactions.forEach(t => {
+    if (t.splitWith && t.splitWith.length && t.type === 'expense') {
+      const share = t.amount / (t.splitWith.length + 1);
+      t.splitWith.forEach(p => {
+        const key = p + '->' + t.member;
+        debts[key] = (debts[key]||0) + share;
+      });
+    }
+  });
+  return Object.entries(debts).map(([k,v]) => {
+    const [from,to] = k.split('->');
+    return { from, to, amount: v };
+  });
+}
+
+// ═══════════════════════════════
+//  RENDER
+// ═══════════════════════════════
+function render() {
+  renderPage();
+  renderNav();
+  renderModal();
+}
+
+// ── NAV ──
+function renderNav() {
+  const nav = document.getElementById('bottomNav');
+  const { view, tab } = state;
+  nav.innerHTML = `
+    <button class="nav-btn ${view==='home'&&tab==='transactions'?'active':''}" onclick="goHome('transactions')">
+      <span class="nav-icon">📋</span>
+      <span>Ledger</span>
+    </button>
+    <button class="fab" onclick="goAdd()">+</button>
+    <button class="nav-btn ${view==='home'&&tab==='analytics'?'active':''}" onclick="goHome('analytics')">
+      <span class="nav-icon">📊</span>
+      <span>Analytics</span>
+    </button>
+  `;
+}
+
+// ── PAGE ──
+function renderPage() {
+  const pg = document.getElementById('mainPage');
+  if (state.view === 'add') { pg.innerHTML = renderAddPage(); return; }
+  if (state.view === 'settings') { pg.innerHTML = renderSettingsPage(); return; }
+  pg.innerHTML = renderHomePage();
+}
+
+// ── HOME ──
+function renderHomePage() {
+  const filtered = getFiltered();
+  const income  = filtered.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+  const expense = filtered.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+  const balance = income - expense;
+  const isPos   = balance >= 0;
+
+  // member pills
+  const allMembers = [{ id:'all', name:'All', avatar:'👨‍👩‍👧‍👦', color:'#6C63FF' }, ...state.data.members];
+  const memberPills = allMembers.map(m => `
+    <button class="member-pill ${state.filterMember===m.id?'active':''}"
+      style="${state.filterMember===m.id?'background:'+m.color+';':''}"
+      onclick="setFilter('${m.id}')">
+      <span style="font-size:16px">${m.avatar}</span> ${m.name}
+    </button>`).join('');
+
+  const tabContent = state.tab === 'transactions'
+    ? renderTransactions(filtered)
+    : renderAnalytics(filtered, expense);
+
+  return `
+  <div class="fade-in">
+    <div style="padding:50px 22px 0;display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <p class="label" style="margin-bottom:4px">Family Wallet</p>
+        <h1 style="font-size:26px;font-weight:700;letter-spacing:-0.02em">Overview</h1>
+      </div>
+      <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 12px;font-size:18px;cursor:pointer">⚙️</button>
+    </div>
+
+    <div class="member-scroll">${memberPills}</div>
+
+    <div class="card balance-card slide-up">
+      <p class="label" style="color:var(--accent);margin-bottom:6px">Net Balance</p>
+      <p class="balance-amount" style="color:${isPos?'var(--green)':'var(--red)'}">
+        ${fmt(Math.abs(balance))}
+      </p>
+      <p style="font-size:12px;color:var(--dim);margin-top:3px">${isPos?'▲ surplus':'▼ deficit'} · ${new Date().toLocaleDateString('en-MY',{month:'long',year:'numeric'})}</p>
+      <div class="mini-cards">
+        <div class="mini-card income">
+          <p class="mc-label">INCOME</p>
+          <p class="mc-val">${fmt(income)}</p>
+        </div>
+        <div class="mini-card expense">
+          <p class="mc-label">SPENT</p>
+          <p class="mc-val">${fmt(expense)}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn ${state.tab==='transactions'?'active':''}" onclick="setTab('transactions')">Transactions</button>
+      <button class="tab-btn ${state.tab==='analytics'?'active':''}" onclick="setTab('analytics')">Analytics</button>
+    </div>
+
+    ${tabContent}
+  </div>`;
+}
+
+function renderTransactions(filtered) {
+  if (!filtered.length) return '<div class="empty">No transactions yet.<br>Tap + to add one!</div>';
+
+  // group by date label
+  const groups = {};
+  [...filtered].sort((a,b)=>b.date.localeCompare(a.date)).forEach(t => {
+    const lbl = dateLabel(t.date);
+    if (!groups[lbl]) groups[lbl] = [];
+    groups[lbl].push(t);
+  });
+
+  return Object.entries(groups).map(([lbl, txs]) => `
+    <div class="tx-group">
+      <p class="tx-date-label">${lbl}</p>
+      <div class="tx-list">
+        ${txs.map(t => {
+          const cat = CATEGORIES[t.category] || CATEGORIES.other;
+          const mem = getMember(t.member);
+          const hasSplit = t.splitWith && t.splitWith.length > 0;
+          return `
+          <div class="tx-row surface" onclick="${hasSplit?'openSplitModal('+t.id+')':'deleteTx('+t.id+')'}">
+            <div class="tx-icon" style="background:${cat.color}22">${cat.icon}</div>
+            <div class="tx-info">
+              <p class="tx-desc">${t.description}</p>
+              <div class="tx-meta">
+                <span class="tag" style="background:${mem.color}33;color:${mem.color}">${mem.avatar} ${mem.name}</span>
+                ${hasSplit?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">÷${t.splitWith.length+1}</span>`:''}
+              </div>
+            </div>
+            <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">
+              ${t.type==='income'?'+':'-'}${fmt(t.amount)}
+            </p>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+
+function renderAnalytics(filtered, totalExpense) {
+  // Category bars
+  const catData = Object.entries(CATEGORIES)
+    .filter(([k]) => k !== 'income')
+    .map(([key, cat]) => ({
+      key, ...cat,
+      total: filtered.filter(t=>t.category===key&&t.type==='expense').reduce((s,t)=>s+t.amount,0)
+    }))
+    .filter(c => c.total > 0)
+    .sort((a,b) => b.total - a.total);
+
+  const catBars = catData.length
+    ? catData.map(cat => `
+      <div class="cat-bar-row">
+        <div class="cat-bar-header">
+          <span style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:18px">${cat.icon}</span>
+            <span style="color:var(--muted)">${cat.label}</span>
+          </span>
+          <span style="font-family:'DM Mono',monospace;font-size:13px">${fmt(cat.total)}</span>
+        </div>
+        <div class="cat-bar-track">
+          <div class="cat-bar-fill" style="background:${cat.color};width:${Math.min(100,totalExpense>0?(cat.total/totalExpense)*100:0)}%"></div>
+        </div>
+      </div>`).join('')
+    : '<p class="empty">No expense data yet.</p>';
+
+  // Split debts
+  const debts = getSplitDebts();
+  const debtRows = debts.length
+    ? debts.map(d => {
+        const from = getMember(d.from), to = getMember(d.to);
+        return `
+        <div class="debt-row surface">
+          <span style="font-size:20px">${from.avatar}</span>
+          <span style="font-size:13px;color:var(--muted);flex:1">${from.name} owes ${to.name}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:14px;color:var(--yellow);font-weight:600">${fmt(d.amount)}</span>
+        </div>`;}).join('')
+    : '<p style="font-size:13px;color:var(--dim)">No split balances.</p>';
+
+  // Per-member spending
+  const memberStats = state.data.members.map(m => {
+    const spent = state.data.transactions.filter(t=>t.member===m.id&&t.type==='expense').reduce((s,t)=>s+t.amount,0);
+    const earned = state.data.transactions.filter(t=>t.member===m.id&&t.type==='income').reduce((s,t)=>s+t.amount,0);
+    return { ...m, spent, earned };
+  }).filter(m => m.spent > 0 || m.earned > 0);
+
+  const memberRows = memberStats.map(m => `
+    <div class="settings-row surface" style="margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">${m.avatar}</span>
+        <div>
+          <p style="font-size:13px;font-weight:600">${m.name}</p>
+          <p style="font-size:11px;color:var(--dim)">Spent ${fmt(m.spent)}</p>
+        </div>
+      </div>
+      <p style="font-family:'DM Mono',monospace;font-size:13px;color:var(--green)">+${fmt(m.earned)}</p>
+    </div>`).join('');
+
+  return `
+    <div class="analytics-section">
+      <p class="label" style="margin-bottom:12px">Spending by category</p>
+      ${catBars}
+    </div>
+    <div class="analytics-section" style="margin-top:8px">
+      <p class="label" style="margin-bottom:12px">Split balances owed</p>
+      ${debtRows}
+    </div>
+    <div class="analytics-section" style="margin-top:8px">
+      <p class="label" style="margin-bottom:12px">Per member</p>
+      ${memberRows || '<p style="font-size:13px;color:var(--dim)">No data yet.</p>'}
+    </div>`;
+}
+
+// ── ADD PAGE ──
+function renderAddPage() {
+  const f = state.addForm;
+  if (!f.member) f.member = state.data.members[0]?.id || '';
+
+  const catChips = Object.entries(CATEGORIES)
+    .filter(([k]) => k !== 'income')
+    .map(([key,cat]) => `
+      <button class="chip ${f.category===key?'active':''}"
+        style="${f.category===key?'background:'+cat.color+';':''}"
+        onclick="setFormField('category','${key}')">
+        ${cat.icon} ${cat.label}
+      </button>`).join('');
+
+  const paidBy = state.data.members.map(m => `
+    <button class="member-box ${f.member===m.id?'active':''}"
+      style="${f.member===m.id?'background:'+m.color+';':''}"
+      onclick="setFormMember('${m.id}')">
+      <div class="m-avatar">${m.avatar}</div>
+      <div>${m.name}</div>
+    </button>`).join('');
+
+  const splitOptions = state.data.members
+    .filter(m => m.id !== f.member)
+    .map(m => `
+      <button class="member-box ${f.splitWith.includes(m.id)?'active':''}"
+        style="${f.splitWith.includes(m.id)?'background:'+m.color+'CC;':''}"
+        onclick="toggleSplit('${m.id}')">
+        <div class="m-avatar">${m.avatar}</div>
+        <div>${m.name}</div>
+        ${f.splitWith.includes(m.id)?'<div style="font-size:9px;margin-top:2px">✓</div>':''}
+      </button>`).join('');
+
+  const splitHint = f.splitWith.length > 0 && f.amount
+    ? `<p class="split-hint">Each pays ${fmt(parseFloat(f.amount)/(f.splitWith.length+1))}</p>` : '';
+
+  return `
+  <div class="add-page slide-up">
+    <button class="btn-ghost" onclick="goHome()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:26px">New Entry</h2>
+
+    <div class="type-toggle">
+      <button class="type-btn ${f.type==='expense'?'active-expense':''}" onclick="setType('expense')">💸 Expense</button>
+      <button class="type-btn ${f.type==='income'?'active-income':''}" onclick="setType('income')">💰 Income</button>
+    </div>
+
+    <div class="form-section">
+      <div class="input-card surface">
+        <p class="label" style="margin-bottom:8px">Amount (RM)</p>
+        <input class="big-input" type="number" inputmode="decimal" placeholder="0.00"
+          value="${f.amount}" oninput="setFormField('amount',this.value)">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="input-card surface">
+        <p class="label" style="margin-bottom:8px">Description</p>
+        <input class="normal-input" type="text" placeholder="What was this for?"
+          value="${f.description}" oninput="setFormField('description',this.value)">
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="input-card surface">
+        <p class="label" style="margin-bottom:8px">Date</p>
+        <input class="normal-input" type="date"
+          value="${f.date}" oninput="setFormField('date',this.value)">
+      </div>
+    </div>
+
+    ${f.type==='expense' ? `
+    <div class="form-section">
+      <p class="label" style="margin-bottom:10px">Category</p>
+      <div class="chip-grid">${catChips}</div>
+    </div>` : ''}
+
+    <div class="form-section">
+      <p class="label" style="margin-bottom:10px">Paid by</p>
+      <div class="member-grid">${paidBy}</div>
+    </div>
+
+    ${f.type==='expense' ? `
+    <div class="form-section">
+      <p class="label" style="margin-bottom:10px">Split with</p>
+      <div class="member-grid">${splitOptions}</div>
+      ${splitHint}
+    </div>` : ''}
+
+    <button class="btn-primary" onclick="submitForm()">Save Entry ✓</button>
+  </div>`;
+}
+
+// ── SETTINGS PAGE ──
+function renderSettingsPage() {
+  const memberRows = state.data.members.map(m => `
+    <div class="settings-row surface">
+      <div class="sr-left">
+        <span style="font-size:22px">${m.avatar}</span>
+        <span>${m.name}</span>
+      </div>
+      <button class="delete-btn" onclick="removeMember('${m.id}')">Remove</button>
+    </div>`).join('');
+
+  return `
+  <div class="settings-page fade-in">
+    <button class="btn-ghost" onclick="goHome()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:26px">Settings</h2>
+
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">Family members</p>
+      ${memberRows}
+      <div class="surface" style="padding:14px 16px;margin-top:8px;display:flex;gap:10px;align-items:center;border-radius:14px">
+        <input id="newMemberName" type="text" placeholder="Name"
+          style="flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Sora',sans-serif;font-size:14px">
+        <input id="newMemberAvatar" type="text" placeholder="😀" maxlength="2"
+          style="width:44px;background:none;border:none;outline:none;color:var(--text);font-family:'Sora',sans-serif;font-size:20px;text-align:center">
+        <button onclick="addMember()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;font-family:'Sora',sans-serif">Add</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">Data</p>
+      <button class="export-btn" onclick="exportCSV()">⬇️ Export to CSV</button>
+      <button class="clear-btn" onclick="clearAll()">🗑️ Clear all data</button>
+    </div>
+
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:10px">About</p>
+      <div class="surface" style="padding:16px;border-radius:14px">
+        <p style="font-size:13px;color:var(--muted);line-height:1.6">
+          <strong style="color:var(--text)">Family Wallet</strong> — offline spending tracker.<br>
+          All data is stored locally on this device.<br>
+          Total entries: <strong style="color:var(--accent)">${state.data.transactions.length}</strong>
+        </p>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── MODAL ──
+function renderModal() {
+  const mc = document.getElementById('modalContainer');
+  if (!state.splitModal) { mc.innerHTML = ''; return; }
+
+  const t = state.splitModal;
+  const cat = CATEGORIES[t.category] || CATEGORIES.other;
+  const mem = getMember(t.member);
+  const allPeople = [t.member, ...(t.splitWith||[])];
+  const share = t.amount / allPeople.length;
+
+  const rows = allPeople.map(mid => {
+    const m = getMember(mid);
+    const isPayer = mid === t.member;
+    return `
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+      <span style="font-size:24px">${m.avatar}</span>
+      <span style="font-size:15px;font-weight:500;flex:1">${m.name}</span>
+      ${isPayer?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">paid</span>`:''}
+      <span style="font-family:'DM Mono',monospace;font-size:15px;color:${isPayer?'var(--green)':'var(--red)'}">${fmt(share)}</span>
+    </div>`;}).join('');
+
+  mc.innerHTML = `
+  <div class="modal-overlay fade-in" onclick="closeSplitModal()">
+    <div class="modal-sheet" onclick="event.stopPropagation()">
+      <div class="modal-handle"></div>
+      <h3 style="font-size:18px;font-weight:700;margin-bottom:18px">Split Details</h3>
+      <p style="font-size:22px;font-family:'DM Mono',monospace;color:var(--red);font-weight:700;margin-bottom:4px">${fmt(t.amount)}</p>
+      <p style="font-size:14px;color:var(--muted);margin-bottom:22px">${t.description} · ${cat.icon} ${cat.label}</p>
+      <div style="border-top:1px solid var(--border);padding-top:18px">${rows}</div>
+      <button style="margin-top:14px;width:100%;padding:12px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2);font-family:'Sora',sans-serif"
+        onclick="deleteTxFromModal(${t.id})">Delete Transaction</button>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════
+//  ACTIONS  (global functions)
+// ═══════════════════════════════
+window.goHome = function(tab) {
+  state.view = 'home';
+  if (tab) state.tab = tab;
+  render();
+};
+window.goAdd = function() {
+  state.addForm = {
+    type: 'expense', amount: '', category: 'food',
+    description: '', member: state.data.members[0]?.id || '',
+    splitWith: [], date: today()
+  };
+  state.view = 'add';
+  render();
+};
+window.goSettings = function() { state.view = 'settings'; render(); };
+
+window.setFilter = function(id) { state.filterMember = id; render(); };
+window.setTab    = function(t)  { state.tab = t; render(); };
+
+window.setType = function(type) {
+  state.addForm.type = type;
+  state.addForm.splitWith = [];
+  if (type === 'income') state.addForm.category = 'income';
+  else state.addForm.category = 'food';
+  renderPage();
+};
+window.setFormField = function(k, v) { state.addForm[k] = v; };
+window.setFormMember = function(id) {
+  state.addForm.member = id;
+  state.addForm.splitWith = state.addForm.splitWith.filter(s => s !== id);
+  renderPage();
+};
+window.toggleSplit = function(id) {
+  const sw = state.addForm.splitWith;
+  if (sw.includes(id)) state.addForm.splitWith = sw.filter(s=>s!==id);
+  else state.addForm.splitWith = [...sw, id];
+  renderPage();
+};
+
+window.submitForm = function() {
+  const f = state.addForm;
+  if (!f.amount || isNaN(parseFloat(f.amount))) { alert('Please enter an amount.'); return; }
+  if (!f.description.trim()) { alert('Please enter a description.'); return; }
+  if (!f.member) { alert('Please select who paid.'); return; }
+  const tx = {
+    id: Date.now(),
+    type: f.type,
+    amount: parseFloat(f.amount),
+    category: f.type === 'income' ? 'income' : f.category,
+    description: f.description.trim(),
+    member: f.member,
+    splitWith: f.type === 'income' ? [] : [...f.splitWith],
+    date: f.date || today(),
+  };
+  state.data.transactions.unshift(tx);
+  saveData();
+  state.view = 'home';
+  state.tab = 'transactions';
+  render();
+};
+
+window.deleteTx = function(id) {
+  if (!confirm('Delete this transaction?')) return;
+  state.data.transactions = state.data.transactions.filter(t => t.id !== id);
+  saveData();
+  render();
+};
+window.deleteTxFromModal = function(id) {
+  if (!confirm('Delete this transaction?')) return;
+  state.data.transactions = state.data.transactions.filter(t => t.id !== id);
+  state.splitModal = null;
+  saveData();
+  render();
+};
+
+window.openSplitModal  = function(id) { state.splitModal = state.data.transactions.find(t=>t.id===id); renderModal(); };
+window.closeSplitModal = function()    { state.splitModal = null; renderModal(); };
+
+window.addMember = function() {
+  const name   = document.getElementById('newMemberName')?.value.trim();
+  const avatar = document.getElementById('newMemberAvatar')?.value.trim() || '👤';
+  if (!name) { alert('Enter a name.'); return; }
+  const id = name.toLowerCase().replace(/\s+/g,'_') + '_' + Date.now();
+  const colors = ['#FF6B6B','#4ECDC4','#FFE66D','#A8E6CF','#B4A7D6','#FF8B94'];
+  const color = colors[state.data.members.length % colors.length];
+  state.data.members.push({ id, name, avatar, color });
+  saveData();
+  renderPage();
+};
+window.removeMember = function(id) {
+  if (!confirm('Remove member? Their transactions will remain.')) return;
+  state.data.members = state.data.members.filter(m=>m.id!==id);
+  if (state.filterMember === id) state.filterMember = 'all';
+  saveData();
+  renderPage();
+};
+
+window.clearAll = function() {
+  if (!confirm('Delete ALL transactions? This cannot be undone.')) return;
+  state.data.transactions = [];
+  saveData();
+  state.view = 'home';
+  render();
+};
+
+window.exportCSV = function() {
+  const header = 'Date,Type,Amount,Category,Description,Member,SplitWith';
+  const rows = state.data.transactions.map(t =>
+    [t.date, t.type, t.amount, t.category,
+     '"'+t.description.replace(/"/g,'""')+'"',
+     t.member,
+     (t.splitWith||[]).join(';')].join(',')
+  );
+  const csv = [header, ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'family-wallet-' + today() + '.csv';
+  a.click();
+};
+
+// ═══════════════════════════════
+//  INIT
+// ═══════════════════════════════
+render();
+</script>
+</body>
+</html>
