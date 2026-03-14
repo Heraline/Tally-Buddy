@@ -139,6 +139,17 @@
   .fw-input:focus{border-color:var(--accent)}
   /* Guest member badge */
   .guest-badge{font-size:9px;background:rgba(255,230,109,0.2);color:var(--yellow);border-radius:4px;padding:1px 5px;font-weight:700;margin-top:2px;display:inline-block}
+  /* Asset cards */
+  .asset-card{background:var(--bg3);border:1px solid rgba(108,99,255,0.18);border-radius:18px;padding:18px 20px;margin-bottom:12px;position:relative;overflow:hidden}
+  .asset-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,0.12),transparent 70%);pointer-events:none}
+  .asset-type-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase}
+  .asset-balance{font-family:'DM Mono',monospace;font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 4px}
+  /* Recurring cards */
+  .recur-card{display:flex;align-items:center;gap:13px;padding:14px 16px;border-radius:15px;margin-bottom:8px}
+  .recur-freq-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(78,205,196,0.15);color:var(--accent2);letter-spacing:0.05em}
+  /* Profile edit picker */
+  .av-pick-btn{width:42px;height:42px;border-radius:12px;font-size:21px;background:rgba(255,255,255,0.06);border:2px solid transparent;transition:all 0.15s;cursor:pointer}
+  .av-pick-btn.sel{border-color:var(--accent);background:rgba(108,99,255,0.18)}
 </style>
 </head>
 <body>
@@ -189,6 +200,7 @@ const S={
   user:null,profile:null,
   ledgers:{},activeLedgerId:null,
   txs:{},members:{},cats:{},budgets:{},ledgerCurrency:'MYR',
+  assets:{},recurring:{},
   view:'home',tab:'transactions',filterMember:'all',
   addForm:null,   // null = new, else pre-filled for edit
   editTxKey:null, // key of tx being edited
@@ -263,6 +275,8 @@ async function switchLedger(lid){
   listen('ledgerCategories/'+lid,s=>{S.cats=s.exists()?s.val():{};safeRender();});
   listen('ledgerBudgets/'+lid,s=>{S.budgets=s.exists()?s.val():{};safeRender();});
   listen('ledgers/'+lid+'/currency',s=>{S.ledgerCurrency=s.exists()?s.val():'MYR';safeRender();});
+  listen('ledgerAssets/'+lid,s=>{S.assets=s.exists()?s.val():{};safeRender();});
+  listen('ledgerRecurring/'+lid,s=>{S.recurring=s.exists()?s.val():{};safeRender();});
   const ms=await get(ref(db,`ledgerMembers/${lid}/${S.user.uid}`));
   if(!ms.exists())await set(ref(db,`ledgerMembers/${lid}/${S.user.uid}`),{displayName:S.profile.displayName,avatar:S.profile.avatar,color:S.profile.color,role:'member',joinedAt:Date.now()});
 }
@@ -394,6 +408,11 @@ function renderPage(){
   if(S.view==='budget'){pg.innerHTML=renderBudgetPage();return;}
   if(S.view==='categories'){pg.innerHTML=renderCategoriesPage();return;}
   if(S.view==='guests'){pg.innerHTML=renderGuestsPage();return;}
+  if(S.view==='assets'){pg.innerHTML=renderAssetsPage();return;}
+  if(S.view==='assetForm'){pg.innerHTML=renderAssetForm();return;}
+  if(S.view==='recurring'){pg.innerHTML=renderRecurringPage();return;}
+  if(S.view==='recurForm'){pg.innerHTML=renderRecurForm();return;}
+  if(S.view==='profile'){pg.innerHTML=renderProfilePage();return;}
   pg.innerHTML=renderHome();
 }
 
@@ -849,7 +868,8 @@ function renderSettings(){
       <div class="surface" style="padding:16px;border-radius:14px;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:12px">
           <span style="font-size:32px">${S.profile?.avatar||'👤'}</span>
-          <div><p style="font-size:16px;font-weight:700">${S.profile?.displayName||''}</p><p style="font-size:12px;color:var(--muted)">${S.user?.email||''}</p></div>
+          <div style="flex:1"><p style="font-size:16px;font-weight:700">${S.profile?.displayName||''}</p><p style="font-size:12px;color:var(--muted)">${S.user?.email||''}</p></div>
+          <button onclick="goProfile()" style="padding:8px 14px;border-radius:11px;background:rgba(108,99,255,0.15);color:var(--accent);font-size:12px;font-weight:700;border:none">Edit</button>
         </div>
       </div>
       <button class="clear-btn" onclick="doLogout()">🚪 Sign Out</button>
@@ -872,6 +892,11 @@ function renderSettings(){
       <button onclick="goGuests()" class="export-btn" style="margin-bottom:8px">👻 Guest Members ${guestCount>0?`(${guestCount})`:''}</button>
       <button onclick="goCategories()" class="export-btn" style="margin-bottom:8px">✏️ Edit Categories</button>
       <button onclick="goBudget()" class="export-btn">💰 Manage Budget</button>
+    </div>
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">Finance</p>
+      <button onclick="goAssets()" class="export-btn" style="margin-bottom:8px">🏦 Asset Accounts</button>
+      <button onclick="goRecurring()" class="export-btn">🔄 Recurring Transactions</button>
     </div>
     <div class="settings-section">
       <p class="label" style="margin-bottom:12px">Data</p>
@@ -940,6 +965,9 @@ window.goInvite    =()=>{_code=null;S.view='invite';render();};
 window.goBudget    =()=>{S.view='budget';render();};
 window.goCategories=()=>{editCatKey=null;editSubcatKey=null;S.view='categories';render();};
 window.goGuests    =()=>{S.view='guests';render();};
+window.goAssets    =()=>{S.view='assets';render();};
+window.goRecurring =()=>{S.view='recurring';render();};
+window.goProfile   =()=>{S.view='profile';render();};
 window.setFilter   =id=>{S.filterMember=id;render();};
 window.setTab      =t=>{S.tab=t;render();};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
@@ -1174,6 +1202,277 @@ Rules:
     input.value=''; // reset so same file can be re-scanned
   }
 };
+// ══════════════════════════════════════════
+//  ASSETS PAGE
+// ══════════════════════════════════════════
+const ASSET_TYPES=[
+  {key:'bank',   icon:'🏦', label:'Bank Account', color:'#6C63FF'},
+  {key:'cash',   icon:'💵', label:'Cash',         color:'#69D2A0'},
+  {key:'ewallet',icon:'📱', label:'e-Wallet',     color:'#4ECDC4'},
+  {key:'invest', icon:'📈', label:'Investment',   color:'#FFE66D'},
+  {key:'credit', icon:'💳', label:'Credit Card',  color:'#FF8B94'},
+  {key:'other',  icon:'💼', label:'Other',        color:'#C9C9C9'},
+];
+function getAssetType(k){return ASSET_TYPES.find(t=>t.key===k)||ASSET_TYPES[0];}
+function totalAssets(){return Object.values(S.assets||{}).reduce((s,a)=>s+(parseFloat(a.balance)||0),0);}
+
+function renderAssetsPage(){
+  const cur=getCur();
+  const assetArr=Object.entries(S.assets||{}).map(([id,a])=>({id,...a}));
+  const cards=assetArr.length?assetArr.map(a=>{
+    const t=getAssetType(a.type);
+    const bal=parseFloat(a.balance)||0;
+    const isCredit=a.type==='credit';
+    return`<div class="asset-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <span class="asset-type-pill" style="background:${t.color}22;color:${t.color}">${t.icon} ${t.label}</span>
+        <div style="display:flex;gap:6px">
+          <button class="edit-btn" onclick="editAsset('${a.id}')">Edit</button>
+          <button class="delete-btn" onclick="deleteAsset('${a.id}')">Del</button>
+        </div>
+      </div>
+      <p style="font-size:15px;font-weight:700;margin-bottom:2px">${a.name}</p>
+      <p class="asset-balance" style="color:${isCredit&&bal>0?'var(--red)':bal<0?'var(--red)':'var(--text)'}">${isCredit&&bal>0?'-':''}${fmt(Math.abs(bal))}</p>
+      ${a.note?`<p style="font-size:11px;color:var(--dim);margin-top:4px">${a.note}</p>`:''}
+    </div>`;
+  }).join(''):'<div class="empty" style="padding:30px 0">No asset accounts yet.<br>Add one below!</div>';
+
+  return`<div class="settings-page fade-in">
+    <button class="btn-ghost" onclick="goSettings()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Asset Accounts</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:6px">Track your balances across accounts</p>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 14px;margin-bottom:22px">
+      <span style="font-size:12px;color:var(--muted)">Total</span>
+      <span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--accent)">${fmt(totalAssets())}</span>
+    </div>
+    ${cards}
+    <button onclick="S.editAssetId=null;S.view='assetForm';render()" style="width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;margin-top:8px;border:none;cursor:pointer">＋ Add Asset Account</button>
+  </div>`;
+}
+
+let selAssetType=0;
+function renderAssetForm(){
+  const isEdit=!!S.editAssetId;
+  const a=isEdit?(S.assets[S.editAssetId]||{}):{};
+  const curType=a.type||ASSET_TYPES[selAssetType]?.key||'bank';
+  const typeBtns=ASSET_TYPES.map((t,i)=>`
+    <button onclick="selAssetType=${i};document.querySelectorAll('.at-btn').forEach(b=>{b.style.borderColor='transparent';b.style.background='rgba(255,255,255,0.05)'});this.style.borderColor='${t.color}';this.style.background='${t.color}22'" class="at-btn" style="flex:1;min-width:80px;padding:10px 6px;border-radius:12px;font-size:11px;font-weight:600;border:2px solid ${curType===t.key?t.color:'transparent'};background:${curType===t.key?t.color+'22':'rgba(255,255,255,0.05)'};color:var(--text);cursor:pointer">
+      <div style="font-size:20px;margin-bottom:4px">${t.icon}</div>${t.label}
+    </button>`).join('');
+  return`<div class="add-page slide-up">
+    <button class="btn-ghost" onclick="goAssets()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:26px">${isEdit?'Edit Asset':'New Asset Account'}</h2>
+    <div class="form-section"><p class="label" style="margin-bottom:10px">Account Type</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${typeBtns}</div>
+    </div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Account Name</p>
+      <input class="normal-input" id="assetName" type="text" placeholder="e.g. Maybank Savings, Touch n Go..." value="${a.name||''}">
+    </div></div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Current Balance</p>
+      <input class="big-input" id="assetBal" type="number" inputmode="decimal" placeholder="0.00" value="${a.balance||''}">
+    </div></div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Note <span style="color:var(--dim);text-transform:none;letter-spacing:0;font-size:11px">(optional)</span></p>
+      <input class="normal-input" id="assetNote" type="text" placeholder="Account number, bank branch..." value="${a.note||''}">
+    </div></div>
+    <button class="btn-primary" onclick="saveAsset()">${isEdit?'✓ Save Changes':'Add Account ✓'}</button>
+    ${isEdit?`<button onclick="deleteAsset('${a.id}')" style="margin-top:12px;width:100%;padding:14px;border-radius:14px;background:rgba(255,107,107,0.1);color:var(--red);font-size:14px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">🗑 Delete Account</button>`:''}
+  </div>`;
+}
+
+window.editAsset=id=>{S.editAssetId=id;selAssetType=ASSET_TYPES.findIndex(t=>t.key===(S.assets[id]?.type||'bank'));if(selAssetType<0)selAssetType=0;S.view='assetForm';render();};
+window.deleteAsset=async id=>{if(!confirm('Delete this asset account?'))return;await remove(ref(db,'ledgerAssets/'+S.activeLedgerId+'/'+id));S.view='assets';toast('Account removed','var(--red)');render();};
+window.saveAsset=async()=>{
+  const name=document.getElementById('assetName')?.value.trim();
+  const bal=document.getElementById('assetBal')?.value;
+  const note=document.getElementById('assetNote')?.value.trim()||'';
+  if(!name){alert('Enter an account name.');return;}
+  const type=ASSET_TYPES[selAssetType]?.key||'bank';
+  const data={name,type,balance:parseFloat(bal)||0,note,updatedAt:Date.now()};
+  if(S.editAssetId){
+    await update(ref(db,'ledgerAssets/'+S.activeLedgerId+'/'+S.editAssetId),data);
+    toast('✓ Asset updated');
+  }else{
+    await push(ref(db,'ledgerAssets/'+S.activeLedgerId),data);
+    toast('✓ Asset added');
+  }
+  S.editAssetId=null;S.view='assets';render();
+};
+
+// ══════════════════════════════════════════
+//  RECURRING TRANSACTIONS PAGE
+// ══════════════════════════════════════════
+const RECUR_FREQS=[
+  {key:'daily',  label:'Daily',   icon:'📅'},
+  {key:'weekly', label:'Weekly',  icon:'🗓'},
+  {key:'monthly',label:'Monthly', icon:'📆'},
+  {key:'yearly', label:'Yearly',  icon:'🎯'},
+];
+function getFreq(k){return RECUR_FREQS.find(f=>f.key===k)||RECUR_FREQS[2];}
+function nextDueLabel(r){
+  if(!r.nextDate)return'';
+  const d=new Date(r.nextDate+'T00:00:00');
+  const now=new Date();now.setHours(0,0,0,0);
+  const diff=Math.round((d-now)/86400000);
+  if(diff<0)return`<span style="color:var(--red);font-size:11px">⚠ Overdue ${Math.abs(diff)}d</span>`;
+  if(diff===0)return`<span style="color:var(--yellow);font-size:11px">Due today</span>`;
+  if(diff<=7)return`<span style="color:var(--yellow);font-size:11px">Due in ${diff}d</span>`;
+  return`<span style="font-size:11px;color:var(--dim)">Due ${r.nextDate}</span>`;
+}
+
+function renderRecurringPage(){
+  const cur=getCur();
+  const recArr=Object.entries(S.recurring||{}).map(([id,r])=>({id,...r})).sort((a,b)=>(a.nextDate||'').localeCompare(b.nextDate||''));
+  const monthlyTotal=recArr.filter(r=>r.freq==='monthly').reduce((s,r)=>s+parseFloat(r.amount||0),0);
+  const rows=recArr.length?recArr.map(r=>{
+    const cats=getCats();const cat=cats[r.category]||DEFAULT_CATS.other;
+    const fq=getFreq(r.freq);
+    return`<div class="recur-card surface">
+      <div class="tx-icon" style="background:${cat.color}22;flex-shrink:0">${cat.icon}</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.name}</p>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:3px">
+          <span class="recur-freq-badge">${fq.icon} ${fq.label}</span>
+          ${nextDueLabel(r)}
+        </div>
+      </div>
+      <div style="text-align:right;flex-shrink:0">
+        <p style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--red)">-${fmt(r.amount)}</p>
+        <div style="display:flex;gap:5px;margin-top:6px;justify-content:flex-end">
+          <button class="edit-btn" onclick="editRecurring('${r.id}')">Edit</button>
+          <button class="delete-btn" onclick="deleteRecurring('${r.id}')">Del</button>
+        </div>
+      </div>
+    </div>`;
+  }).join(''):'<div class="empty" style="padding:30px 0">No recurring entries yet.</div>';
+
+  return`<div class="settings-page fade-in">
+    <button class="btn-ghost" onclick="goSettings()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Recurring</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Subscriptions, bills & regular expenses</p>
+    ${recArr.length?`<div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);border-radius:12px;padding:8px 14px;margin-bottom:20px">
+      <span style="font-size:12px;color:var(--muted)">Monthly total</span>
+      <span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--red)">${fmt(monthlyTotal)}</span>
+    </div>`:''}
+    ${rows}
+    <button onclick="S.editRecurId=null;S.view='recurForm';render()" style="width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;margin-top:8px;border:none;cursor:pointer">＋ Add Recurring</button>
+  </div>`;
+}
+
+let selRecurFreq=2; // default monthly
+function renderRecurForm(){
+  const isEdit=!!S.editRecurId;
+  const r=isEdit?(S.recurring[S.editRecurId]||{}):{};
+  const cats=getCats();
+  const selCatKey=r.category||'entertainment';
+  const catChips=Object.entries(cats).filter(([k])=>k!=='income').map(([key,c])=>`
+    <button class="chip ${selCatKey===key?'active':''}" style="${selCatKey===key?'background:'+c.color+';':''}" onclick="document.getElementById('rCatHidden').value='${key}';document.querySelectorAll('.rcat-chip').forEach(b=>{b.classList.remove('active');b.style.background=''});this.classList.add('active');this.style.background='${c.color}'" class="rcat-chip chip">${c.icon} ${c.label}</button>`).join('');
+  const freqBtns=RECUR_FREQS.map((f,i)=>`
+    <button onclick="selRecurFreq=${i};document.querySelectorAll('.freq-btn').forEach(b=>{b.style.background='rgba(255,255,255,0.05)';b.style.borderColor='transparent'});this.style.background='rgba(108,99,255,0.2)';this.style.borderColor='var(--accent)'" class="freq-btn" style="flex:1;padding:10px 6px;border-radius:12px;font-size:12px;font-weight:600;border:2px solid ${(r.freq||'monthly')===f.key?'var(--accent)':'transparent'};background:${(r.freq||'monthly')===f.key?'rgba(108,99,255,0.2)':'rgba(255,255,255,0.05)'};color:var(--text);cursor:pointer">
+      <div style="font-size:18px;margin-bottom:3px">${f.icon}</div>${f.label}
+    </button>`).join('');
+  const mList=allMembers();
+  const paidBy=mList.map(m=>`<option value="${m.id}" ${m.id===(r.member||mList[0]?.id)?'selected':''}>${m.avatar} ${m.displayName}</option>`).join('');
+  return`<div class="add-page slide-up">
+    <button class="btn-ghost" onclick="goRecurring()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;letter-spacing:-0.02em;margin-bottom:26px">${isEdit?'Edit Recurring':'New Recurring'}</h2>
+    <input type="hidden" id="rCatHidden" value="${selCatKey}">
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Name / Description</p>
+      <input class="normal-input" id="rName" type="text" placeholder="e.g. Netflix, Gym, Rent..." value="${r.name||''}">
+    </div></div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Amount</p>
+      <input class="big-input" id="rAmount" type="number" inputmode="decimal" placeholder="0.00" value="${r.amount||''}">
+    </div></div>
+    <div class="form-section"><p class="label" style="margin-bottom:10px">Frequency</p>
+      <div style="display:flex;gap:8px">${freqBtns}</div>
+    </div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Next Due Date</p>
+      <input class="normal-input" id="rNextDate" type="date" value="${r.nextDate||td()}">
+    </div></div>
+    <div class="form-section"><p class="label" style="margin-bottom:10px">Category</p>
+      <div class="chip-grid">${catChips}</div>
+    </div>
+    <div class="form-section"><div class="input-card surface">
+      <p class="label" style="margin-bottom:8px">Paid by</p>
+      <select id="rMember" class="currency-selector" style="margin-top:4px">${paidBy}</select>
+    </div></div>
+    <button class="btn-primary" onclick="saveRecurring()">${isEdit?'✓ Save Changes':'Add Recurring ✓'}</button>
+    ${isEdit?`<button onclick="deleteRecurring('${r.id}')" style="margin-top:12px;width:100%;padding:14px;border-radius:14px;background:rgba(255,107,107,0.1);color:var(--red);font-size:14px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">🗑 Delete</button>`:''}
+  </div>`;
+}
+
+window.editRecurring=id=>{S.editRecurId=id;const r=S.recurring[id]||{};selRecurFreq=RECUR_FREQS.findIndex(f=>f.key===(r.freq||'monthly'));if(selRecurFreq<0)selRecurFreq=2;S.view='recurForm';render();};
+window.deleteRecurring=async id=>{if(!confirm('Delete this recurring transaction?'))return;await remove(ref(db,'ledgerRecurring/'+S.activeLedgerId+'/'+id));S.view='recurring';toast('Recurring removed','var(--red)');render();};
+window.saveRecurring=async()=>{
+  const name=document.getElementById('rName')?.value.trim();
+  const amount=document.getElementById('rAmount')?.value;
+  const nextDate=document.getElementById('rNextDate')?.value;
+  const category=document.getElementById('rCatHidden')?.value||'entertainment';
+  const member=document.getElementById('rMember')?.value||allMembers()[0]?.id||S.user.uid;
+  if(!name){alert('Enter a name.');return;}
+  if(!amount||isNaN(parseFloat(amount))){alert('Enter an amount.');return;}
+  const data={name,amount:parseFloat(amount),freq:RECUR_FREQS[selRecurFreq]?.key||'monthly',nextDate:nextDate||td(),category,member,updatedAt:Date.now()};
+  if(S.editRecurId){
+    await update(ref(db,'ledgerRecurring/'+S.activeLedgerId+'/'+S.editRecurId),data);
+    toast('✓ Recurring updated');
+  }else{
+    await push(ref(db,'ledgerRecurring/'+S.activeLedgerId),data);
+    toast('✓ Recurring added');
+  }
+  S.editRecurId=null;S.view='recurring';render();
+};
+
+// ══════════════════════════════════════════
+//  PROFILE EDIT — avatar + nickname per ledger
+// ══════════════════════════════════════════
+let selProfAv=0,selProfColor=0;
+function renderProfilePage(){
+  const mem=S.members?.[S.user.uid]||{};
+  const curAvIdx=AVATARS.indexOf(mem.avatar||S.profile?.avatar||'👤');
+  const initAv=curAvIdx>=0?curAvIdx:0;
+  const curColIdx=M_COLORS.indexOf(mem.color||S.profile?.color||M_COLORS[0]);
+  const initCol=curColIdx>=0?curColIdx:0;
+  return`<div class="settings-page fade-in">
+    <button class="btn-ghost" onclick="goSettings()" style="margin-bottom:22px">← Back</button>
+    <h2 style="font-size:24px;font-weight:700;margin-bottom:6px">Edit Your Profile</h2>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px">Customize how you appear in <strong style="color:var(--text)">${S.ledgers[S.activeLedgerId]?.name||'this ledger'}</strong></p>
+    <div class="settings-section">
+      <div class="surface" style="padding:18px;border-radius:18px">
+        <p class="label" style="margin-bottom:10px">Display Name</p>
+        <input id="profName" class="fw-input" type="text" placeholder="Your name" value="${mem.displayName||S.profile?.displayName||''}" style="margin-bottom:18px">
+        <p class="label" style="margin-bottom:10px">Avatar</p>
+        <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:18px">
+          ${AVATARS.map((a,i)=>`<button onclick="selProfAv=${i};document.querySelectorAll('.av-pick-btn').forEach(b=>b.classList.remove('sel'));this.classList.add('sel')" class="av-pick-btn ${i===initAv?'sel':''}">${a}</button>`).join('')}
+        </div>
+        <p class="label" style="margin-bottom:10px">Color</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px">
+          ${M_COLORS.map((col,i)=>`<div onclick="selProfColor=${i};document.querySelectorAll('.prof-col-dot').forEach(d=>d.classList.remove('selected'));this.classList.add('selected')" class="color-dot prof-col-dot ${i===initCol?'selected':''}" style="background:${col}"></div>`).join('')}
+        </div>
+        <button class="btn-primary" onclick="saveProfile()">✓ Save Profile</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+window.saveProfile=async()=>{
+  const name=document.getElementById('profName')?.value.trim();
+  if(!name){alert('Enter a display name.');return;}
+  const avatar=AVATARS[selProfAv]||AVATARS[0];
+  const color=M_COLORS[selProfColor]||M_COLORS[0];
+  // Update global profile
+  await update(ref(db,'users/'+S.user.uid),{displayName:name,avatar,color});
+  S.profile={...S.profile,displayName:name,avatar,color};
+  // Update ledger member record
+  await update(ref(db,'ledgerMembers/'+S.activeLedgerId+'/'+S.user.uid),{displayName:name,avatar,color});
+  toast('✓ Profile updated');
+  S.view='settings';render();
+};
+
 </script>
 </body>
 </html>
