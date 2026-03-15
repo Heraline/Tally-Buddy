@@ -1,0 +1,40 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "userLedgers": {
+      "$uid": {
+        ".read": "$uid === auth.uid",
+        ".write": "$uid === auth.uid"
+      }
+    },
+    "ledgerTransactions": {
+      "$lid": {
+        ".read": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()"
+      }
+    },
+    "ledgerMembers": {
+      "$lid": {
+        ".read": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()"
+      }
+    },
+    "ledgerCategories": {
+      "$lid": {
+        ".read": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()"
+      }
+    },
+    "ledgers": {
+      "$lid": {
+        ".read": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()",
+        ".write": "auth != null && root.child('ledgers').child($lid).child('members').child(auth.uid).exists()"
+      }
+    }
+  }
+}

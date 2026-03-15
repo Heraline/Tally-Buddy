@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<!-- PWA Meta Tags -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Family Wallet">
+<meta name="theme-color" content="#6C63FF">
+<link rel="manifest" href="manifest.json">
+<!-- Apple touch icons (fallback for iOS since manifest icons aren't used on iOS) -->
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Family Wallet</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
@@ -3314,6 +3323,15 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
   window.addEventListener('resize',setVh,{passive:true});
   window.addEventListener('orientationchange',()=>setTimeout(setVh,300),{passive:true});
 })();
+
+// ── SERVICE WORKER REGISTRATION ──
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log('SW registered'))
+      .catch(e=>console.log('SW registration failed:',e));
+  });
+}
 
 </script>
 </body>
