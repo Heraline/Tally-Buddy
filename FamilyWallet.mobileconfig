@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>ConsentText</key>
+    <dict>
+        <key>default</key>
+        <string>Tap Install to add Family Wallet to your home screen as a full screen app.</string>
+    </dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>FullScreen</key>
+            <true/>
+            <key>Icon</key>
+            <data>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</data>
+            <key>IsRemovable</key>
+            <true/>
+            <key>Label</key>
+            <string>Family Wallet</string>
+            <key>PayloadDescription</key>
+            <string>Adds Family Wallet to your home screen as a full screen app</string>
+            <key>PayloadDisplayName</key>
+            <string>Web Clip (Family Wallet)</string>
+            <key>PayloadIdentifier</key>
+            <string>com.familywallet.webclip</string>
+            <key>PayloadOrganization</key>
+            <string>Family Wallet</string>
+            <key>PayloadType</key>
+            <string>com.apple.webClip.managed</string>
+            <key>PayloadUUID</key>
+            <string>654F8134-B0A9-42CB-955B-D050864B6A37</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>Precomposed</key>
+            <true/>
+            <key>URL</key>
+            <string>https://heraline.github.io/Family-Wallet/index.html</string>
+        </dict>
+    </array>
+    <key>PayloadDescription</key>
+    <string>Adds Family Wallet to your home screen as a full screen app</string>
+    <key>PayloadDisplayName</key>
+    <string>Family Wallet</string>
+    <key>PayloadIdentifier</key>
+    <string>com.familywallet.profile</string>
+    <key>PayloadOrganization</key>
+    <string>Family Wallet</string>
+    <key>PayloadRemovalDisallowed</key>
+    <false/>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>E8A34EEA-C41D-4214-B0E9-77FF20D7F422</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
