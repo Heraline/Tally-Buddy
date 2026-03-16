@@ -22,6 +22,11 @@
   #app{width:100%;max-width:430px;position:fixed;top:0;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;overflow:hidden;background:var(--bg);height:100vh;height:100dvh;height:-webkit-fill-available;}
   .page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .page::-webkit-scrollbar{display:none}
+  /* Safari browser mode — document scrolls so address bar can hide */
+  body.safari-browser{overflow-y:auto!important;height:auto!important;min-height:100%!important;display:block!important}
+  body.safari-browser #app{position:relative!important;left:auto!important;top:auto!important;transform:none!important;height:auto!important;min-height:100svh;min-height:100dvh;overflow:visible!important;margin:0 auto!important}
+  body.safari-browser .page{overflow:visible!important;height:auto!important}
+  body.safari-browser .glow1,body.safari-browser .glow2{position:absolute}
   .glow1{position:fixed;top:-80px;right:-80px;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,0.15),transparent 70%);pointer-events:none;z-index:0}
   .glow2{position:fixed;bottom:60px;left:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(78,205,196,0.10),transparent 70%);pointer-events:none;z-index:0}
   .label{font-size:11px;color:var(--dim);letter-spacing:0.12em;text-transform:uppercase}
@@ -3310,6 +3315,17 @@ window.pickProfColor=i=>{
   if(dot)dot.classList.add('selected');
 };
 window.setProfTab=tab=>{profTab=tab;renderPage();};
+
+// ── SAFARI BROWSER DETECTION ──
+// In standalone (PWA) mode: keep fixed layout — no address bar at all
+// In Safari browser: switch to document scroll so address bar can auto-hide
+(function(){
+  const isStandalone=window.navigator.standalone===true||window.matchMedia('(display-mode:standalone)').matches;
+  if(!isStandalone){
+    // Running in Safari browser — enable document scroll mode
+    document.body.classList.add('safari-browser');
+  }
+})();
 
 // ── iOS SAFARI VIEWPORT FIX ──
 // CSS handles the base height via dvh/-webkit-fill-available.
