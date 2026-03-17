@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!-- PWA Meta Tags -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +19,7 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 
   /* Single layout that works in both Safari browser and standalone PWA */
-  html,body{height:100%;overflow:hidden;background:var(--bg)}
+  html,body{min-height:calc(100% + env(safe-area-inset-top));overflow:hidden;background:var(--bg)}
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:stretch}
   #app{width:100%;max-width:430px;height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
   .page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
