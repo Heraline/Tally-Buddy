@@ -4,7 +4,7 @@
   "description": "Real-time collaborative expense tracker for family and friends",
   "start_url": "/Family-Wallet/index.html",
   "scope": "/Family-Wallet/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#0A0A14",
   "theme_color": "#6C63FF",
