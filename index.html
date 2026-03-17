@@ -88,9 +88,7 @@
   .member-box .m-avatar{font-size:20px;margin-bottom:3px}
   .member-box.active{color:#fff}
   .split-hint{font-size:12px;color:var(--accent);text-align:center;margin-top:10px}
-  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(10,10,20,0.92);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:10px 30px calc(24px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;z-index:50}
-  /* Fill the gap between bottom nav and screen edge on iPhone */
-  .bottom-nav::after{content:'';position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:env(safe-area-inset-bottom);background:rgba(10,10,20,0.92);z-index:49}
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(10,10,20,0.92);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:10px 30px 24px;display:flex;justify-content:space-around;align-items:center;z-index:50}
   .nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;color:var(--dim);font-size:11px;font-weight:600;padding:4px 12px}
   .nav-btn.active{color:var(--accent)}
   .nav-btn .nav-icon{font-size:22px}
@@ -186,6 +184,8 @@
   <div class="page" id="mainPage"></div>
   <div id="modalContainer"></div>
   <nav class="bottom-nav" id="bottomNav" style="display:none"></nav>
+  <!-- Gap filler below nav — height set by JS so it always matches actual safe area -->
+  <div id="navGap" style="position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:rgba(10,10,20,0.92);height:0;z-index:49"></div>
 </div>
 <!-- Safari address bar trick: 1px div makes document scrollable so bar can hide.
      Hidden in standalone mode via CSS. -->
@@ -3323,6 +3323,40 @@ window.pickProfColor=i=>{
   if(dot)dot.classList.add('selected');
 };
 window.setProfTab=tab=>{profTab=tab;renderPage();};
+
+// ── SAFE AREA GAP FIX ──
+// CSS env(safe-area-inset-bottom) can get stale when switching between PWA apps on iOS.
+// We measure it via JS and reapply whenever the app becomes visible again.
+(function(){
+  function applyGap(){
+    // Measure actual safe area using a probe element
+    var probe=document.createElement('div');
+    probe.style.cssText='position:fixed;bottom:0;left:0;width:1px;height:env(safe-area-inset-bottom,0px);pointer-events:none;opacity:0;visibility:hidden';
+    document.body.appendChild(probe);
+    var safeH=probe.getBoundingClientRect().height||0;
+    document.body.removeChild(probe);
+
+    var gap=document.getElementById('navGap');
+    var nav=document.getElementById('bottomNav');
+    if(gap)gap.style.height=safeH+'px';
+    if(nav)nav.style.paddingBottom=(safeH+24)+'px';
+    document.querySelectorAll('.page').forEach(function(p){
+      p.style.paddingBottom=(90+safeH)+'px';
+    });
+  }
+
+  applyGap();
+  requestAnimationFrame(applyGap);
+
+  // Re-measure whenever app comes back into view (key fix for PWA switching)
+  document.addEventListener('visibilitychange',function(){
+    if(!document.hidden){applyGap();setTimeout(applyGap,150);setTimeout(applyGap,400);}
+  });
+  window.addEventListener('pageshow',function(){applyGap();setTimeout(applyGap,150);});
+  window.addEventListener('resize',applyGap,{passive:true});
+  window.addEventListener('orientationchange',function(){setTimeout(applyGap,300);},{passive:true});
+  window.addEventListener('focus',function(){applyGap();},{passive:true});
+})();
 
 // ── VIEWPORT & ADDRESS BAR FIX ──
 (function(){
