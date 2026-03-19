@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <!-- PWA Meta Tags -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,7 +19,7 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 
   /* Single layout that works in both Safari browser and standalone PWA */
-  html,body{min-height:calc(100% + env(safe-area-inset-top));overflow:hidden;background:var(--bg)}
+  html,body{height:100%;overflow:hidden;background:var(--bg)}
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:stretch}
   #app{width:100%;max-width:430px;height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
   .page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
@@ -73,7 +73,7 @@
   .input-card{padding:16px 18px;border-radius:17px}
   .input-card input,.input-card select{background:none;border:none;outline:none;color:var(--text);font-family:'Sora',sans-serif;width:100%}
   .big-input{font-family:'DM Mono',monospace;font-size:34px;font-weight:700;width:100%;display:block;min-height:50px;padding:4px 0;-webkit-appearance:none}
-  .normal-input{font-size:15px;width:100%;display:block;padding:4px 0}
+  .normal-input{font-size:16px;width:100%;display:block;padding:4px 0}
   .type-toggle{display:flex;background:rgba(255,255,255,0.05);border-radius:14px;padding:4px;margin-bottom:22px}
   .type-btn{flex:1;padding:12px;border-radius:11px;font-size:14px;font-weight:700;background:transparent;color:var(--dim)}
   .type-btn.active-expense{background:var(--red);color:#fff}
@@ -114,7 +114,7 @@
   .auth-tabs{display:flex;width:100%;background:rgba(255,255,255,0.05);border-radius:14px;padding:4px;margin-bottom:22px}
   .auth-tab{flex:1;padding:11px;border-radius:11px;font-size:14px;font-weight:700;background:transparent;color:var(--dim)}
   .auth-tab.active{background:rgba(108,99,255,0.8);color:#fff}
-  .auth-input{width:100%;padding:15px 16px;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s}
+  .auth-input{width:100%;padding:15px 16px;border-radius:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s}
   .auth-input:focus{border-color:var(--accent)}
   .auth-error{font-size:13px;color:var(--red);margin-bottom:12px;padding:10px 14px;border-radius:10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);width:100%;text-align:center}
   .user-badge{display:flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--accent)}
@@ -142,12 +142,12 @@
   .budget-warning{color:var(--yellow);font-size:11px;margin-top:3px}
   .budget-over{color:var(--red);font-size:11px;margin-top:3px}
   .split-member-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
-  .split-amount-input{width:90px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:14px;outline:none;text-align:right}
+  .split-amount-input{width:90px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:16px;outline:none;text-align:right}
   .split-amount-input:focus{border-color:var(--accent)}
   .currency-selector{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:12px;padding:10px 14px;color:var(--text);font-family:'Sora',sans-serif;font-size:14px;outline:none;width:100%}
   .color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.15s}
   .color-dot.selected{border-color:#fff;transform:scale(1.15)}
-  .fw-input{width:100%;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:14px;outline:none}
+  .fw-input{width:100%;padding:12px 14px;border-radius:12px;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);font-family:'Sora',sans-serif;font-size:16px;outline:none}
   .fw-input:focus{border-color:var(--accent)}
   /* Guest member badge */
   .guest-badge{font-size:9px;background:rgba(255,230,109,0.2);color:var(--yellow);border-radius:4px;padding:1px 5px;font-weight:700;margin-top:2px;display:inline-block}
@@ -2358,7 +2358,9 @@ window.addGuest=async()=>{
   await set(ref(db,`ledgerMembers/${S.activeLedgerId}/${gid}`),{displayName:name,avatar:AVATARS[selGuestAv],color:M_COLORS[selGuestColor],role:'guest',guest:true,joinedAt:Date.now()});
   toast('✓ '+name+' added as guest');
   if(msg){msg.style.color='var(--green)';msg.textContent='✓ Added!';}
-  setTimeout(()=>renderPage(),600);
+  const inp=document.getElementById('guestName');if(inp)inp.value='';
+  selGuestAv=0;selGuestColor=0;
+  setTimeout(()=>render(),600);
 };
 window.removeGuest=async id=>{if(!confirm('Remove this guest member?'))return;await remove(ref(db,`ledgerMembers/${S.activeLedgerId}/${id}`));toast('Guest removed');};
 
@@ -2447,7 +2449,7 @@ function renderSettings(){
       <p class="label" style="margin-bottom:12px">AI Receipt Scanning</p>
       <div class="surface" style="padding:16px;border-radius:14px">
         <p style="font-size:12px;color:var(--muted);margin-bottom:10px;line-height:1.6">Powered by <strong style="color:var(--text)">Google Gemini</strong> (free tier). Get your key at <strong style="color:var(--accent)">aistudio.google.com</strong></p>
-        <input id="geminiKeyInput" class="fw-input" type="password" placeholder="Paste Gemini API key here..." value="${localStorage.getItem('fw_gemini_key')||''}" style="margin-bottom:10px;font-family:'DM Mono',monospace;font-size:13px">
+        <input id="geminiKeyInput" class="fw-input" type="password" placeholder="Paste Gemini API key here..." value="${localStorage.getItem('fw_gemini_key')||''}" style="margin-bottom:10px;font-family:'DM Mono',monospace;font-size:16px">
         <div style="display:flex;gap:8px">
           <button onclick="saveGeminiKey()" style="flex:1;padding:11px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-size:13px;font-weight:700">Save Key</button>
           <button onclick="clearGeminiKey()" style="padding:11px 14px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">Clear</button>
