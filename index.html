@@ -4011,37 +4011,8 @@ function renderBudgetPage(){
     const hasSubcats=subcatEntries.length>0;
     const isExpanded=!!window._budgetExpanded[key];
 
-    // ── Subcategory budget aggregates ──
-    // Sum of all subcategory budgets that have been set for this category
-    const subcatBudgetTotal=subcatEntries.reduce((s,[sk])=>s+(parseFloat(budgets?.[key+'__'+sk])||0),0);
-    // Count subcats with a budget set (for badge)
+    // count subcats with a budget set
     const subcatBudgetCount=subcatEntries.filter(([sk])=>parseFloat(budgets?.[key+'__'+sk])||0).length;
-    // Any individual subcat over its own limit?
-    const anySubcatOver=subcatEntries.some(([sk])=>{
-      const sBgt=parseFloat(budgets?.[key+'__'+sk])||0;
-      return sBgt>0&&(subcatSpent[key+'__'+sk]||0)>sBgt;
-    });
-
-    // ── Effective category budget & over-limit logic ──
-    // If no explicit category budget is set, use the sum of subcat budgets as the effective cap
-    const effectiveBgt=bgt>0?bgt:(subcatBudgetTotal>0?subcatBudgetTotal:0);
-    const effectiveOver=effectiveBgt>0&&spent>effectiveBgt;
-    // Category is "in warning" if: over its own/effective limit, OR any subcat is over limit
-    const catWarning=effectiveOver||anySubcatOver;
-    const pct=effectiveBgt>0?Math.min(100,(spent/effectiveBgt)*100):0;
-    const barColor=effectiveOver?'var(--red)':anySubcatOver?'var(--yellow)':pct>80?'var(--yellow)':c.color;
-
-    // Label line under category name
-    let catStatusLine;
-    if(effectiveBgt>0){
-      catStatusLine=`<p style="font-size:11px;color:${effectiveOver?'var(--red)':anySubcatOver?'var(--yellow)':'var(--muted)'}">Spent ${sym} ${spent.toFixed(2)} / ${sym} ${effectiveBgt.toFixed(2)}${effectiveOver?' ⚠️ Over':anySubcatOver?' ⚠️ Subcat over':''}</p>`;
-    } else {
-      catStatusLine=`<p style="font-size:11px;color:var(--dim)">No limit · spent ${sym} ${spent.toFixed(2)}</p>`;
-    }
-    // Note shown below category input when no explicit cat budget but subcats have budgets
-    const subcatSumNote=bgt<=0&&subcatBudgetTotal>0
-      ?`<p style="font-size:10px;color:var(--accent2);margin-top:6px">ℹ️ Effective limit from subcategories: ${sym} ${subcatBudgetTotal.toFixed(2)}</p>`
-      :'';
 
     // Subcategory rows (shown when expanded)
     const subcatRows=hasSubcats&&isExpanded?subcatEntries.map(([sk,sv])=>{
@@ -4052,13 +4023,13 @@ function renderBudgetPage(){
       const sBgt=parseFloat(budgets?.[subKey])||0;
       const sPct=sBgt>0?Math.min(100,(sSpent/sBgt)*100):0;
       const sOver=sBgt>0&&sSpent>sBgt;
-      return`<div style="margin-left:12px;padding:12px 14px;border-radius:13px;background:${sOver?'rgba(255,107,107,0.06)':'rgba(255,255,255,0.03)'};border:1px solid ${sOver?'rgba(255,107,107,0.25)':'var(--border)'};margin-bottom:6px">
+      return`<div style="margin-left:12px;padding:12px 14px;border-radius:13px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:6px">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
           ${ic?`<span style="font-size:16px;display:flex;align-items:center;justify-content:center;width:22px">${renderCatIcon(ic,16,true)}</span>`:`<span style="width:22px;text-align:center;font-size:11px;color:var(--dim)">↳</span>`}
           <div style="flex:1;min-width:0">
             <p style="font-size:13px;font-weight:600">${lbl}</p>
             ${sBgt>0
-              ?`<p style="font-size:10px;color:${sOver?'var(--red)':'var(--muted)'}">Spent ${sym} ${sSpent.toFixed(2)} / ${sym} ${sBgt.toFixed(2)}${sOver?' ⚠️ Over':''}</p>`
+              ?`<p style="font-size:10px;color:${sOver?'var(--red)':'var(--muted)'}">Spent ${sym} ${sSpent.toFixed(2)} / ${sym} ${sBgt.toFixed(2)}${sOver?' ⚠️':''}</p>`
               :`<p style="font-size:10px;color:var(--dim)">No limit · spent ${sym} ${sSpent.toFixed(2)}</p>`}
           </div>
         </div>
@@ -4073,19 +4044,21 @@ function renderBudgetPage(){
       </div>`;
     }).join(''):'';
 
-    return`<div class="surface" style="padding:16px;border-radius:16px;margin-bottom:10px;${catWarning?'border-color:'+(effectiveOver?'rgba(255,107,107,0.35)':'rgba(255,230,109,0.35)')+';':'' }">
+    return`<div class="surface" style="padding:16px;border-radius:16px;margin-bottom:10px">
       <!-- Category header row -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${effectiveBgt>0||spent>0?'10':'0'}px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${bgt>0||spent>0?'10':'0'}px">
         <span style="font-size:22px;display:flex;align-items:center;justify-content:center">${renderCatIcon(c.icon,22,true)}</span>
         <div style="flex:1;min-width:0">
           <p style="font-size:14px;font-weight:600">${c.label}</p>
-          ${catStatusLine}
+          ${bgt>0
+            ?`<p style="font-size:11px;color:${over?'var(--red)':'var(--muted)'}">Spent ${sym} ${spent.toFixed(2)} / ${sym} ${bgt.toFixed(2)}${over?' ⚠️':''}</p>`
+            :`<p style="font-size:11px;color:var(--dim)">No limit · spent ${sym} ${spent.toFixed(2)}</p>`}
         </div>
-        ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid ${isExpanded?'rgba(108,99,255,0.4)':'var(--border)'};background:${isExpanded?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.05)'};color:${isExpanded?'var(--accent)':'var(--muted)'};cursor:pointer;flex-shrink:0">
-          ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:${anySubcatOver?'rgba(255,107,107,0.25)':'rgba(108,99,255,0.25)'};border-radius:999px;padding:1px 6px;color:${anySubcatOver?'var(--red)':'var(--accent)'}">${subcatBudgetCount}${anySubcatOver?' ⚠️':''}</span>`:''} 
+        ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid var(--border);background:${isExpanded?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.05)'};color:${isExpanded?'var(--accent)':'var(--muted)'};cursor:pointer;flex-shrink:0">
+          ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:rgba(108,99,255,0.25);border-radius:999px;padding:1px 6px;color:var(--accent)">${subcatBudgetCount}</span>`:''}
         </button>`:''}
       </div>
-      ${effectiveBgt>0?`<div class="budget-bar-track" style="margin-bottom:10px"><div class="budget-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>`:''}
+      ${bgt>0?`<div class="budget-bar-track" style="margin-bottom:10px"><div class="budget-bar-fill" style="width:${pct}%;background:${over?'var(--red)':pct>80?'var(--yellow)':c.color}"></div></div>`:''}
       <div style="display:flex;gap:8px;align-items:center;margin-bottom:${hasSubcats&&isExpanded?'12':'0'}px">
         <div style="flex:1;position:relative">
           <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
@@ -4093,7 +4066,6 @@ function renderBudgetPage(){
         </div>
         <button data-budgetkey="${key}" class="bgt-any-save" style="padding:11px 16px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;flex-shrink:0;border:none;cursor:pointer;font-family:'Sora',sans-serif">Save</button>
       </div>
-      ${subcatSumNote}
       ${subcatRows}
     </div>`;
   }).join('');
