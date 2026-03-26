@@ -6328,12 +6328,15 @@ document.addEventListener("paste", (e) => {
     processExpense(text);
   }
 });
+
+const OPENAI_KEY = prompt("Enter your OpenAI API Key");
+
 async function callAI(text) {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer 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"
+      "Authorization": "Bearer " + OPENAI_KEY
     },
     body: JSON.stringify({
       model: "gpt-4o-mini",
