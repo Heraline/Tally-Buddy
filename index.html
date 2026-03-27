@@ -3928,9 +3928,148 @@ window.deleteSettle=async(sk,lid)=>{
 // ══════════════════════════════════════════
 //  BUDGET PAGE
 // ══════════════════════════════════════════
-// Track which category cards are expanded to show subcategory budgets
+// Budget page state
 if(!window._budgetExpanded)window._budgetExpanded={};
-window.toggleBudgetCat=key=>{window._budgetExpanded[key]=!window._budgetExpanded[key];renderPage();};
+window.toggleBudgetCat=key=>{window._budgetExpanded[key]=!window._budgetExpanded[key];_bgtRebuild();};
+// Draft values: keyed by budget key (e.g. 'food', 'food__groceries', '_total')
+// Populated from current S.budgets on page load, then mutated by inputs
+if(!window._bgtDraft)window._bgtDraft={};
+window._bgtDirty=false; // true once any input changes
+
+// Re-render just the validation/summary without full page reload
+window._bgtRebuild=()=>{renderPage();};
+
+// Called by every input oninput
+window.bgtInputChange=(key,val)=>{
+  window._bgtDraft[key]=val===''?'':val;
+  window._bgtDirty=true;
+  _bgtUpdateLive(key);
+};
+
+// Live-update category total display when a subcat input changes,
+// and show/hide the floating Save button + inline ⚠️ flags
+window._bgtUpdateLive=key=>{
+  const isSubcat=key.includes('__');
+  const catKey=isSubcat?key.split('__')[0]:key;
+
+  if(isSubcat){
+    // Recompute category auto-total from subcat inputs
+    const catEl=document.getElementById('bgt-cat-autototal-'+catKey);
+    const catBgtEl=document.getElementById('bgt-inp-'+catKey);
+    const catBgt=parseFloat(catBgtEl?.value||window._bgtDraft[catKey]||'')||0;
+    const cats=getCats();
+    const subcatEntries=Object.entries(cats[catKey]?.subcats||{});
+    let subcatSum=0;
+    subcatEntries.forEach(([sk])=>{
+      const subKey=catKey+'__'+sk;
+      const el=document.getElementById('bgt-inp-'+subKey);
+      subcatSum+=parseFloat(el?.value??window._bgtDraft[subKey]??'')||0;
+    });
+    if(catEl){
+      catEl.textContent=(subcatSum>0?'Auto: '+_bgtSym()+' '+subcatSum.toFixed(2):'');
+    }
+    // Flag if subcat sum > category budget
+    const catFlag=document.getElementById('bgt-flag-'+catKey);
+    if(catFlag){
+      if(catBgt>0&&subcatSum>catBgt){
+        catFlag.style.display='flex';
+        catFlag.querySelector('.bgt-flag-msg').textContent='Subcategory total ('+_bgtSym()+' '+subcatSum.toFixed(2)+') exceeds category limit ('+_bgtSym()+' '+catBgt.toFixed(2)+')';
+      } else { catFlag.style.display='none'; }
+    }
+  } else if(key!=='_total'){
+    // Category budget changed — recheck against subcat sum
+    const catBgt=parseFloat(document.getElementById('bgt-inp-'+key)?.value||'')||0;
+    const cats=getCats();
+    const subcatEntries=Object.entries(cats[key]?.subcats||{});
+    let subcatSum=0;
+    subcatEntries.forEach(([sk])=>{
+      const subKey=key+'__'+sk;
+      const el=document.getElementById('bgt-inp-'+subKey);
+      subcatSum+=parseFloat(el?.value??window._bgtDraft[subKey]??'')||0;
+    });
+    const catFlag=document.getElementById('bgt-flag-'+key);
+    if(catFlag){
+      if(catBgt>0&&subcatSum>catBgt){
+        catFlag.style.display='flex';
+        catFlag.querySelector('.bgt-flag-msg').textContent='Subcategory total ('+_bgtSym()+' '+subcatSum.toFixed(2)+') exceeds this limit ('+_bgtSym()+' '+catBgt.toFixed(2)+')';
+      } else { catFlag.style.display='none'; }
+    }
+  }
+
+  // Always recheck total budget flag
+  _bgtCheckTotalFlag();
+  _bgtShowSaveBtn();
+};
+
+window._bgtCheckTotalFlag=()=>{
+  const totalBgtEl=document.getElementById('bgt__total');
+  const totalBgt=parseFloat(totalBgtEl?.value||'')||0;
+  if(totalBgt<=0){const f=document.getElementById('bgt-total-flag');if(f)f.style.display='none';return;}
+  const cats=getCats();
+  let catSum=0;
+  Object.keys(cats).filter(k=>k!=='income').forEach(key=>{
+    const el=document.getElementById('bgt-inp-'+key);
+    catSum+=parseFloat(el?.value??window._bgtDraft[key]??'')||0;
+  });
+  const flag=document.getElementById('bgt-total-flag');
+  if(flag){
+    if(catSum>totalBgt){
+      flag.style.display='flex';
+      flag.querySelector('.bgt-flag-msg').textContent='Category total ('+_bgtSym()+' '+catSum.toFixed(2)+') exceeds total budget ('+_bgtSym()+' '+totalBgt.toFixed(2)+')';
+    } else { flag.style.display='none'; }
+  }
+};
+
+window._bgtSym=()=>{const isAll=(S.budgetScope||'ledger')==='all';return isAll?'RM':getCur().symbol;};
+
+window._bgtShowSaveBtn=()=>{
+  const btn=document.getElementById('bgt-float-save');
+  if(!btn)return;
+  const hasErrors=Array.from(document.querySelectorAll('.bgt-flag')).some(el=>el.style.display==='flex');
+  btn.style.display='flex';
+  btn.style.opacity=hasErrors?'0.45':'1';
+  btn.style.pointerEvents=hasErrors?'none':'auto';
+  btn.disabled=hasErrors;
+};
+
+window.bgtSaveAll=async()=>{
+  // Re-validate before save
+  const hasErrors=Array.from(document.querySelectorAll('.bgt-flag')).some(el=>el.style.display==='flex');
+  if(hasErrors){toast('Fix the ⚠️ issues before saving','var(--yellow)');return;}
+
+  const isAll=(S.budgetScope||'ledger')==='all';
+  const ym=S.budgetMonth;
+  const dbPath=isAll?'users/'+S.user.uid+'/budgets/'+ym:'ledgers/'+S.activeLedgerId+'/budgets/'+ym;
+
+  // Collect all current input values from DOM
+  const newBudgets={};
+
+  // Total budget input
+  const totalVal=parseFloat(document.getElementById('bgt__total')?.value||'')||0;
+  if(totalVal>0)newBudgets['_total']=totalVal;
+
+  // All category + subcat inputs (skip _total, it's handled above)
+  document.querySelectorAll('.bgt-any-input').forEach(inp=>{
+    const bkey=inp.dataset.budgetkey;
+    if(!bkey||bkey==='_total')return;
+    const val=parseFloat(inp.value||'')||0;
+    if(val>0)newBudgets[bkey]=val;
+  });
+
+  const btn=document.getElementById('bgt-float-save');
+  try{
+    if(btn){btn.disabled=true;btn.innerHTML='<span style="font-size:16px">⏳</span> Saving...';}
+    // Write entire budget object atomically — one Firebase call
+    await set(ref(db,dbPath),Object.keys(newBudgets).length?newBudgets:null);
+    window._bgtDirty=false;
+    toast('✓ Budget saved');
+    // Re-render cleanly after save (draft will reload from new S.budgets)
+    renderPage();
+  }catch(e){
+    if(btn){btn.disabled=false;btn.innerHTML='💾 Save Budget';}
+    toast('Error saving: '+e.message,'var(--red)');
+  }
+};
 
 function renderBudgetPage(){
   const cats=getCats();const cur=getCur();
@@ -3944,216 +4083,192 @@ function renderBudgetPage(){
   const isAll=scope==='all';
   const sym=isAll?'RM':cur.symbol;
 
-  // ── Compute spending per category AND subcategory ──
-  let totalExp=0;
-  let catSpent={};      // catkey → amount
-  let subcatSpent={};   // "catkey__subcatkey" → amount
+  // ── Init draft from saved budgets on first load or month change ──
+  const budgets=isAll?S.allBudgets:S.budgets;
+  if(!window._bgtDirty){
+    window._bgtDraft={};
+    Object.entries(budgets||{}).forEach(([k,v])=>{window._bgtDraft[k]=v>0?String(v):'';});
+  }
+
+  // ── Compute spending ──
+  let totalExp=0,catSpent={},subcatSpent={};
   const cats2=getCats();
   const catKeys=Object.keys(cats2).filter(k=>k!=='income');
 
   function accumulateTx(t,rate=1){
     if(t.type!=='expense'||!t.date?.startsWith(ym))return;
     const amt=(t.amount||0)*rate;
-    totalExp+=amt;
-    catSpent[t.category]=(catSpent[t.category]||0)+amt;
-    if(t.subcat){
-      const sk=t.category+'__'+t.subcat;
-      subcatSpent[sk]=(subcatSpent[sk]||0)+amt;
-    }
+    totalExp+=amt;catSpent[t.category]=(catSpent[t.category]||0)+amt;
+    if(t.subcat){const sk=t.category+'__'+t.subcat;subcatSpent[sk]=(subcatSpent[sk]||0)+amt;}
   }
-
   if(isAll){
     const allTxSources={...S.allLedgerTxs,[S.activeLedgerId]:S.txs||{}};
     Object.entries(allTxSources).forEach(([lid,txs])=>{
       if(S.excludedFromTotal.has(lid))return;
-      const ledgerCur=S.allLedgerCurrencies[lid]||'MYR';
-      const rate=(CURRENCIES[ledgerCur]?.rateToMYR||1)/(CURRENCIES['MYR']?.rateToMYR||1);
+      const rate=(CURRENCIES[S.allLedgerCurrencies[lid]||'MYR']?.rateToMYR||1)/(CURRENCIES['MYR']?.rateToMYR||1);
       Object.values(txs||{}).forEach(t=>accumulateTx(t,rate));
     });
-  }else{
-    Object.values(S.txs||{}).forEach(t=>accumulateTx(t));
-  }
+  }else{Object.values(S.txs||{}).forEach(t=>accumulateTx(t));}
 
-  // ── Budget data ──
-  const budgets=isAll?S.allBudgets:S.budgets;
-  // Category-level budgets only (not _total, not subcat keys) for auto-sum
-  const catTotal=Object.entries(budgets||{})
-    .filter(([k])=>k!=='_total'&&!k.includes('__'))
-    .reduce((s,[,v])=>s+(parseFloat(v)||0),0);
-  const manualTotal=parseFloat(budgets?._total)||0;
-  const totalBudget=manualTotal>0?manualTotal:catTotal;
-  const budgetUsedPct=totalBudget>0?Math.min(100,(totalExp/totalBudget)*100):0;
-  const budgetColor=totalExp>totalBudget?'var(--red)':budgetUsedPct>80?'var(--yellow)':'var(--green)';
-  const basePath=isAll?'users/'+S.user.uid+'/budgets/'+ym+'/':'ledgers/'+S.activeLedgerId+'/budgets/'+ym+'/';
+  // ── Budget summary from draft ──
+  const draftTotal=parseFloat(window._bgtDraft['_total'])||0;
+  const draftCatSum=catKeys.reduce((s,k)=>s+(parseFloat(window._bgtDraft[k])||0),0);
+  const effectiveTotal=draftTotal>0?draftTotal:draftCatSum;
+  const totalUsedPct=effectiveTotal>0?Math.min(100,(totalExp/effectiveTotal)*100):0;
+  const totalColor=totalExp>effectiveTotal?'var(--red)':totalUsedPct>80?'var(--yellow)':"var(--green)";
+
+  // ── Validate: total flag ──
+  const totalFlag=draftTotal>0&&draftCatSum>draftTotal;
 
   // ── Per-ledger summary ──
   const ledgerRows=isAll?Object.entries(S.ledgers).map(([lid,linfo])=>{
     if(S.excludedFromTotal.has(lid))return'';
-    const lCur=S.allLedgerCurrencies[lid]||'MYR';
-    const rate=(CURRENCIES[lCur]?.rateToMYR||1)/(CURRENCIES['MYR']?.rateToMYR||1);
+    const rate=(CURRENCIES[S.allLedgerCurrencies[lid]||'MYR']?.rateToMYR||1)/(CURRENCIES['MYR']?.rateToMYR||1);
     const txSource=lid===S.activeLedgerId?S.txs:S.allLedgerTxs[lid];
     const lExp=Object.values(txSource||{}).filter(t=>t.type==='expense'&&t.date?.startsWith(ym)).reduce((s,t)=>s+(t.amount||0)*rate,0);
     return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:6px">
       <span style="font-size:20px">${linfo.icon||'💼'}</span>
       <span style="font-size:13px;font-weight:600;flex:1">${linfo.name||lid}</span>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${lExp>0?'var(--red)':'var(--dim)'}">-RM ${lExp.toFixed(2)}</span>
+      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${lExp>0?'var(--red)':"var(--dim)"}">-${sym} ${lExp.toFixed(2)}</span>
     </div>`;
   }).filter(Boolean).join(''):null;
 
-  // ── Category rows with expandable subcategory rows ──
+  // ── Category rows ──
   const catRows=catKeys.map(key=>{
     const c=cats2[key];
     const spent=catSpent[key]||0;
-    const bgt=parseFloat(budgets?.[key])||0;
-    const pct=bgt>0?Math.min(100,(spent/bgt)*100):0;
-    const over=bgt>0&&spent>bgt;
+    const draftBgt=parseFloat(window._bgtDraft[key])||0;
     const subcatEntries=Object.entries(c.subcats||{});
     const hasSubcats=subcatEntries.length>0;
     const isExpanded=!!window._budgetExpanded[key];
+    const draftSubcatSum=subcatEntries.reduce((s,[sk])=>s+(parseFloat(window._bgtDraft[key+'__'+sk])||0),0);
+    const subcatBudgetCount=subcatEntries.filter(([sk])=>!!(parseFloat(window._bgtDraft[key+'__'+sk])||0)).length;
+    const subcatExceedsCat=draftBgt>0&&draftSubcatSum>draftBgt;
+    const effectiveBgt=draftBgt>0?draftBgt:(draftSubcatSum>0?draftSubcatSum:0);
+    const pct=effectiveBgt>0?Math.min(100,(spent/effectiveBgt)*100):0;
+    const spent_over=effectiveBgt>0&&spent>effectiveBgt;
+    const barColor=spent_over?'var(--red)':pct>80?'var(--yellow)':c.color;
+    const catStatusLine=effectiveBgt>0
+      ?`<p style="font-size:11px;color:${spent_over?'var(--red)':"var(--muted)"}">Spent ${sym} ${spent.toFixed(2)} / ${sym} ${effectiveBgt.toFixed(2)}${spent_over?' ⚠️ Over':''}</p>`
+      :`<p style="font-size:11px;color:var(--dim)">No limit · spent ${sym} ${spent.toFixed(2)}</p>`;
 
-    // count subcats with a budget set
-    const subcatBudgetCount=subcatEntries.filter(([sk])=>parseFloat(budgets?.[key+'__'+sk])||0).length;
-
-    // Subcategory rows (shown when expanded)
     const subcatRows=hasSubcats&&isExpanded?subcatEntries.map(([sk,sv])=>{
       const lbl=getSubcatLabel(sv);
       const ic=getSubcatIcon(sv);
       const subKey=key+'__'+sk;
       const sSpent=subcatSpent[subKey]||0;
-      const sBgt=parseFloat(budgets?.[subKey])||0;
-      const sPct=sBgt>0?Math.min(100,(sSpent/sBgt)*100):0;
-      const sOver=sBgt>0&&sSpent>sBgt;
-      return`<div style="margin-left:12px;padding:12px 14px;border-radius:13px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:6px">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
-          ${ic?`<span style="font-size:16px;display:flex;align-items:center;justify-content:center;width:22px">${renderCatIcon(ic,16,true)}</span>`:`<span style="width:22px;text-align:center;font-size:11px;color:var(--dim)">↳</span>`}
+      const sDraftBgt=parseFloat(window._bgtDraft[subKey])||0;
+      const sPct=sDraftBgt>0?Math.min(100,(sSpent/sDraftBgt)*100):0;
+      const sOver=sDraftBgt>0&&sSpent>sDraftBgt;
+      return`<div style="margin-left:12px;padding:11px 13px;border-radius:13px;background:${sOver?'rgba(255,107,107,0.06)':"rgba(255,255,255,0.03)"};border:1px solid ${sOver?'rgba(255,107,107,0.25)':"var(--border)"};margin-bottom:6px">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:${sDraftBgt>0?'7':"0"}px">
+          ${ic?`<span style="font-size:15px;display:flex;align-items:center;justify-content:center;width:22px">${renderCatIcon(ic,15,true)}</span>`:`<span style="width:22px;text-align:center;font-size:11px;color:var(--dim)">↳</span>`}
           <div style="flex:1;min-width:0">
             <p style="font-size:13px;font-weight:600">${lbl}</p>
-            ${sBgt>0
-              ?`<p style="font-size:10px;color:${sOver?'var(--red)':'var(--muted)'}">Spent ${sym} ${sSpent.toFixed(2)} / ${sym} ${sBgt.toFixed(2)}${sOver?' ⚠️':''}</p>`
-              :`<p style="font-size:10px;color:var(--dim)">No limit · spent ${sym} ${sSpent.toFixed(2)}</p>`}
+            ${sDraftBgt>0?`<p style="font-size:10px;color:${sOver?'var(--red)':"var(--muted)"}">Spent ${sym} ${sSpent.toFixed(2)} / ${sym} ${sDraftBgt.toFixed(2)}${sOver?' ⚠️':''}</p>`
+            :`<p style="font-size:10px;color:var(--dim)">Spent ${sym} ${sSpent.toFixed(2)}</p>`}
           </div>
         </div>
-        ${sBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${sPct}%;background:${sOver?'var(--red)':sPct>80?'var(--yellow)':c.color}"></div></div>`:''}
-        <div style="display:flex;gap:8px;align-items:center">
-          <div style="flex:1;position:relative">
-            <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-            <input data-budgetkey="${subKey}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${sBgt||''}" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'36':'28'}px;font-size:14px">
-          </div>
-          <button data-budgetkey="${subKey}" class="bgt-any-save" style="padding:10px 14px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;flex-shrink:0;border:none;cursor:pointer;font-family:'Sora',sans-serif">Save</button>
+        ${sDraftBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${sPct}%;background:${sOver?'var(--red)':sPct>80?'var(--yellow)':c.color}"></div></div>`:''}
+        <div style="position:relative">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
+          <input id="bgt-inp-${subKey}" data-budgetkey="${subKey}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[subKey]||''}" oninput="bgtInputChange('${subKey}',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'34':"26"}px;font-size:14px">
         </div>
       </div>`;
     }).join(''):'';
 
-    return`<div class="surface" style="padding:16px;border-radius:16px;margin-bottom:10px">
-      <!-- Category header row -->
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${bgt>0||spent>0?'10':'0'}px">
+    return`<div class="surface" style="padding:16px;border-radius:16px;margin-bottom:10px;${spent_over||subcatExceedsCat?'border-color:'+(spent_over?'rgba(255,107,107,0.35)':'rgba(255,230,109,0.35)')+';':''}">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:${effectiveBgt>0||spent>0?'8':"0"}px">
         <span style="font-size:22px;display:flex;align-items:center;justify-content:center">${renderCatIcon(c.icon,22,true)}</span>
-        <div style="flex:1;min-width:0">
-          <p style="font-size:14px;font-weight:600">${c.label}</p>
-          ${bgt>0
-            ?`<p style="font-size:11px;color:${over?'var(--red)':'var(--muted)'}">Spent ${sym} ${spent.toFixed(2)} / ${sym} ${bgt.toFixed(2)}${over?' ⚠️':''}</p>`
-            :`<p style="font-size:11px;color:var(--dim)">No limit · spent ${sym} ${spent.toFixed(2)}</p>`}
-        </div>
-        ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid var(--border);background:${isExpanded?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.05)'};color:${isExpanded?'var(--accent)':'var(--muted)'};cursor:pointer;flex-shrink:0">
-          ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:rgba(108,99,255,0.25);border-radius:999px;padding:1px 6px;color:var(--accent)">${subcatBudgetCount}</span>`:''}
+        <div style="flex:1;min-width:0"><p style="font-size:14px;font-weight:600">${c.label}</p>${catStatusLine}</div>
+        ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid ${isExpanded?'rgba(108,99,255,0.4)':"var(--border)"};background:${isExpanded?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.05)"};color:${isExpanded?'var(--accent)':"var(--muted)"};cursor:pointer;flex-shrink:0">
+          ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:rgba(108,99,255,0.2);border-radius:999px;padding:1px 6px;color:var(--accent)">${subcatBudgetCount}</span>`:''}
         </button>`:''}
       </div>
-      ${bgt>0?`<div class="budget-bar-track" style="margin-bottom:10px"><div class="budget-bar-fill" style="width:${pct}%;background:${over?'var(--red)':pct>80?'var(--yellow)':c.color}"></div></div>`:''}
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:${hasSubcats&&isExpanded?'12':'0'}px">
-        <div style="flex:1;position:relative">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-          <input data-budgetkey="${key}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${bgt||''}" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'36':'28'}px">
-        </div>
-        <button data-budgetkey="${key}" class="bgt-any-save" style="padding:11px 16px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;flex-shrink:0;border:none;cursor:pointer;font-family:'Sora',sans-serif">Save</button>
+      ${effectiveBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>`:''}
+      <div style="position:relative;margin-bottom:${subcatExceedsCat||hasSubcats&&isExpanded?'6':"0"}px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
+        <input id="bgt-inp-${key}" data-budgetkey="${key}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[key]||''}" oninput="bgtInputChange('${key}',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'36':"28"}px">
+        <span id="bgt-cat-autototal-${key}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--accent2);pointer-events:none">${draftSubcatSum>0?'Auto: '+sym+' '+draftSubcatSum.toFixed(2):''}</span>
+      </div>
+      <div id="bgt-flag-${key}" class="bgt-flag" style="display:${subcatExceedsCat?'flex':"none"};align-items:flex-start;gap:7px;padding:8px 10px;border-radius:10px;background:rgba(255,230,109,0.1);border:1px solid rgba(255,230,109,0.3);margin-bottom:6px">
+        <span style="font-size:13px;flex-shrink:0">⚠️</span>
+        <p class="bgt-flag-msg" style="font-size:11px;color:var(--yellow);font-weight:600;line-height:1.5">${subcatExceedsCat?`Subcategory total (${sym} ${draftSubcatSum.toFixed(2)}) exceeds category limit (${sym} ${draftBgt.toFixed(2)})`:"OK"}</p>
       </div>
       ${subcatRows}
     </div>`;
   }).join('');
 
-  return`<div class="settings-page fade-in">
+  return`<div class="settings-page fade-in" style="padding-bottom:calc(120px + env(safe-area-inset-bottom))">
     <button id="budgetBackBtn" class="btn-ghost" style="margin-bottom:22px">← Back</button>
     <h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Budget</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Set monthly spending limits — categories and subcategories.</p>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Set monthly limits — edit any field and tap Save when done.</p>
     ${ledgerContextBadge()}
-
-    <!-- Scope switcher -->
     ${!S.totalView?`<div style="display:flex;gap:8px;margin-bottom:18px">
-      <button id="scopeLedger" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${!isAll?'var(--accent)':'var(--border)'};background:${!isAll?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.04)'};color:${!isAll?'var(--accent)':'var(--muted)'}">📒 This Ledger</button>
-      <button id="scopeAll" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${isAll?'var(--accent)':'var(--border)'};background:${isAll?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.04)'};color:${isAll?'var(--accent)':'var(--muted)'}">🌐 All Ledgers</button>
-    </div>`:'<div style="margin-bottom:18px"><div style="display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 14px"><span style="font-size:14px">🌐</span><span style="font-size:13px;font-weight:700;color:var(--accent)">All Ledgers Budget</span></div></div>'}
-
-    <!-- Month navigator -->
+      <button id="scopeLedger" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${!isAll?'var(--accent)':"var(--border)"};background:${!isAll?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${!isAll?'var(--accent)':"var(--muted)"}">📒 This Ledger</button>
+      <button id="scopeAll" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${isAll?'var(--accent)':"var(--border)"};background:${isAll?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${isAll?'var(--accent)':"var(--muted)"}">🌐 All Ledgers</button>
+    </div>`:"<div style=\"margin-bottom:18px\"><div style=\"display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 14px\"><span style=\"font-size:14px\">🌐</span><span style=\"font-size:13px;font-weight:700;color:var(--accent)\">All Ledgers Budget</span></div></div>"}
     <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);border-radius:16px;padding:12px 16px;margin-bottom:20px">
       <button id="budgetPrevBtn" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:none;color:var(--text);font-size:20px;cursor:pointer">‹</button>
       <div style="text-align:center">
         <p style="font-size:15px;font-weight:700">${monthLabel}</p>
-        <p style="font-size:10px;color:${isCurrentMonth?'var(--accent)':'var(--dim)'};font-weight:600;letter-spacing:0.06em">${isCurrentMonth?'CURRENT MONTH':'tap ‹ › to navigate'}</p>
+        <p style="font-size:10px;color:${isCurrentMonth?'var(--accent)':"var(--dim)"};font-weight:600;letter-spacing:0.06em">${isCurrentMonth?'CURRENT MONTH':"tap ‹ › to navigate"}</p>
       </div>
       <button id="budgetNextBtn" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:none;color:var(--text);font-size:20px;cursor:pointer">›</button>
     </div>
-
-    <p style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px">${isAll?'🌐 All Ledgers — '+Object.keys(S.ledgers).length+' ledgers (in MYR)':'📒 '+(S.ledgers[S.activeLedgerId]?.name||'This Ledger')}</p>
-
-    <!-- Total budget card -->
+    <p style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:10px">${isAll?'🌐 All Ledgers — '+Object.keys(S.ledgers).length+' ledgers (in MYR)':"📒 "+(S.ledgers[S.activeLedgerId]?.name||'This Ledger')}</p>
     <div class="card" style="padding:20px;margin-bottom:20px;border-radius:18px">
       <p class="label" style="color:var(--accent2);margin-bottom:10px">Total Monthly Budget</p>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
-        <div style="flex:1;position:relative">
-          <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-          <input id="bgt__total" type="number" inputmode="decimal" class="fw-input" placeholder="Overall cap (optional)" value="${manualTotal||''}" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'38':'28'}px;font-size:17px;font-weight:700">
-        </div>
-        <button id="bgt__total_save" style="padding:13px 18px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;flex-shrink:0;border:none;cursor:pointer;font-family:'Sora',sans-serif">Save</button>
+      <div style="position:relative;margin-bottom:8px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
+        <input id="bgt__total" data-budgetkey="_total" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="Overall cap (optional)" value="${window._bgtDraft['_total']||''}" oninput="bgtInputChange('_total',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'38':"28"}px;font-size:17px;font-weight:700">
       </div>
-      <p style="font-size:11px;color:var(--dim);margin-bottom:${totalBudget>0?10:0}px">Leave blank → auto-sums category limits${catTotal>0?' ('+sym+' '+catTotal.toFixed(2)+')':''}</p>
-      ${totalBudget>0?`<div>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:6px">Leave blank → auto-sums from categories${draftCatSum>0?' ('+sym+' '+draftCatSum.toFixed(2)+')':''}</p>
+      <div id="bgt-total-flag" class="bgt-flag" style="display:${totalFlag?'flex':"none"};align-items:flex-start;gap:7px;padding:8px 10px;border-radius:10px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);margin-bottom:8px">
+        <span style="font-size:13px;flex-shrink:0">⚠️</span>
+        <p class="bgt-flag-msg" style="font-size:11px;color:var(--red);font-weight:600;line-height:1.5">${totalFlag?`Category total (${sym} ${draftCatSum.toFixed(2)}) exceeds total budget (${sym} ${draftTotal.toFixed(2)})`:"OK"}</p>
+      </div>
+      ${effectiveTotal>0?`<div>
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:6px">
           <span>Spent: ${sym} ${totalExp.toFixed(2)}</span>
-          <span style="color:${budgetColor};font-weight:700">${Math.round(budgetUsedPct)}% used</span>
+          <span style="color:${totalColor};font-weight:700">${Math.round(totalUsedPct)}% used</span>
         </div>
-        <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${budgetUsedPct}%;background:${budgetColor}"></div></div>
-        <p style="font-size:12px;margin-top:6px;color:${totalExp>totalBudget?'var(--red)':'var(--accent2)'}">
-          ${totalExp>totalBudget?'⚠️ Over by '+sym+' '+(totalExp-totalBudget).toFixed(2):'✓ Remaining: '+sym+' '+(totalBudget-totalExp).toFixed(2)}
+        <div class="budget-bar-track"><div class="budget-bar-fill" style="width:${totalUsedPct}%;background:${totalColor}"></div></div>
+        <p style="font-size:12px;margin-top:6px;color:${totalExp>effectiveTotal?'var(--red)':"var(--accent2)"}">
+          ${totalExp>effectiveTotal?'⚠️ Over by '+sym+' '+(totalExp-effectiveTotal).toFixed(2):'✓ Remaining: '+sym+' '+(effectiveTotal-totalExp).toFixed(2)}
         </p>
       </div>`:''}
     </div>
-
-    ${isAll&&ledgerRows?`<div class="card" style="padding:16px;margin-bottom:20px;border-radius:18px">
-      <p class="label" style="margin-bottom:10px">Spending by Ledger</p>${ledgerRows}
-    </div>`:''}
-
+    ${isAll&&ledgerRows?`<div class="card" style="padding:16px;margin-bottom:20px;border-radius:18px"><p class="label" style="margin-bottom:10px">Spending by Ledger</p>${ledgerRows}</div>`:''}
     <button id="budgetCopyBtn" style="width:100%;padding:12px;border-radius:12px;background:rgba(78,205,196,0.1);color:var(--accent2);font-size:13px;font-weight:600;border:1px solid rgba(78,205,196,0.2);margin-bottom:20px;cursor:pointer;font-family:'Sora',sans-serif">📋 Copy budgets from previous month</button>
-
-    <!-- Per-category limits (with subcats) -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <p style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase">Category Limits</p>
       <p style="font-size:11px;color:var(--dim)">Tap ▼ to set subcategory limits</p>
     </div>
     ${catRows}
-    <p style="font-size:12px;color:var(--dim);margin-top:8px;text-align:center">${isAll?'All Ledgers budget is personal — only you see it':'Ledger budget shared with all ledger members'}</p>
+    <p style="font-size:12px;color:var(--dim);margin-top:8px;text-align:center">${isAll?'All Ledgers budget is personal — only you see it':"Ledger budget shared with all ledger members"}</p>
+    <!-- Floating Save button -->
+    <button id="bgt-float-save" onclick="bgtSaveAll()" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 44px);max-width:386px;z-index:60;display:${window._bgtDirty?'flex':"none"};padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 28px rgba(108,99,255,0.45)">
+      💾 Save Budget
+    </button>
   </div>`;
 }
 
 function attachBudgetListeners(){
   const ym=S.budgetMonth;
   const isAll=S.budgetScope==='all';
-  const basePath=isAll?'users/'+S.user.uid+'/budgets/'+ym+'/':'ledgers/'+S.activeLedgerId+'/budgets/'+ym+'/';
 
-  // Clone all interactive elements to remove stale listeners
-  ['budgetBackBtn','budgetPrevBtn','budgetNextBtn','bgt__total_save','budgetCopyBtn','scopeLedger','scopeAll'].forEach(id=>{
+  ['budgetBackBtn','budgetPrevBtn','budgetNextBtn','budgetCopyBtn','scopeLedger','scopeAll'].forEach(id=>{
     const el=document.getElementById(id);
     if(el){const clone=el.cloneNode(true);el.parentNode.replaceChild(clone,el);}
   });
-  document.querySelectorAll('.bgt-any-save').forEach(btn=>{
-    const clone=btn.cloneNode(true);btn.parentNode.replaceChild(clone,btn);
-  });
 
-  document.getElementById('scopeLedger')?.addEventListener('click',()=>{S.budgetScope='ledger';renderPage();});
+  document.getElementById('scopeLedger')?.addEventListener('click',()=>{S.budgetScope='ledger';window._bgtDirty=false;renderPage();});
   document.getElementById('scopeAll')?.addEventListener('click',()=>{
-    S.budgetScope='all';
+    S.budgetScope='all';window._bgtDirty=false;
     if(!S.totalView){
       Object.keys(S.ledgers).forEach(lid=>{
-        if(lid===S.activeLedgerId)return;
-        if(S.allLedgerTxs[lid])return;
+        if(lid===S.activeLedgerId||S.allLedgerTxs[lid])return;
         S.allLedgerTxs[lid]={};
         const rTx=ref(db,'ledgerTransactions/'+lid);
         const fnTx=s=>{S.allLedgerTxs[lid]=s.exists()?s.val():{};if(S.view==='budget')renderPage();};
@@ -4165,33 +4280,25 @@ function attachBudgetListeners(){
     }
     renderPage();
   });
-
   document.getElementById('budgetBackBtn')?.addEventListener('click',()=>{
+    window._bgtDirty=false;
     const nowYm=new Date().toISOString().slice(0,7);
     if(ym!==nowYm)switchBudgetMonth(nowYm);
     goHome('analytics');
   });
   document.getElementById('budgetPrevBtn')?.addEventListener('click',()=>{
-    const[yr,mo]=S.budgetMonth.split('-').map(Number);
-    switchBudgetMonth(`${mo===1?yr-1:yr}-${String(mo===1?12:mo-1).padStart(2,'0')}`);
+    window._bgtDirty=false;
+    const[yr2,mo2]=S.budgetMonth.split('-').map(Number);
+    switchBudgetMonth(`${mo2===1?yr2-1:yr2}-${String(mo2===1?12:mo2-1).padStart(2,'0')}`);
   });
   document.getElementById('budgetNextBtn')?.addEventListener('click',()=>{
-    const[yr,mo]=S.budgetMonth.split('-').map(Number);
-    switchBudgetMonth(`${mo===12?yr+1:yr}-${String(mo===12?1:mo+1).padStart(2,'0')}`);
+    window._bgtDirty=false;
+    const[yr2,mo2]=S.budgetMonth.split('-').map(Number);
+    switchBudgetMonth(`${mo2===12?yr2+1:yr2}-${String(mo2===12?1:mo2+1).padStart(2,'0')}`);
   });
-
-  document.getElementById('bgt__total_save')?.addEventListener('click',async()=>{
-    const val=parseFloat(document.getElementById('bgt__total')?.value||'0')||0;
-    try{
-      if(val<=0){await remove(ref(db,basePath+'_total'));}
-      else{await set(ref(db,basePath+'_total'),val);}
-      toast('✓ Total budget saved');
-    }catch(e){toast('Error: '+e.message,'var(--red)');}
-  });
-
   document.getElementById('budgetCopyBtn')?.addEventListener('click',async()=>{
-    const[yr,mo]=ym.split('-').map(Number);
-    const py=mo===1?yr-1:yr, pm=mo===1?12:mo-1;
+    const[yr2,mo2]=ym.split('-').map(Number);
+    const py=mo2===1?yr2-1:yr2, pm=mo2===1?12:mo2-1;
     const prevYm=`${py}-${String(pm).padStart(2,'0')}`;
     const srcPath=isAll?'users/'+S.user.uid+'/budgets/'+prevYm:'ledgers/'+S.activeLedgerId+'/budgets/'+prevYm;
     const dstPath=isAll?'users/'+S.user.uid+'/budgets/'+ym:'ledgers/'+S.activeLedgerId+'/budgets/'+ym;
@@ -4199,24 +4306,19 @@ function attachBudgetListeners(){
       const snap=await get(ref(db,srcPath));
       if(!snap.exists()){toast('No budgets found for previous month','var(--muted)');return;}
       await set(ref(db,dstPath),snap.val());
+      window._bgtDirty=false;
       toast('✓ Copied from '+new Date(py,pm-1,1).toLocaleDateString('en-MY',{month:'long',year:'numeric'}));
+      renderPage();
     }catch(e){toast('Error: '+e.message,'var(--red)');}
   });
-
-  // Unified save handler for both category and subcategory budget inputs
-  document.querySelectorAll('.bgt-any-save').forEach(btn=>{
-    btn.addEventListener('click',async()=>{
-      const budgetKey=btn.dataset.budgetkey;
-      const inp=document.querySelector(`.bgt-any-input[data-budgetkey="${budgetKey}"]`);
-      const val=parseFloat(inp?.value||'0')||0;
-      try{
-        if(val<=0){await remove(ref(db,basePath+budgetKey));}
-        else{await set(ref(db,basePath+budgetKey),val);}
-        toast('✓ Saved');
-      }catch(e){toast('Error: '+e.message,'var(--red)');}
-    });
+  // Run live validation once on load
+  requestAnimationFrame(()=>{
+    _bgtCheckTotalFlag();
+    const cats=getCats();
+    Object.keys(cats).filter(k=>k!=='income').forEach(key=>window._bgtUpdateLive(key));
   });
 }
+
 
 // ══════════════════════════════════════════
 //  CATEGORIES PAGE — with subcategory management
@@ -5178,7 +5280,7 @@ window.tapNotif=async(id,type,txKey,settleKey,lid)=>{
 window.goAdd       =()=>{S.addForm=blankForm();S.editTxKey=null;S.view='add';render();};
 window.goSettings  =()=>{S.view='settings';render();};
 window.goInvite    =()=>{_code=null;S.view='invite';render();};
-window.goBudget    =()=>{const nowYm=new Date().toISOString().slice(0,7);if(S.budgetMonth!==nowYm)switchBudgetMonth(nowYm);S.view='budget';render();};
+window.goBudget    =()=>{const nowYm=new Date().toISOString().slice(0,7);if(S.budgetMonth!==nowYm)switchBudgetMonth(nowYm);window._bgtDirty=false;S.view='budget';render();};
 window.goCategories=()=>{editCatKey=null;editSubcatKey=null;S.view='categories';render();};
 window.goGuests    =()=>{S.view='guests';render();};
 window.goAssets    =()=>{S.view='assets';render();};
