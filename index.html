@@ -20,11 +20,9 @@
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;transition:background-color 0.25s,color 0.15s,border-color 0.2s}
 
   /* Single layout that works in both Safari browser and standalone PWA */
-  html{background:#0A0A14}
-  html.light{background:#F4F4FA}
   html,body{height:100%;overflow:hidden;background:var(--bg)}
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:stretch}
-  #app{width:100%;max-width:430px;height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+  #app{width:100%;max-width:430px;height:100%;min-height:100dvh;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
   .page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .page::-webkit-scrollbar{display:none}
   html.mode-standalone #scrollTrigger{display:none}
@@ -91,7 +89,7 @@
   .member-box .m-avatar{font-size:20px;margin-bottom:3px}
   .member-box.active{color:#fff}
   .split-hint{font-size:12px;color:var(--accent);text-align:center;margin-top:10px}
-  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:10px 30px 10px;display:flex;justify-content:space-around;align-items:center;z-index:50}
+  .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--bg);backdrop-filter:blur(20px);border-top:1px solid var(--border);padding:10px 30px calc(10px + env(safe-area-inset-bottom));display:flex;justify-content:space-around;align-items:center;z-index:50}
   .bottom-nav::after{content:'';position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:60px;background:var(--bg);z-index:-1}
   .nav-btn{display:flex;flex-direction:column;align-items:center;gap:4px;background:none;color:var(--dim);font-size:11px;font-weight:600;padding:4px 12px}
   .nav-btn.active{color:var(--accent)}
@@ -6691,18 +6689,11 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
     document.body.appendChild(probe);
     var safeH=probe.getBoundingClientRect().height||0;
     document.body.removeChild(probe);
-
-    var nav=document.getElementById('bottomNav');
-    // In PWA: nav padding covers safe area + comfortable tap space
-    if(nav)nav.style.paddingBottom=(safeH+10)+'px';
-
-    // Page scroll area must end above the nav
-    var navH=nav?nav.getBoundingClientRect().height:80;
+    // Set page scroll padding to clear the nav bar (nav ~60px + safe area)
     document.querySelectorAll('.page').forEach(function(p){
-      p.style.paddingBottom=navH+'px';
+      p.style.paddingBottom=(70+safeH)+'px';
     });
   }
-
   applyGap();
   requestAnimationFrame(applyGap);
   document.addEventListener('visibilitychange',function(){
@@ -6711,7 +6702,7 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
   window.addEventListener('pageshow',function(){applyGap();setTimeout(applyGap,150);});
   window.addEventListener('resize',applyGap,{passive:true});
   window.addEventListener('orientationchange',function(){setTimeout(applyGap,300);},{passive:true});
-  window.addEventListener('focus',function(){applyGap();},{passive:true});
+  window.addEventListener('focus',applyGap,{passive:true});
 })();
 
 // ── VIEWPORT & ADDRESS BAR FIX ──
@@ -6726,21 +6717,16 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
   }
 
   if(isStandalone){
-    // PWA — use full innerHeight, adjust when keyboard appears
-    function setPwaHeight(){
-      var h=window.innerHeight;
-      if(app&&h>100)app.style.height=h+'px';
-    }
-    setPwaHeight();
-    requestAnimationFrame(setPwaHeight);
+    // PWA — let CSS 100dvh handle full height.
+    // Only shrink app when keyboard appears (visualViewport height drops significantly)
     if(window.visualViewport){
       window.visualViewport.addEventListener('resize',function(){
         var vvh=window.visualViewport.height;
-        if(app){app.style.height=(window.innerHeight-vvh>100?vvh:window.innerHeight)+'px';}
+        var diff=window.innerHeight-vvh;
+        // Only adjust if keyboard is open (diff > 100px)
+        if(app){app.style.height=(diff>100?vvh:''+'');}
       },{passive:true});
     }
-    window.addEventListener('resize',setPwaHeight,{passive:true});
-    window.addEventListener('orientationchange',function(){setTimeout(setPwaHeight,300);},{passive:true});
   } else {
     // Safari browser — make body taller than viewport so address bar can hide on scroll
     var trigger=document.getElementById('scrollTrigger');
