@@ -197,11 +197,12 @@
      Hidden in standalone mode via CSS. -->
 <div id="scrollTrigger" style="height:1px;width:1px;position:absolute;bottom:0;opacity:0;pointer-events:none"></div>
 
+<script src="firebase-config.js" onerror="window.__FIREBASE_CONFIG_MISSING__=true"></script>
 <script>
-// Inline fallback: if firebase-config.js is missing (e.g. GitHub Pages without the file),
-// show a clear setup message instead of infinite loading.
-if(typeof window.__FIREBASE_CONFIG__ === 'undefined'){
-  window.addEventListener('DOMContentLoaded', function(){
+// Guard runs AFTER firebase-config.js has loaded (or failed).
+// Only show the setup screen if the config is genuinely missing.
+if(window.__FIREBASE_CONFIG_MISSING__ || typeof window.__FIREBASE_CONFIG__ === 'undefined'){
+  document.addEventListener('DOMContentLoaded', function(){
     var ls = document.getElementById('loadingScreen');
     if(ls){
       ls.innerHTML = '<div style="max-width:340px;text-align:center;padding:0 24px">'
@@ -229,7 +230,6 @@ if(typeof window.__FIREBASE_CONFIG__ === 'undefined'){
   });
 }
 </script>
-<script src="firebase-config.js" onerror="console.warn('firebase-config.js not found')"></script>
 <script type="module">
 import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";

@@ -31,16 +31,17 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
 
-  // Always fetch Firebase, Google APIs from network — never cache
+  // Always let external APIs go straight to network — never intercept
   if (
     url.hostname.includes('firebase') ||
     url.hostname.includes('firebaseapp') ||
     url.hostname.includes('googleapis') ||
     url.hostname.includes('gstatic') ||
+    url.hostname.includes('openai.com') ||
+    url.hostname.includes('generativelanguage') ||
     url.protocol === 'chrome-extension:'
   ) {
-    e.respondWith(fetch(e.request));
-    return;
+    return; // Do NOT call e.respondWith — browser handles it natively
   }
 
   // App shell: cache first, network fallback
