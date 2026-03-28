@@ -4,42 +4,403 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Install Family Wallet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,sans-serif;background:#0A0A14;color:#F0EEF6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
-  .card{background:#1A1A2E;border:1px solid rgba(108,99,255,0.2);border-radius:24px;padding:36px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.4)}
-  .icon{width:80px;height:80px;border-radius:20px;margin:0 auto 20px;display:block}
-  h1{font-size:22px;font-weight:700;margin-bottom:8px}
-  p{font-size:14px;color:#8A88AA;line-height:1.6;margin-bottom:28px}
-  .btn{display:block;width:100%;padding:16px;border-radius:14px;background:linear-gradient(135deg,#6C63FF,#4ECDC4);color:#fff;font-size:16px;font-weight:700;text-decoration:none;border:none;cursor:pointer;font-family:-apple-system,sans-serif;margin-bottom:12px}
-  .steps{background:rgba(255,255,255,0.04);border-radius:14px;padding:16px;text-align:left;margin-top:20px}
-  .steps p{margin-bottom:0;font-size:13px}
-  .step{display:flex;gap:10px;margin-bottom:10px;align-items:flex-start}
-  .step:last-child{margin-bottom:0}
-  .num{background:rgba(108,99,255,0.3);color:#6C63FF;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
-  .step-text{font-size:13px;color:#8A88AA;line-height:1.5}
-  .note{font-size:11px;color:#5A587A;margin-top:16px}
+  :root {
+    --bg: #07070F;
+    --card: #0F0F1E;
+    --accent: #6C63FF;
+    --accent2: #4ECDC4;
+    --green: #69D2A0;
+    --text: #F0EEF6;
+    --muted: #8A88AA;
+    --dim: #3A3860;
+    --border: rgba(108,99,255,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  .bg-glow {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .bg-glow::before {
+    content: '';
+    position: absolute;
+    top: -20%;
+    left: -10%;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,99,255,0.12) 0%, transparent 70%);
+    animation: drift1 8s ease-in-out infinite alternate;
+  }
+  .bg-glow::after {
+    content: '';
+    position: absolute;
+    bottom: -10%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(78,205,196,0.1) 0%, transparent 70%);
+    animation: drift2 10s ease-in-out infinite alternate;
+  }
+  @keyframes drift1 { from{transform:translate(0,0)} to{transform:translate(5vw,3vh)} }
+  @keyframes drift2 { from{transform:translate(0,0)} to{transform:translate(-4vw,-5vh)} }
+
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 40px 20px 60px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .app-icon {
+    width: 96px;
+    height: 96px;
+    border-radius: 24px;
+    margin: 0 auto 20px;
+    display: block;
+    box-shadow: 0 8px 40px rgba(108,99,255,0.4);
+    animation: iconPop 0.7s cubic-bezier(.22,.68,0,1.3) both;
+  }
+  .app-name {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .app-tagline {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  /* Feature pills */
+  .features {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: 20px 0 32px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  .pill {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: rgba(108,99,255,0.1);
+    border: 1px solid rgba(108,99,255,0.2);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  .pill span { font-size: 14px; }
+
+  /* Main CTA */
+  .cta-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 28px 24px;
+    margin-bottom: 16px;
+    animation: fadeUp 0.6s 0.2s ease both;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .cta-label {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent2);
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .cta-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    letter-spacing: -0.02em;
+  }
+  .cta-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    line-height: 1.6;
+  }
+
+  .install-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 17px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    color: #fff;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Sora', sans-serif;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(108,99,255,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.01em;
+  }
+  .install-btn:active {
+    transform: scale(0.97);
+    box-shadow: 0 4px 12px rgba(108,99,255,0.3);
+  }
+  .install-btn .btn-icon { font-size: 22px; }
+
+  .safari-note {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(255,230,109,0.08);
+    border: 1px solid rgba(255,230,109,0.15);
+  }
+  .safari-note p {
+    font-size: 12px;
+    color: #FFE66D;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Steps */
+  .steps-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 24px;
+    animation: fadeUp 0.6s 0.3s ease both;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+  }
+  .steps-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .step {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    position: relative;
+  }
+  .step:last-child { margin-bottom: 0; }
+  .step::before {
+    content: '';
+    position: absolute;
+    left: 17px;
+    top: 34px;
+    width: 2px;
+    height: calc(100% + 4px);
+    background: linear-gradient(to bottom, var(--dim), transparent);
+  }
+  .step:last-child::before { display: none; }
+  .step-num {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(108,99,255,0.3), rgba(78,205,196,0.2));
+    border: 1px solid rgba(108,99,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent2);
+    flex-shrink: 0;
+    font-family: 'DM Mono', monospace;
+  }
+  .step-content { flex: 1; padding-top: 6px; }
+  .step-heading {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 3px;
+  }
+  .step-detail {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .step-detail strong {
+    color: #fff;
+    font-weight: 600;
+  }
+  .step-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    background: rgba(105,210,160,0.15);
+    border: 1px solid rgba(105,210,160,0.25);
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--green);
+    margin-top: 6px;
+  }
+
+  /* Open app button */
+  .open-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 15px;
+    margin-top: 16px;
+    border-radius: 14px;
+    background: rgba(105,210,160,0.1);
+    border: 1px solid rgba(105,210,160,0.25);
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Sora', sans-serif;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .open-btn:active { transform: scale(0.97); }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes iconPop {
+    from { opacity: 0; transform: scale(0.6); }
+    to   { opacity: 1; transform: scale(1); }
+  }
 </style>
 </head>
 <body>
-<div class="card">
-  <img class="icon" src="icon-192.png" alt="Family Wallet">
-  <h1>Family Wallet</h1>
-  <p>Install as a full screen app on your iPhone home screen — no address bar.</p>
 
-  <a class="btn" href="data:application/x-apple-aspen-config;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KICAgIDxrZXk+Q29uc2VudFRleHQ8L2tleT4KICAgIDxkaWN0PgogICAgICAgIDxrZXk+ZGVmYXVsdDwva2V5PgogICAgICAgIDxzdHJpbmc+VGFwIEluc3RhbGwgdG8gYWRkIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcC48L3N0cmluZz4KICAgIDwvZGljdD4KICAgIDxrZXk+UGF5bG9hZENvbnRlbnQ8L2tleT4KICAgIDxhcnJheT4KICAgICAgICA8ZGljdD4KICAgICAgICAgICAgPGtleT5GdWxsU2NyZWVuPC9rZXk+CiAgICAgICAgICAgIDx0cnVlLz4KICAgICAgICAgICAgPGtleT5JY29uPC9rZXk+CiAgICAgICAgICAgIDxkYXRhPmlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFNQUFBQURBQ0FJQUFBRGR2dnRRQUFBR3VrbEVRVlI0bk8zZHY0b2xSUmpHNFZveFdCYlpnVVZaREFXdllHL0VVRVF3TUREWXdOVEEyR0JUZ3cwTURBUVJRMi9FV3pBVUVZUXhNalFvYUlvNWMyYTYrL3YzdmxYdkU3cTcwbDNuMTEvMU9YT0dmdkxzMmZ0TjVLeDNxZzlBdUNrZ01WRkFZcUtBeEVRQmlZa0NFaE1GSkNZS1NFd1VrSmdvSURGUlFHS2lnTVJFQVltSkFoSVRCU1FtQ2toTUZKQ1lLQ0F4VVVCaW9vREVSQUdKaVFJU2szZXJEd0RGbDUvOWZmU2YvUGpMQnhGSHd1WEptcjhYZGlLWFBSWk1hcUdBZ3FLNVpwR1lKZzhvT1pwckpvNXB6b0JBdXJrMFgwbXpCUVNiem1pbWpDWUppS0tiU3hPVVJCOFFhVG9qNm95SUE1b2duUkZwUnBRQlRaYk9pQzRqdmg5bFRGeFBJenc3cGdsRXQ3Z1dMS09JWmdJdFZVL2pPVitDQ2NTeWxFSEFSeEg2QkZxOG5nYS9BdEFCZ2E5ZEd1UjFBTjNDa0plc0VPQjJoamlCVk04MWdDc0RGeERnR2tGQld4K3NMYXgyZGY2NS9Xdi9YMzV4OHpMdVNCNkZzNWNCQlpSZno2RmlIcGJmRTBoREtBR2wxZU1ZelRWcE1TRTBCQkZRUWowSjNWeEtLS204b2ZxQW91c3BTV2NVblZGdFE4VUJoZFpUbnM0b05LUENoaW9EaXFzSEtwMVJYRVpWRFpVRkZGUVBiRHFqb0l4S0dxb0pLS0llaW5SR0VSbmxOd1QzU2ZRNWRQVTB6bU8rVkJDUSsvamhmU1hjanp6L3c5anNMY3ozREhuVHVjTjNPOHZjeUZJbmtPcTV4dmRjTXVjUTZ6M1FUUFYwcEdlVUY1RGpaVUc2MW85eVBLKzBJWlFVa09yWmlhNGhzaTFzN25vNnJuUE1DTWpyVXVCYVdRdXZNMDBZUXVFQnFaNXpXQnJpMk1KV3E2ZWpPT3ZZZ0Z6eXAxakhJQzduSGpxRTBDZlF5dlYwNENzUUdCRGFMNkNzTE82MWdKNUE0QmRmR3VSMWlBckluanp5cXVXenIwYlFFQUtkUUtybkV1YWFnQVlrTEVJQ01rNUx6RXNOZ1hGbEluYXhHUjczOVBhSDU5V0hjTjdyci82dFBnUVQvMjhrWm80ZjZuUkdoekl5Zm4zUjkvdUt4UGRBMDlUVG1NOEZLNkQ5NDRkM3hhL1pmMFpROTRqT0FlblRaM3krcnhIUUJGcDUvSFNNUXdnb0lHR0VFaERPSmNVQ1pNVThBOUlORUF2SFZ3cGxBZ2twaUlCQXBqRWRoSFdEQ0VoNHVRV2tHeUF1WHErWEpwQ1kxQWVFc0pIektsODl5cTl6ZlBISDc5V0hFT1c5OW5IMUlSeFRQNEdFbWdJU0U1K0E5QmFNa2N1clZqeUJ5dThCSjFDN2h0ckN4RVFCaVlrQ0VoUEt6NEh1K08zRFh5Ly80eWQvZnBwL0pBdmlEdWplZE1ZL1VrYlJpTGV3QitvNTlIZkVnbklDSGNwQ295Z1VaVUFuL1BUUnErcEQyT1YxSS90Tlo3NHQ3T2Z2dnp2eHIyNysrOGI5U0tUUkJYU3VuazROUlNBTFNOQXdCV1FaUDUyR2tEdW1nQVNRQWhLVDRvRGlucU8ranRvMTlBbW82cW4zWXVIeXFta0xFeE1GSkNaTUFYMys5YmZHLzhQdDB6Y3VSeUtiK29CMEgyMVJ2bnIxQVIxaUdVSWFQeEhjQWtwN0kzYXVJZFZ6aDlmclJUYUJCQTNFOTRGZTNMdzg5TXROZlp6cy9NSFd4TE9uL0Fhb1VVK2dQV1ZNWEE4SXo0RHlQNCsrZmZybVdpSVAvSkU0dmxJUVcxZzd2b3VOMWd3RllmOXExRnVZSUFBS0NPU1Nvb0N6VnM0QjVkd0dzVCtrN1pxYzg1cjVlV0U0RnhZeXFGWENDbWkvK1lZUTZSbjVCMlNja1Bzdkw5SVZ2OWYrYzRGNjNtWERlUnQvVGw5MzZzZUhzVjhHL2cvZDdmVGs3d2hvNDZmeDNnTUpDTkNBb041b2dNQmNrNmlBN05NU2M3MnEyRmNqNkNNNjBBblVxYUVPZVIwQ0E5SXZpK0dJZXkyZ0oxRER2dmh5Z0s5QWJFQXU0WU92WUNpWGN3L2RDdEFuVUxkbVF4Um5IUjZRVi80VXErbkk2M3lqNzBRekpwQWFPb3FsbnNheWhXMVdhSWpySEpNQ2Nyd1V1TmIzS01lenkva1lKVzhDcWFGSDBkWFQ2TGF3elh3TmtaNVJha0MrbHdYcGl0L0w5MXd5ZndZUTlYMmdCN2cvWUpYNnkwUHVsMEh5VDVBS3RqRDNNK1FkUmV6MU5ONTdvRHNZRzJJODVrc0ZXMWdYOUtSd2l1MHNLSjJTcnorVUJkUWluellQbTFIYzFLbjY4a3hsUUMyeW9RYVdVZWlHVmZqVnErS0FXbkJERFNDajZIdWQyaS91MVFmVTRodHFSUmtsM0NhWGYrMFRJcUNXMGxDWFVGTGEyNnZ5ZWhwT1FDMnhvWTFqVFBudnlSSHFhVkFCdFlxR1JvZDZxdjBVQjZTZWhoWlFxMjZJQWs0OURmQ1RhS2pWQVlTMlBuQUJOYncxd2dHNE1uQmIyRWpiMlFZd25RNXhBbTFnVnkwWjhqcEFCOVN3MXk0SCtBcEFiMkdqQmJjejhIUTY5QW0wb1ZoTlJ5em5Tek9CTnRPUElwWjBPcG9KdE9GYTM2UG96bzV2QW0wbUcwVjA2WFRFQVhVVFpFU2FUa2NmVUVlYUVYVTYzU1FCYlNoS21xQ2J6V3dCZGJBWnpaUk9OMmRBRzVDUzV1dG1NM2xBbytTWUpvNW10RkJBbzZDWUZvbG10R2hBbDA0a3RXQXVseFNRbVBEOUtFT2dLQ0F4VVVCaW9vREVSQUdKaVFJU0V3VWtKZ3BJVEJTUW1DZ2dNVkZBWXFLQXhFUUJpWWtDRWhNRkpDWUtTRXdVa0pnb0lERlJRR0tpZ01SRUFZbkovMmNkSjcyZjVyQThBQUFBQUVsRlRrU3VRbUNDPC9kYXRhPgogICAgICAgICAgICA8a2V5PklzUmVtb3ZhYmxlPC9rZXk+CiAgICAgICAgICAgIDx0cnVlLz4KICAgICAgICAgICAgPGtleT5MYWJlbDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPkZhbWlseSBXYWxsZXQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkRGVzY3JpcHRpb248L2tleT4KICAgICAgICAgICAgPHN0cmluZz5BZGRzIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcDwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWREaXNwbGF5TmFtZTwva2V5PgogICAgICAgICAgICA8c3RyaW5nPldlYiBDbGlwIChGYW1pbHkgV2FsbGV0KTwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWRJZGVudGlmaWVyPC9rZXk+CiAgICAgICAgICAgIDxzdHJpbmc+Y29tLmZhbWlseXdhbGxldC53ZWJjbGlwPC9zdHJpbmc+CiAgICAgICAgICAgIDxrZXk+UGF5bG9hZE9yZ2FuaXphdGlvbjwva2V5PgogICAgICAgICAgICA8c3RyaW5nPkZhbWlseSBXYWxsZXQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkVHlwZTwva2V5PgogICAgICAgICAgICA8c3RyaW5nPmNvbS5hcHBsZS53ZWJDbGlwLm1hbmFnZWQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkVVVJRDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPjY1NEY4MTM0LUIwQTktNDJDQi05NTVCLUQwNTA4NjRCNkEzNzwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+CiAgICAgICAgICAgIDxpbnRlZ2VyPjE8L2ludGVnZXI+CiAgICAgICAgICAgIDxrZXk+UHJlY29tcG9zZWQ8L2tleT4KICAgICAgICAgICAgPHRydWUvPgogICAgICAgICAgICA8a2V5PlVSTDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPmh0dHBzOi8vaGVyYWxpbmUuZ2l0aHViLmlvL0ZhbWlseS1XYWxsZXQvaW5kZXguaHRtbDwvc3RyaW5nPgogICAgICAgIDwvZGljdD4KICAgIDwvYXJyYXk+CiAgICA8a2V5PlBheWxvYWREZXNjcmlwdGlvbjwva2V5PgogICAgPHN0cmluZz5BZGRzIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcDwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkRGlzcGxheU5hbWU8L2tleT4KICAgIDxzdHJpbmc+RmFtaWx5IFdhbGxldDwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkSWRlbnRpZmllcjwva2V5PgogICAgPHN0cmluZz5jb20uZmFtaWx5d2FsbGV0LnByb2ZpbGU8L3N0cmluZz4KICAgIDxrZXk+UGF5bG9hZE9yZ2FuaXphdGlvbjwva2V5PgogICAgPHN0cmluZz5GYW1pbHkgV2FsbGV0PC9zdHJpbmc+CiAgICA8a2V5PlBheWxvYWRSZW1vdmFsRGlzYWxsb3dlZDwva2V5PgogICAgPGZhbHNlLz4KICAgIDxrZXk+UGF5bG9hZFR5cGU8L2tleT4KICAgIDxzdHJpbmc+Q29uZmlndXJhdGlvbjwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkVVVJRDwva2V5PgogICAgPHN0cmluZz5FOEEzNEVFQS1DNDFELTQyMTQtQjBFOS03N0ZGMjBEN0Y0MjI8L3N0cmluZz4KICAgIDxrZXk+UGF5bG9hZFZlcnNpb248L2tleT4KICAgIDxpbnRlZ2VyPjE8L2ludGVnZXI+CjwvZGljdD4KPC9wbGlzdD4=" id="installBtn">
-    📲 Install on iPhone
-  </a>
+<div class="bg-glow"></div>
 
-  <div class="steps">
-    <div class="step"><div class="num">1</div><div class="step-text">Tap <strong style="color:#F0EEF6">Install on iPhone</strong> above</div></div>
-    <div class="step"><div class="num">2</div><div class="step-text">Tap <strong style="color:#F0EEF6">Allow</strong> when Safari asks to download</div></div>
-    <div class="step"><div class="num">3</div><div class="step-text">Go to <strong style="color:#F0EEF6">Settings → General → VPN & Device Management</strong></div></div>
-    <div class="step"><div class="num">4</div><div class="step-text">Tap <strong style="color:#F0EEF6">Family Wallet</strong> → <strong style="color:#F0EEF6">Install</strong></div></div>
-    <div class="step"><div class="num">5</div><div class="step-text">Find the app icon on your home screen ✓</div></div>
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="header">
+    <img class="app-icon" src="icon-192.png" alt="Family Wallet">
+    <h1 class="app-name">Family Wallet</h1>
+    <p class="app-tagline">Real-time shared spending tracker<br>for families & friends</p>
   </div>
 
-  <p class="note">⚠️ Open this page in Safari — does not work in Chrome or other browsers</p>
+  <!-- Feature pills -->
+  <div class="features">
+    <div class="pill"><span>💳</span> Track expenses</div>
+    <div class="pill"><span>👨‍👩‍👧‍👦</span> Family sharing</div>
+    <div class="pill"><span>✨</span> AI scanning</div>
+    <div class="pill"><span>📊</span> Analytics</div>
+  </div>
+
+  <!-- Main install CTA -->
+  <div class="cta-card">
+    <p class="cta-label">⚡ Recommended</p>
+    <h2 class="cta-title">Install as Home Screen App</h2>
+    <p class="cta-sub">Full screen experience — no browser bar, works like a native app, always available offline.</p>
+
+    <a class="install-btn" href="data:application/x-apple-aspen-config;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KICAgIDxrZXk+Q29uc2VudFRleHQ8L2tleT4KICAgIDxkaWN0PgogICAgICAgIDxrZXk+ZGVmYXVsdDwva2V5PgogICAgICAgIDxzdHJpbmc+VGFwIEluc3RhbGwgdG8gYWRkIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcC48L3N0cmluZz4KICAgIDwvZGljdD4KICAgIDxrZXk+UGF5bG9hZENvbnRlbnQ8L2tleT4KICAgIDxhcnJheT4KICAgICAgICA8ZGljdD4KICAgICAgICAgICAgPGtleT5GdWxsU2NyZWVuPC9rZXk+CiAgICAgICAgICAgIDx0cnVlLz4KICAgICAgICAgICAgPGtleT5JY29uPC9rZXk+CiAgICAgICAgICAgIDxkYXRhPmlWQk9SdzBLR2dvQUFBQU5TVWhFVWdBQUFNQUFBQURBQ0FJQUFBRGR2dnRRQUFBR3VrbEVRVlI0bk8zZHY0b2xSUmpHNFZveFdCYlpnVVZaREFXdllHL0VVRVF3TUREWXdOVEEyR0JUZ3cwTURBUVJRMi9FV3pBVUVZUXhNalFvYUlvNWMyYTYrL3YzdmxYdkU3cTcwbDNuMTEvMU9YT0dmdkxzMmZ0TjVLeDNxZzlBdUNrZ01WRkFZcUtBeEVRQmlZa0NFaE1GSkNZS1NFd1VrSmdvSURGUlFHS2lnTVJFQVltSkFoSVRCU1FtQ2toTUZKQ1lLQ0F4VVVCaW9vREVSQUdKaVFJU2szZXJEd0RGbDUvOWZmU2YvUGpMQnhGSHd1WEptcjhYZGlLWFBSWk1hcUdBZ3FLNVpwR1lKZzhvT1pwckpvNXB6b0JBdXJrMFgwbXpCUVNiem1pbWpDWUppS0tiU3hPVVJCOFFhVG9qNm95SUE1b2duUkZwUnBRQlRaYk9pQzRqdmg5bFRGeFBJenc3cGdsRXQ3Z1dMS09JWmdJdFZVL2pPVitDQ2NTeWxFSEFSeEg2QkZxOG5nYS9BdEFCZ2E5ZEd1UjFBTjNDa0plc0VPQjJoamlCVk04MWdDc0RGeERnR2tGQld4K3NMYXgyZGY2NS9Xdi9YMzV4OHpMdVNCNkZzNWNCQlpSZno2RmlIcGJmRTBoREtBR2wxZU1ZelRWcE1TRTBCQkZRUWowSjNWeEtLS204b2ZxQW91c3BTV2NVblZGdFE4VUJoZFpUbnM0b05LUENoaW9EaXFzSEtwMVJYRVpWRFpVRkZGUVBiRHFqb0l4S0dxb0pLS0llaW5SR0VSbmxOd1QzU2ZRNWRQVTB6bU8rVkJDUSsvamhmU1hjanp6L3c5anNMY3ozREhuVHVjTjNPOHZjeUZJbmtPcTV4dmRjTXVjUTZ6M1FUUFYwcEdlVUY1RGpaVUc2MW85eVBLKzBJWlFVa09yWmlhNGhzaTFzN25vNnJuUE1DTWpyVXVCYVdRdXZNMDBZUXVFQnFaNXpXQnJpMk1KV3E2ZWpPT3ZZZ0Z6eXAxakhJQzduSGpxRTBDZlF5dlYwNENzUUdCRGFMNkNzTE82MWdKNUE0QmRmR3VSMWlBckluanp5cXVXenIwYlFFQUtkUUtybkV1YWFnQVlrTEVJQ01rNUx6RXNOZ1hGbEluYXhHUjczOVBhSDU5V0hjTjdyci82dFBnUVQvMjhrWm80ZjZuUkdoekl5Zm4zUjkvdUt4UGRBMDlUVG1NOEZLNkQ5NDRkM3hhL1pmMFpROTRqT0FlblRaM3krcnhIUUJGcDUvSFNNUXdnb0lHR0VFaERPSmNVQ1pNVThBOUlORUF2SFZ3cGxBZ2twaUlCQXBqRWRoSFdEQ0VoNHVRV2tHeUF1WHErWEpwQ1kxQWVFc0pIektsODl5cTl6ZlBISDc5V0hFT1c5OW5IMUlSeFRQNEdFbWdJU0U1K0E5QmFNa2N1clZqeUJ5dThCSjFDN2h0ckN4RVFCaVlrQ0VoUEt6NEh1K08zRFh5Ly80eWQvZnBwL0pBdmlEdWplZE1ZL1VrYlJpTGV3QitvNTlIZkVnbklDSGNwQ295Z1VaVUFuL1BUUnErcEQyT1YxSS90Tlo3NHQ3T2Z2dnp2eHIyNysrOGI5U0tUUkJYU3VuazROUlNBTFNOQXdCV1FaUDUyR2tEdW1nQVNRQWhLVDRvRGlucU8ranRvMTlBbW82cW4zWXVIeXFta0xFeE1GSkNaTUFYMys5YmZHLzhQdDB6Y3VSeUtiK29CMEgyMVJ2bnIxQVIxaUdVSWFQeEhjQWtwN0kzYXVJZFZ6aDlmclJUYUJCQTNFOTRGZTNMdzg5TXROZlp6cy9NSFd4TE9uL0Fhb1VVK2dQV1ZNWEE0SXo0RHlQNCsrZmZybVdpSVAvSkU0dmxJUVcxZzd2b3VOMWd3RllmOXExRnVZSUFBS0NPU1Nvb0N6VnM0QjVkd0dzVCtrN1pxYzg1cjVlV0U0RnhZeXFGWENDbWkvK1lZUTZSbjVCMlNja1Bzdkw5SVZ2OWYrYzRGNjNtWERlUnQvVGw5MzZzZUhzVjhHL2cvZDdmVGs3d2hvNDZmeDNnTUpDTkNBb041b2dNQmNrNmlBN05NU2M3MnEyRmNqNkNNNjBBblVxYUVPZVIwQ0E5SXZpK0dJZXkyZ0oxRER2dmh5Z0s5QWJFQXU0WU92WUNpWGN3L2RDdEFuVUxkbVF4Um5IUjZRVi80VXErbkk2M3lqNzBRekpwQWFPb3FsbnNheWhXMVdhSWpySEpNQ2Nyd1V1TmIzS01lenkva1lKVzhDcWFGSDBkWFQ2TGF3elh3TmtaNVJha0MrbHdYcGl0L0w5MXd5ZndZUTlYMmdCN2cvWUpYNnkwUHVsMEh5VDVBS3RqRDNNK1FkUmV6MU5ONTdvRHNZRzJJODVrc0ZXMWdYOUtSd2l1MHNLSjJTcnorVUJkUWluellQbTFIYzFLbjY4a3hsUUMyeW9RYVdVZWlHVmZqVnErS0FXbkJERFNDajZIdWQyaS91MVFmVTRodHFSUmtsM0NhWGYrMFRJcUNXMGxDWFVGTGEyNnZ5ZWhwT1FDMnhvWTFqVFBudnlSSHFhVkFCdFlxR1JvZDZxdjBVQjZTZWhoWlFxMjZJQWs0OURmQ1RhS2pWQVlTMlBuQUJOYncxd2dHNE1uQmIyRWpiMlFZd25RNXhBbTFnVnkwWjhqcEFCOVN3MXk0SCtBcEFiMkdqQmJjejhIUTY5QW0wb1ZoTlJ5em5Tek9CTnRPUElwWjBPcG9KdE9GYTM2UG96bzV2QW0wbUcwVjA2WFRFQVhVVFpFU2FUa2NmVUVlYUVYVTYzU1FCYlNoS21xQ2J6V3dCZGJBWnpaUk9OMmRBRzVDUzV1dG1NM2xBbytTWUpvNW10RkJBbzZDWUZvbG10R2hBbDA0a3RXQXVseFNRbVBEOUtFT2dLQ0F4VVVCaW9vREVSQUdKaVFJU0V3VWtKZ3BJVEJTUW1DZ2dNVkZBWXFLQXhFUUJpWWtDRWhNRkpDWUtTRXdVa0pnb0lERlJRR0tpZ01SRUFZbkovMmNkSjcyZjVyQThBQUFBQUVsRlRrU3VRbUNDPC9kYXRhPgogICAgICAgICAgICA8a2V5PklzUmVtb3ZhYmxlPC9rZXk+CiAgICAgICAgICAgIDx0cnVlLz4KICAgICAgICAgICAgPGtleT5MYWJlbDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPkZhbWlseSBXYWxsZXQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkRGVzY3JpcHRpb248L2tleT4KICAgICAgICAgICAgPHN0cmluZz5BZGRzIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcDwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWREaXNwbGF5TmFtZTwva2V5PgogICAgICAgICAgICA8c3RyaW5nPldlYiBDbGlwIChGYW1pbHkgV2FsbGV0KTwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWRJZGVudGlmaWVyPC9rZXk+CiAgICAgICAgICAgIDxzdHJpbmc+Y29tLmZhbWlseXdhbGxldC53ZWJjbGlwPC9zdHJpbmc+CiAgICAgICAgICAgIDxrZXk+UGF5bG9hZE9yZ2FuaXphdGlvbjwva2V5PgogICAgICAgICAgICA8c3RyaW5nPkZhbWlseSBXYWxsZXQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkVHlwZTwva2V5PgogICAgICAgICAgICA8c3RyaW5nPmNvbS5hcHBsZS53ZWJDbGlwLm1hbmFnZWQ8L3N0cmluZz4KICAgICAgICAgICAgPGtleT5QYXlsb2FkVVVJRDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPjY1NEY4MTM0LUIwQTktNDJDQi05NTVCLUQwNTA4NjRCNkEzNzwvc3RyaW5nPgogICAgICAgICAgICA8a2V5PlBheWxvYWRWZXJzaW9uPC9rZXk+CiAgICAgICAgICAgIDxpbnRlZ2VyPjE8L2ludGVnZXI+CiAgICAgICAgICAgIDxrZXk+UHJlY29tcG9zZWQ8L2tleT4KICAgICAgICAgICAgPHRydWUvPgogICAgICAgICAgICA8a2V5PlVSTDwva2V5PgogICAgICAgICAgICA8c3RyaW5nPmh0dHBzOi8vaGVyYWxpbmUuZ2l0aHViLmlvL0ZhbWlseS1XYWxsZXQvaW5kZXguaHRtbDwvc3RyaW5nPgogICAgICAgIDwvZGljdD4KICAgIDwvYXJyYXk+CiAgICA8a2V5PlBheWxvYWREZXNjcmlwdGlvbjwva2V5PgogICAgPHN0cmluZz5BZGRzIEZhbWlseSBXYWxsZXQgdG8geW91ciBob21lIHNjcmVlbiBhcyBhIGZ1bGwgc2NyZWVuIGFwcDwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkRGlzcGxheU5hbWU8L2tleT4KICAgIDxzdHJpbmc+RmFtaWx5IFdhbGxldDwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkSWRlbnRpZmllcjwva2V5PgogICAgPHN0cmluZz5jb20uZmFtaWx5d2FsbGV0LnByb2ZpbGU8L3N0cmluZz4KICAgIDxrZXk+UGF5bG9hZE9yZ2FuaXphdGlvbjwva2V5PgogICAgPHN0cmluZz5GYW1pbHkgV2FsbGV0PC9zdHJpbmc+CiAgICA8a2V5PlBheWxvYWRSZW1vdmFsRGlzYWxsb3dlZDwva2V5PgogICAgPGZhbHNlLz4KICAgIDxrZXk+UGF5bG9hZFR5cGU8L2tleT4KICAgIDxzdHJpbmc+Q29uZmlndXJhdGlvbjwvc3RyaW5nPgogICAgPGtleT5QYXlsb2FkVVVJRDwva2V5PgogICAgPHN0cmluZz5FOEEzNEVFQS1DNDFELTQyMTQtQjBFOS03N0ZGMjBEN0Y0MjI8L3N0cmluZz4KICAgIDxrZXk+UGF5bG9hZFZlcnNpb248L2tleT4KICAgIDxpbnRlZ2VyPjE8L2ludGVnZXI+CjwvZGljdD4KPC9wbGlzdD4=">
+      <span class="btn-icon">📲</span>
+      Install on iPhone
+    </a>
+
+    <div class="safari-note">
+      <span>⚠️</span>
+      <p>Must be opened in <strong>Safari</strong> — won't work in Chrome or other browsers</p>
+    </div>
+  </div>
+
+  <!-- Steps -->
+  <div class="steps-card">
+    <p class="steps-title">How to install</p>
+
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-content">
+        <p class="step-heading">Tap "Install on iPhone"</p>
+        <p class="step-detail">Tap the purple button above to download the profile</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-content">
+        <p class="step-heading">Allow the download</p>
+        <p class="step-detail">Tap <strong>Allow</strong> when Safari asks to download a configuration profile</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-content">
+        <p class="step-heading">Open Settings</p>
+        <p class="step-detail">Go to <strong>Settings → General → VPN & Device Management</strong></p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-content">
+        <p class="step-heading">Install the profile</p>
+        <p class="step-detail">Tap <strong>Family Wallet</strong> → tap <strong>Install</strong> → enter your passcode</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">05</div>
+      <div class="step-content">
+        <p class="step-heading">Done! 🎉</p>
+        <p class="step-detail">Find the Family Wallet icon on your home screen</p>
+        <div class="step-badge">✓ Full screen · No address bar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Open in browser fallback -->
+  <a class="open-btn" href="https://heraline.github.io/Family-Wallet/">
+    🌐 Open in browser instead
+  </a>
+
 </div>
 </body>
 </html>
