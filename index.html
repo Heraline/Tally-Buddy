@@ -21,12 +21,14 @@
 
   /* Single layout that works in both Safari browser and standalone PWA */
   html,body{height:100%;overflow:hidden;background:var(--bg)}
-  /* iOS PWA fix: min-height 100% + safe-area-inset-top fills the gap at bottom
-     caused by viewport-fit=cover shifting content up */
+  /* iOS PWA fix: min-height 100% + safe-area-inset-top fills the gap at bottom */
   body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);display:flex;justify-content:center;align-items:stretch;
     min-height:calc(100% + env(safe-area-inset-top));
     padding-top:env(safe-area-inset-top)}
   #app{width:100%;max-width:430px;height:100%;position:relative;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+  /* Safari browser mode: allow html to scroll so address bar can hide */
+  html.mode-browser{overflow-y:auto}
+  html.mode-browser body{min-height:calc(100% + 60px)}
   .page{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(90px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch}
   .page::-webkit-scrollbar{display:none}
   html.mode-standalone #scrollTrigger{display:none}
@@ -6734,26 +6736,31 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
     }
     window.addEventListener('orientationchange',function(){setTimeout(setPwaHeight,300);},{passive:true});
   } else {
-    // Safari browser — make body taller than viewport so address bar can hide on scroll
-    var trigger=document.getElementById('scrollTrigger');
+    // Safari browser mode — scroll html slightly to trigger address bar hide
     function updateTrigger(){
       var h=window.innerHeight;
       if(app&&h>100)app.style.height=h+'px';
-      // Place trigger just beyond viewport bottom — forces Safari to allow hiding address bar
-      if(trigger){
-        trigger.style.position='fixed';
-        trigger.style.top=(h-1)+'px';
-        trigger.style.height='2px';
-        trigger.style.width='100%';
-      }
     }
     updateTrigger();
     requestAnimationFrame(updateTrigger);
     window.addEventListener('resize',updateTrigger,{passive:true});
     window.addEventListener('orientationchange',function(){setTimeout(updateTrigger,300);},{passive:true});
-    window.addEventListener('scroll',function(){updateTrigger();},{passive:true});
-    // Force initial scroll to trigger address bar hide
-    setTimeout(function(){window.scrollTo(0,1);window.scrollTo(0,0);},300);
+    // Trigger address bar hide: scroll down 1px then back
+    // Must happen after page load when user hasn't interacted yet
+    setTimeout(function(){
+      window.scrollTo({top:1,behavior:'instant'});
+      requestAnimationFrame(function(){
+        window.scrollTo({top:0,behavior:'instant'});
+      });
+    },400);
+    // Re-trigger on resize (address bar reappearing after interaction)
+    window.addEventListener('resize',function(){
+      updateTrigger();
+      setTimeout(function(){
+        window.scrollTo({top:1,behavior:'instant'});
+        requestAnimationFrame(function(){window.scrollTo({top:0,behavior:'instant'});});
+      },100);
+    },{passive:true});
   }
 })();
 
