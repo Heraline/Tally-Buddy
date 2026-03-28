@@ -6736,31 +6736,44 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
     }
     window.addEventListener('orientationchange',function(){setTimeout(setPwaHeight,300);},{passive:true});
   } else {
-    // Safari browser mode — scroll html slightly to trigger address bar hide
-    function updateTrigger(){
+    // Safari browser mode — address bar only hides when WINDOW scrolls.
+    // Since our app scrolls inside .page div, we forward that scroll to window.
+    function updateHeight(){
       var h=window.innerHeight;
       if(app&&h>100)app.style.height=h+'px';
     }
-    updateTrigger();
-    requestAnimationFrame(updateTrigger);
-    window.addEventListener('resize',updateTrigger,{passive:true});
-    window.addEventListener('orientationchange',function(){setTimeout(updateTrigger,300);},{passive:true});
-    // Trigger address bar hide: scroll down 1px then back
-    // Must happen after page load when user hasn't interacted yet
-    setTimeout(function(){
-      window.scrollTo({top:1,behavior:'instant'});
-      requestAnimationFrame(function(){
-        window.scrollTo({top:0,behavior:'instant'});
+    updateHeight();
+    requestAnimationFrame(updateHeight);
+    window.addEventListener('resize',updateHeight,{passive:true});
+    window.addEventListener('orientationchange',function(){setTimeout(updateHeight,300);},{passive:true});
+
+    // Forward .page scroll to window so Safari address bar can hide/show
+    function attachPageScroll(){
+      var pages=document.querySelectorAll('.page');
+      pages.forEach(function(page){
+        page.addEventListener('scroll',function(){
+          var s=page.scrollTop;
+          if(s>0){
+            // Temporarily make window scrollable and scroll it
+            document.documentElement.style.overflowY='auto';
+            document.body.style.minHeight='calc(100% + 60px)';
+            window.scrollTo({top:1,behavior:'instant'});
+          } else {
+            window.scrollTo({top:0,behavior:'instant'});
+          }
+        },{passive:true});
       });
-    },400);
-    // Re-trigger on resize (address bar reappearing after interaction)
-    window.addEventListener('resize',function(){
-      updateTrigger();
-      setTimeout(function(){
-        window.scrollTo({top:1,behavior:'instant'});
-        requestAnimationFrame(function(){window.scrollTo({top:0,behavior:'instant'});});
-      },100);
-    },{passive:true});
+    }
+    // Attach after render
+    setTimeout(attachPageScroll,500);
+    // Re-attach after any navigation (page re-renders)
+    var _origRender=window.renderPage;
+    if(typeof _origRender==='function'){
+      window.renderPage=function(){
+        _origRender.apply(this,arguments);
+        setTimeout(attachPageScroll,100);
+      };
+    }
   }
 })();
 
