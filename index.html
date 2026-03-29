@@ -801,41 +801,68 @@ function switchBudgetMonth(ym){
 }
 function showAuth(){document.getElementById('authContainer').innerHTML=renderAuth();document.getElementById('ledgerContainer').innerHTML='';document.getElementById('bottomNav').style.display='none';document.getElementById('mainPage').innerHTML='';}
 function showApp(){document.getElementById('authContainer').innerHTML='';document.getElementById('ledgerContainer').innerHTML='';document.getElementById('bottomNav').style.display='flex';render();
-  // ── SHORTCUT URL HANDLER ──
-  // Check for incoming transaction data from iPhone Shortcut
-  // URL format: ?shortcut=1&amount=8.50&desc=Grab&cat=food&date=2026-03-29&cur=MYR&notes=Dinner
+  // ── SHORTCUT URL HANDLER (Safari fallback) ──
   setTimeout(function(){
     try{
       const p=new URLSearchParams(window.location.search);
-      if(p.get('shortcut')!=='1')return;
-      const amount=p.get('amount')||'';
-      const desc=p.get('desc')||'';
-      const cat=p.get('cat')||'food';
-      const date=p.get('date')||new Date().toISOString().slice(0,10);
-      const cur=p.get('cur')||S.ledgerCurrency||'MYR';
-      const notes=p.get('notes')||'';
-      const cats=getCats();
-      // Build the add form pre-filled
-      S.addForm={
-        type:'expense',
-        amount:amount,
-        description:notes?((desc+' — '+notes).substring(0,80)):desc,
-        category:cats[cat]?cat:'food',
-        subcat:'',
-        date:date,
-        currency:cats[cur]?cur:(S.ledgerCurrency||'MYR'),
-        member:S.user?S.user.uid:'',
-        splitWith:[],coPayors:[],coPayorAmounts:{},
-        coPayorMode:'equal',splitMode:'equal',customSplits:{},assetId:'',origAmount:null
-      };
-      S.editTxKey=null;
-      S.view='add';
-      render();
-      // Clean URL so refreshing doesn't re-trigger
-      window.history.replaceState({},'',window.location.pathname);
-      toast('✓ Transaction from Shortcut — review and save');
-    }catch(e){console.warn('Shortcut URL parse error:',e);}
+      if(p.get('shortcut')==='1'){
+        const amount=p.get('amount')||'';
+        const desc=p.get('desc')||'';
+        const cat=p.get('cat')||'food';
+        const date=p.get('date')||new Date().toISOString().slice(0,10);
+        const cur=p.get('cur')||S.ledgerCurrency||'MYR';
+        const notes=p.get('notes')||'';
+        const cats=getCats();
+        S.addForm={
+          type:'expense',amount:amount,
+          description:notes?((desc+' — '+notes).substring(0,80)):desc,
+          category:cats[cat]?cat:'food',subcat:'',date:date,
+          currency:CURRENCIES[cur]?cur:(S.ledgerCurrency||'MYR'),
+          member:S.user?S.user.uid:'',
+          splitWith:[],coPayors:[],coPayorAmounts:{},
+          coPayorMode:'equal',splitMode:'equal',customSplits:{},assetId:'',origAmount:null
+        };
+        S.editTxKey=null;S.view='add';render();
+        window.history.replaceState({},'',window.location.pathname);
+        toast('✓ Transaction from Shortcut — review and save');
+        return;
+      }
+    }catch(e){console.warn('URL shortcut parse error:',e);}
   },800);
+
+  // ── CLIPBOARD BRIDGE (PWA mode — best experience) ──
+  // When Shortcut copies JSON to clipboard, PWA picks it up automatically on open
+  setTimeout(function(){
+    if(!navigator.clipboard||!navigator.clipboard.readText)return;
+    navigator.clipboard.readText().then(function(text){
+      if(!text||text.length>2000)return;
+      var t=text.trim();
+      if(!t.startsWith('{'))return;
+      try{
+        var d=JSON.parse(t);
+        // Must have fw_shortcut marker to avoid reading random clipboard content
+        if(d.fw_shortcut!==true)return;
+        var cats=getCats();
+        var cat=d.cat||'food';
+        var cur=d.cur||S.ledgerCurrency||'MYR';
+        S.addForm={
+          type:'expense',
+          amount:String(parseFloat(d.amount)||''),
+          description:d.notes?((d.desc||'')+' — '+d.notes).substring(0,80):(d.desc||''),
+          category:cats[cat]?cat:'food',subcat:'',
+          date:d.date||new Date().toISOString().slice(0,10),
+          currency:CURRENCIES[cur]?cur:(S.ledgerCurrency||'MYR'),
+          member:S.user?S.user.uid:'',
+          splitWith:[],coPayors:[],coPayorAmounts:{},
+          coPayorMode:'equal',splitMode:'equal',customSplits:{},assetId:'',origAmount:null
+        };
+        S.editTxKey=null;S.view='add';render();
+        // Clear clipboard so it doesn't re-trigger next open
+        navigator.clipboard.writeText('').catch(function(){});
+        toast('✨ Receipt detected from Shortcut — review and save!');
+      }catch(e){}
+    }).catch(function(){});
+  },1200);
 }
 
 // ── AUTH UI ──
