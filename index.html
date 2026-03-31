@@ -1049,7 +1049,6 @@ function renderNav(){
     <button class="nav-btn ${view==='stats'?'active':''}" onclick="goStats()"><span class="nav-icon">📊</span><span>Statistics</span></button>
     <button class="nav-btn ${view==='notifications'?'active':''}" onclick="goNotifications()" style="position:relative"><span class="nav-icon">🔔</span>${unread>0?`<span style="position:absolute;top:2px;right:12px;background:var(--red);color:#fff;font-size:9px;font-weight:700;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px">${unread>9?'9+':unread}</span>`:''}<span>Activity</span></button>`;
 }
-
 // ── MANUAL CLIPBOARD CHECK (for Shortcut bridge) ──
 window.checkClipboardNow=function(){
   if(!navigator.clipboard||!navigator.clipboard.readText){
@@ -1082,6 +1081,7 @@ window.checkClipboardNow=function(){
     }catch(e){toast('Could not parse clipboard data','var(--red)');console.log('Clipboard:',text);}
   }).catch(function(e){toast('Clipboard permission denied — tap Allow','var(--red)');});
 };
+
 function renderPage(){
   const pg=document.getElementById('mainPage');if(!pg)return;
   const _v=S.view;
@@ -1091,6 +1091,7 @@ function renderPage(){
     if(_v==='stats'){pg.innerHTML=renderStats();attachStatsListeners();_restoreScroll(_v);return;}
     if(_v==='history'){pg.innerHTML=renderHistory();attachHistoryListeners();_restoreScroll(_v);return;}
     if(_v==='settings'){pg.innerHTML=renderSettings();_restoreScroll(_v);return;}
+    if(_v==='shortcuts'){pg.innerHTML=renderShortcutsPage();_restoreScroll(_v);return;}
     if(_v==='invite'){pg.innerHTML=renderInvite();_restoreScroll(_v);return;}
     if(_v==='budget'){pg.innerHTML=renderBudgetPage();attachBudgetListeners();_restoreScroll(_v);return;}
     if(_v==='categories'){pg.innerHTML=renderCategoriesPage();_restoreScroll(_v);return;}
@@ -1267,6 +1268,7 @@ function renderHome(){
           </div>
           <button onclick="goSearch()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">🔍</button>
         <button onclick="goNotifications()" style="position:relative;background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">${unreadCount()>0?`<span style="position:absolute;top:4px;right:4px;background:var(--red);border-radius:999px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 2px">${unreadCount()>9?'9+':unreadCount()}</span>`:''}🔔</button>
+        <button onclick="checkClipboardNow()" style="background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);border-radius:12px;padding:8px 10px;font-size:16px" title="Load from Shortcut">⚡</button>
         <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">⚙️</button>
         </div>
       </div>
@@ -1530,6 +1532,8 @@ function renderHome(){
         <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">⚙️</button>
       </div>
     </div>
+
+    <!-- SPENT TODAY + TOTAL BALANCE ROW -->
     <div style="padding:18px 20px 0;display:flex;align-items:flex-end;justify-content:space-between">
       <div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:4px">Spent Today</p>
@@ -4847,6 +4851,84 @@ function renderNotificationsPage(){
 }
 
 // ── SETTINGS ──
+// ── SHORTCUTS PAGE ──
+function renderShortcutsPage(){
+  const ICLOUD_LINK = ''; // Replace with your iCloud shortcut URL when published
+  const hasLink = !!ICLOUD_LINK;
+
+  return`<div class="settings-page fade-in">
+    <button class="btn-ghost" onclick="goSettings()" style="margin-bottom:22px">← Back</button>
+    <div style="text-align:center;margin-bottom:28px">
+      <div style="font-size:52px;margin-bottom:10px">🚀</div>
+      <h2 style="font-size:22px;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px">Screenshot to Log</h2>
+      <p style="font-size:13px;color:var(--muted);line-height:1.6">One-tap expense entry without opening the App</p>
+    </div>
+
+    <!-- Step 1: Add Shortcut -->
+    <div class="surface" style="padding:20px;border-radius:20px;margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:16px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(0,122,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">＋</div>
+        <div>
+          <p style="font-size:15px;font-weight:700;margin-bottom:3px">1. Add Shortcut</p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.5">First, tap the button below to add the "⚡ Family Wallet Auto Log" shortcut to your library.</p>
+        </div>
+      </div>
+      ${hasLink
+        ? `<a href="${ICLOUD_LINK}" style="display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;border-radius:14px;background:#007AFF;color:#fff;font-size:16px;font-weight:700;text-decoration:none;box-shadow:0 6px 20px rgba(0,122,255,0.35)"><span>⚡</span> Add Shortcut</a>`
+        : `<div style="background:rgba(255,230,109,0.08);border:1px solid rgba(255,230,109,0.2);border-radius:12px;padding:14px;text-align:center;margin-bottom:10px">
+            <p style="font-size:12px;color:var(--yellow);line-height:1.6">⏳ <strong style="color:#fff">Shortcut link coming soon</strong><br>Use the guide below to build it yourself.</p>
+          </div>
+          <button onclick="openShortcutGuide()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:14px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:var(--accent);font-size:14px;font-weight:700;font-family:'Sora',sans-serif"><span>📖</span> View Setup Guide</button>`
+      }
+    </div>
+
+    <!-- Step 2: Back Tap -->
+    <div class="surface" style="padding:20px;border-radius:20px;margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(108,99,255,0.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">📱</div>
+        <div>
+          <p style="font-size:15px;font-weight:700;margin-bottom:3px">2. Back Tap</p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.5">Go to <strong style="color:#fff">Settings → Accessibility → Touch → Back Tap</strong> and set "Double Tap" or "Triple Tap" to bind the shortcut added in Step 1.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: AssistiveTouch (optional) -->
+    <div class="surface" style="padding:20px;border-radius:20px;margin-bottom:12px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(78,205,196,0.15);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">👆</div>
+        <div>
+          <p style="font-size:15px;font-weight:700;margin-bottom:3px">3. Bind AssistiveTouch <span style="font-size:10px;font-weight:600;color:var(--dim);background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:6px;margin-left:4px">Optional</span></p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.5">Go to <strong style="color:#fff">Settings → Accessibility → Touch → AssistiveTouch</strong> and turn it on. In "Custom Actions", select "Double-Tap" or "Long Press" to bind the shortcut.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Control Center (iOS 18+) -->
+    <div class="surface" style="padding:20px;border-radius:20px;margin-bottom:24px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="width:36px;height:36px;border-radius:10px;background:rgba(255,230,109,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">💡</div>
+        <div>
+          <p style="font-size:15px;font-weight:700;margin-bottom:3px">4. Control Center <span style="font-size:10px;font-weight:600;color:var(--dim);background:rgba(255,255,255,0.07);padding:2px 8px;border-radius:6px;margin-left:4px">iOS 18+ Optional</span></p>
+          <p style="font-size:12px;color:var(--muted);line-height:1.5">Go to <strong style="color:#fff">Settings → Control Center</strong> → add the Shortcuts tile and pin "⚡ Family Wallet Auto Log" for one-swipe access.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Test bridge -->
+    <div class="surface" style="padding:18px;border-radius:20px;margin-bottom:12px">
+      <p style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px">🧪 Test the clipboard bridge</p>
+      <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:14px">Tap below to simulate a shortcut result — it copies sample data to the clipboard and immediately opens the Add Transaction form pre-filled. Use this to confirm everything works!</p>
+      <button onclick="testShortcutClipboard()" style="display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:14px;font-weight:700;border:none;font-family:'Sora',sans-serif;margin-bottom:8px">🧪 Test Auto-Fill Now</button>
+      <p id="scTestStatus" style="font-size:12px;color:var(--green);text-align:center;display:none">✓ Opening pre-filled form…</p>
+    </div>
+
+    <!-- Link to full guide -->
+    <button onclick="openShortcutGuide()" class="export-btn">📖 Full Setup Guide & Build-it-Yourself</button>
+
+  </div>`;
+}
+
 function renderSettings(){
   const mems=S.members||{};const cur=getCur();
   const linfo=S.ledgers[S.activeLedgerId]||{};
@@ -4968,6 +5050,19 @@ function renderSettings(){
     </div>
 
     ${ledgerSections}
+
+    <!-- AI FEATURES -->
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">AI Features</p>
+      <button onclick="goShortcuts()" class="export-btn" style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;text-align:left">
+        <span style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:9px;background:rgba(108,99,255,0.2);display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">⚡</span><span>Shortcuts</span></span>
+        <span style="font-size:13px;color:var(--dim)">›</span>
+      </button>
+      <button onclick="" class="export-btn" style="display:flex;align-items:center;justify-content:space-between;text-align:left;opacity:0.6;cursor:default">
+        <span style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;border-radius:9px;background:rgba(78,205,196,0.15);display:inline-flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0">🌐</span><span>Voice Input</span></span>
+        <span style="font-size:11px;color:var(--dim);background:rgba(255,255,255,0.06);padding:3px 8px;border-radius:8px">Auto</span>
+      </button>
+    </div>
 
     <!-- PREFERENCE -->
     <div class="settings-section">
@@ -5454,6 +5549,16 @@ window.tapNotif=async(id,type,txKey,settleKey,lid)=>{
 };
 window.goAdd       =()=>{S.addForm=blankForm();S.editTxKey=null;S.view='add';render();};
 window.goSettings  =()=>{S.view='settings';render();};
+window.goShortcuts =()=>{S.view='shortcuts';render();};
+window.openShortcutGuide=()=>{window.open('https://heraline.github.io/Family-Wallet/shortcut-guide.html','_blank');};
+window.testShortcutClipboard=()=>{
+  var data=JSON.stringify({fw_shortcut:true,amount:12.50,desc:'GrabFood',cat:'food',date:new Date().toISOString().slice(0,10),cur:'MYR',notes:'Lunch delivery test'});
+  navigator.clipboard.writeText(data).then(function(){
+    var el=document.getElementById('scTestStatus');if(el)el.style.display='block';
+    // Immediately trigger the clipboard bridge so the form fills right now
+    setTimeout(function(){checkClipboardNow();},150);
+  }).catch(function(){alert('Cannot access clipboard. Open in Safari on iPhone.');});
+};
 window.goInvite    =()=>{_code=null;S.view='invite';render();};
 window.goBudget    =()=>{const nowYm=new Date().toISOString().slice(0,7);if(S.budgetMonth!==nowYm)switchBudgetMonth(nowYm);window._bgtDirty=false;S.view='budget';render();};
 window.goCategories=()=>{editCatKey=null;editSubcatKey=null;S.view='categories';render();};

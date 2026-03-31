@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Family Wallet Shortcut</title>
+<title>Family Wallet — Shortcut Setup Guide</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{--bg:#07070F;--card:#0F0F1E;--accent:#6C63FF;--accent2:#4ECDC4;--green:#69D2A0;--yellow:#FFE66D;--text:#F0EEF6;--muted:#8A88AA;--dim:#3A3860;--border:rgba(108,99,255,0.15)}
@@ -14,24 +14,20 @@
   .bg-glow::after{content:'';position:absolute;bottom:-10%;right:-10%;width:50vw;height:50vw;border-radius:50%;background:radial-gradient(circle,rgba(78,205,196,0.08),transparent 70%);animation:drift2 10s ease-in-out infinite alternate}
   @keyframes drift1{from{transform:translate(0,0)}to{transform:translate(5vw,3vh)}}
   @keyframes drift2{from{transform:translate(0,0)}to{transform:translate(-4vw,-5vh)}}
-  .wrapper{position:relative;z-index:1;max-width:420px;margin:0 auto;padding:36px 18px 60px}
+  .wrapper{position:relative;z-index:1;max-width:430px;margin:0 auto;padding:36px 18px 60px}
   .header{text-align:center;margin-bottom:28px;animation:fadeUp 0.5s ease both}
   .header-icon{font-size:52px;margin-bottom:10px}
   .header h1{font-size:24px;font-weight:800;letter-spacing:-0.03em;background:linear-gradient(135deg,#fff 30%,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:6px}
   .header p{font-size:13px;color:var(--muted);line-height:1.6}
-
-  /* Flow */
-  .flow{display:flex;align-items:center;justify-content:center;gap:4px;margin:0 0 24px;flex-wrap:wrap;animation:fadeUp 0.5s 0.1s ease both}
-  .flow-step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted);text-align:center;min-width:64px}
-  .flow-step span{display:block;font-size:16px;margin-bottom:2px}
-  .flow-arrow{font-size:14px;color:var(--dim)}
+  .flow{display:flex;align-items:center;justify-content:center;gap:4px;margin:0 0 24px;flex-wrap:wrap;animation:fadeUp 0.5s 0.08s ease both}
+  .flow-step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:11px;font-weight:700;color:var(--muted);text-align:center;min-width:62px}
+  .flow-step span{display:block;font-size:15px;margin-bottom:2px}
+  .flow-arrow{font-size:13px;color:var(--dim)}
   .flow-step.hi{border-color:rgba(108,99,255,0.4);background:rgba(108,99,255,0.1);color:var(--accent)}
   .flow-step.hi2{border-color:rgba(78,205,196,0.4);background:rgba(78,205,196,0.08);color:var(--accent2)}
-
-  .section{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px 18px;margin-bottom:12px;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
-  .section-label{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px 18px;margin-bottom:12px}
+  .card-label{font-size:10px;letter-spacing:0.14em;text-transform:uppercase;font-weight:700;margin-bottom:14px}
   .lp{color:var(--accent)}.lt{color:var(--accent2)}.lg{color:var(--green)}.ly{color:var(--yellow)}
-
   .step{display:flex;gap:12px;margin-bottom:14px;align-items:flex-start}
   .step:last-child{margin-bottom:0}
   .sn{width:28px;height:28px;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'DM Mono',monospace}
@@ -43,21 +39,21 @@
   .sb p{font-size:12px;color:var(--muted);line-height:1.5}
   .sb p b{color:#fff;font-weight:600}
   .sb p code{background:rgba(108,99,255,0.15);color:var(--accent);padding:1px 6px;border-radius:4px;font-family:'DM Mono',monospace;font-size:11px}
-
-  .code-block{background:rgba(0,0,0,0.4);border:1px solid rgba(108,99,255,0.2);border-radius:10px;padding:12px;margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;color:#B0AEDD;overflow-x:auto;white-space:pre}
+  .code-block{background:rgba(0,0,0,0.45);border:1px solid rgba(108,99,255,0.2);border-radius:12px;padding:14px;margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;line-height:1.8;color:#B0AEDD;overflow-x:auto;white-space:pre}
   .k{color:var(--accent2)}.v{color:var(--green)}.c{color:var(--dim)}
-
   .tip{display:flex;gap:8px;padding:10px 12px;border-radius:10px;margin-top:10px;font-size:12px;line-height:1.5}
   .tip.y{background:rgba(255,230,109,0.08);border:1px solid rgba(255,230,109,0.18);color:var(--yellow)}
   .tip.g{background:rgba(105,210,160,0.08);border:1px solid rgba(105,210,160,0.18);color:var(--green)}
   .tip.p{background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.18);color:#A09CFF}
   .tip b{color:#fff}
-
-  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:13px;font-size:14px;font-weight:700;font-family:'Sora',sans-serif;text-decoration:none;border:none;cursor:pointer;margin-top:10px;transition:transform 0.15s}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:14px;font-size:15px;font-weight:700;font-family:'Sora',sans-serif;text-decoration:none;border:none;cursor:pointer;margin-top:8px;transition:transform 0.15s}
   .btn:active{transform:scale(0.97)}
+  .btn-blue{background:#007AFF;color:#fff;box-shadow:0 6px 20px rgba(0,122,255,0.35)}
   .btn-purple{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 6px 20px rgba(108,99,255,0.35)}
-  .btn-green{background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.25);color:var(--green)}
-
+  .btn-ghost-green{background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.25);color:var(--green)}
+  .pending{background:rgba(255,230,109,0.07);border:1px solid rgba(255,230,109,0.2);border-radius:14px;padding:14px 16px;margin-bottom:16px;text-align:center}
+  .pending p{font-size:12px;color:var(--yellow);line-height:1.7}
+  .pending p b{color:#fff}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
@@ -66,12 +62,11 @@
 <div class="wrapper">
 
   <div class="header">
-    <div class="header-icon">⚡</div>
-    <h1>Scan & Log Shortcut</h1>
-    <p>Screenshot any receipt → run the shortcut → open Family Wallet → form is already filled. <strong style="color:#fff">2 taps total.</strong></p>
+    <div class="header-icon">🚀</div>
+    <h1>Screenshot to Log</h1>
+    <p>Take a screenshot of any receipt → run the shortcut → Family Wallet auto-fills the form. <strong style="color:#fff">2 taps total.</strong></p>
   </div>
 
-  <!-- Flow -->
   <div class="flow">
     <div class="flow-step hi"><span>📸</span>Screenshot</div>
     <div class="flow-arrow">→</div>
@@ -81,20 +76,31 @@
     <div class="flow-arrow">→</div>
     <div class="flow-step hi2"><span>📋</span>Clipboard</div>
     <div class="flow-arrow">→</div>
-    <div class="flow-step hi2"><span>💳</span>PWA fills</div>
+    <div class="flow-step hi2"><span>💳</span>Auto-fill</div>
     <div class="flow-arrow">→</div>
     <div class="flow-step"><span>💾</span>Save</div>
   </div>
 
-  <!-- Build shortcut -->
-  <div class="section">
-    <p class="section-label lp">Step 1 — Build the Shortcut (one time setup)</p>
+  <!-- Pending / Add Shortcut button -->
+  <div class="pending">
+    <p>⏳ <b>Shortcut link coming soon!</b><br>
+    Use the <b>Build It Yourself</b> guide below to set up now.</p>
+  </div>
+  <!--
+  Replace the pending block above with this when you have the iCloud link:
+  <a class="btn btn-blue" href="https://www.icloud.com/shortcuts/YOUR_ID_HERE">⚡ Add Shortcut to Library</a>
+  <p style="font-size:12px;color:var(--muted);text-align:center;margin:8px 0 16px">Opens Shortcuts app · Tap "Add Shortcut"</p>
+  -->
+
+  <!-- Build the shortcut -->
+  <div class="card" style="animation:fadeUp 0.5s 0.1s ease both">
+    <p class="card-label lp">Step 1 — Build the Shortcut (one-time setup)</p>
 
     <div class="step">
       <div class="sn p">1</div>
       <div class="sb">
         <strong>Open Shortcuts app → tap +</strong>
-        <p>Create a new shortcut. Name it <b>"Log Expense"</b>. Tap the icon to give it a custom emoji like 💳</p>
+        <p>Create a new shortcut. Name it <b>"⚡ Family Wallet Auto Log"</b>. Tap the icon to give it a 💳 emoji.</p>
       </div>
     </div>
 
@@ -102,7 +108,7 @@
       <div class="sn p">2</div>
       <div class="sb">
         <strong>Get latest screenshot</strong>
-        <p>Add action: <b>Get Latest Photos</b><br>Set Count: <b>1</b> · Enable: <b>Include Screenshots: On</b></p>
+        <p>Add action: <b>Get Latest Photos</b> · Count: <b>1</b> · Enable <b>Include Screenshots: On</b></p>
       </div>
     </div>
 
@@ -110,7 +116,7 @@
       <div class="sn p">3</div>
       <div class="sb">
         <strong>Convert to Base64</strong>
-        <p>Add action: <b>Encode Media</b> (or <b>Base64 Encode</b>)<br>Input: <b>Photos</b> · Line breaks: <b>None</b></p>
+        <p>Add action: <b>Encode Media</b> (search "encode")<br>Input: <b>Photos</b> · Encode as: <b>Base64</b> · Line breaks: <b>None</b></p>
       </div>
     </div>
 
@@ -120,7 +126,7 @@
         <strong>Call Gemini API</strong>
         <p>Add action: <b>Get Contents of URL</b><br>
         URL: <code>https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=YOUR_KEY</code><br>
-        Method: <b>POST</b> · Body: <b>JSON</b></p>
+        Method: <b>POST</b> · Body type: <b>JSON</b></p>
         <div class="code-block"><span class="c">// Paste this as the JSON body:</span>
 {
   <span class="k">"contents"</span>: [{
@@ -128,15 +134,16 @@
       {
         <span class="k">"inline_data"</span>: {
           <span class="k">"mime_type"</span>: <span class="v">"image/jpeg"</span>,
-          <span class="k">"data"</span>: <span class="v">"[Base64 Encoded variable here]"</span>
+          <span class="k">"data"</span>: <span class="v">"[Encoded Media variable]"</span>
         }
       },
       {
-        <span class="k">"text"</span>: <span class="v">"Extract transaction from this receipt/payment screenshot. Return ONLY valid JSON, no markdown: {\"fw_shortcut\": true, \"amount\": 12.50, \"desc\": \"merchant name max 30 chars\", \"cat\": \"food\", \"date\": \"2026-03-29\", \"cur\": \"MYR\", \"notes\": \"brief item summary max 40 chars\"}. For cat use only: food, transport, shopping, health, entertainment, utilities, education, other. Default cur to MYR if not shown."</span>
+        <span class="k">"text"</span>: <span class="v">"Extract the transaction from this receipt/payment screenshot. Return ONLY valid JSON, no markdown:\n{\"fw_shortcut\":true,\"amount\":0.00,\"desc\":\"merchant name max 30 chars\",\"cat\":\"food\",\"date\":\"YYYY-MM-DD\",\"cur\":\"MYR\",\"notes\":\"brief item summary max 40 chars\"}\ncat options: food transport shopping health entertainment utilities education other. Default cur to MYR."</span>
       }
     ]
   }]
 }</div>
+        <div class="tip p">💡 Get a free Gemini API key at <b>aistudio.google.com</b> → Create API Key</div>
       </div>
     </div>
 
@@ -144,7 +151,7 @@
       <div class="sn p">5</div>
       <div class="sb">
         <strong>Extract the text response</strong>
-        <p>Add action: <b>Get Dictionary from Input</b> → input: <b>Contents of URL</b><br>
+        <p>Add: <b>Get Dictionary from Input</b> → input: <b>Contents of URL</b><br>
         Add: <b>Get Dictionary Value</b> → Key: <code>candidates</code><br>
         Add: <b>Get Item from List</b> → First Item<br>
         Add: <b>Get Dictionary Value</b> → Key: <code>content</code><br>
@@ -158,97 +165,104 @@
       <div class="sn p">6</div>
       <div class="sb">
         <strong>Copy result to clipboard</strong>
-        <p>Add action: <b>Copy to Clipboard</b><br>Input: the <b>text</b> value from step 5</p>
-        <div class="tip g">✅ That's it! The JSON gets copied to your clipboard. Family Wallet reads it automatically when you open the app.</div>
+        <p>Add action: <b>Copy to Clipboard</b> → Input: the <b>text</b> value from step 5</p>
+        <div class="tip g">✅ Done! Family Wallet auto-detects this JSON when you open the app and pre-fills the form.</div>
       </div>
     </div>
 
-    <div class="tip p">💡 Optionally add <b>Open App → Family Wallet</b> as the last action to jump straight to the PWA after copying</div>
+    <div class="step">
+      <div class="sn p">7</div>
+      <div class="sb">
+        <strong>Optional: Auto-open Family Wallet</strong>
+        <p>Add action: <b>Open URLs</b> → URL: <code>https://heraline.github.io/Family-Wallet/</code><br>App opens and auto-fills immediately!</p>
+      </div>
+    </div>
+
+    <div class="tip p">🔗 <b>Share with family:</b> Shortcut name → <b>Share → Share Shortcut</b> → copy iCloud link and send to everyone!</div>
   </div>
 
   <!-- Daily use -->
-  <div class="section">
-    <p class="section-label lt">Step 2 — Daily use (2 taps)</p>
+  <div class="card" style="animation:fadeUp 0.5s 0.2s ease both">
+    <p class="card-label lt">Step 2 — Daily use (2 taps)</p>
 
     <div class="step">
       <div class="sn t">1</div>
       <div class="sb">
         <strong>Take a screenshot of any payment</strong>
-        <p>GrabPay, Touch 'n Go, Maybank, DuitNow, food receipt — anything showing an amount and merchant</p>
+        <p>GrabPay, Touch 'n Go, Maybank, DuitNow, food delivery, shopping receipts — anything showing an amount and merchant</p>
       </div>
     </div>
 
     <div class="step">
       <div class="sn t">2</div>
       <div class="sb">
-        <strong>Tap "Log Expense" shortcut</strong>
-        <p>From your home screen widget or Shortcuts app. Gemini reads the screenshot and copies the result.</p>
+        <strong>Tap "⚡ Family Wallet Auto Log"</strong>
+        <p>Run from your home screen widget, Back Tap, or Shortcuts app. Gemini reads the screenshot and copies the result.</p>
       </div>
     </div>
 
     <div class="step">
       <div class="sn t">3</div>
       <div class="sb">
-        <strong>Open Family Wallet PWA</strong>
-        <p>The app automatically detects the clipboard data and opens the <b>Add Transaction</b> form pre-filled with amount, merchant, category and date.</p>
+        <strong>Family Wallet opens pre-filled</strong>
+        <p>Amount, merchant, category, date — all extracted automatically. Just review and tap <b>Save</b>!</p>
       </div>
     </div>
 
-    <div class="step">
-      <div class="sn t">4</div>
-      <div class="sb">
-        <strong>Tap Save ✓</strong>
-        <p>Review the details and save. Done!</p>
-      </div>
-    </div>
-
-    <div class="tip y">⚡ Works with any payment screenshot — e-wallets, banking apps, food delivery, WhatsApp payment confirmations, physical receipt photos</div>
+    <div class="tip y">⚡ Works with any payment screenshot — e-wallets, banking apps, food delivery, WhatsApp confirmations, photos of physical receipts</div>
   </div>
 
-  <!-- Add to home screen tip -->
-  <div class="section">
-    <p class="section-label lg">Make it even faster</p>
+  <!-- Make it faster -->
+  <div class="card" style="animation:fadeUp 0.5s 0.3s ease both">
+    <p class="card-label lg">Make it even faster</p>
+
     <div class="step">
       <div class="sn g">★</div>
       <div class="sb">
-        <strong>Add shortcut to home screen</strong>
-        <p>In the Shortcuts app, long-press <b>"Log Expense"</b> → <b>Share</b> → <b>Add to Home Screen</b>. Now it's a one-tap button right on your home screen next to Family Wallet!</p>
+        <strong>Back Tap (fastest!)</strong>
+        <p><b>Settings → Accessibility → Touch → Back Tap → Double Tap</b> → assign the shortcut. Double-tap the back of your phone to log instantly!</p>
       </div>
     </div>
     <div class="step">
       <div class="sn g">★</div>
       <div class="sb">
-        <strong>Add to Shortcuts widget</strong>
-        <p>Add the Shortcuts widget to your home screen and pin <b>"Log Expense"</b> to it for instant access without opening the Shortcuts app.</p>
+        <strong>Control Center (iOS 18+)</strong>
+        <p><b>Settings → Control Center</b> → add Shortcuts tile → pin the shortcut. One swipe + one tap from anywhere.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sn g">★</div>
+      <div class="sb">
+        <strong>Action Button (iPhone 15 Pro+)</strong>
+        <p><b>Settings → Action Button → Shortcuts → "⚡ Family Wallet Auto Log"</b>. Press the side button to log!</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="sn g">★</div>
+      <div class="sb">
+        <strong>Home Screen Icon</strong>
+        <p>Long-press shortcut → <b>Share → Add to Home Screen</b>. Tap its icon just like any other app.</p>
       </div>
     </div>
   </div>
 
   <!-- Test -->
-  <div class="section">
-    <p class="section-label lg">Test the clipboard bridge now</p>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.6">Tap the button below — it copies sample transaction JSON to your clipboard. Then open Family Wallet and the form should auto-fill!</p>
-    <button class="btn btn-purple" onclick="testClipboard()">📋 Copy Test Data to Clipboard</button>
-    <a class="btn btn-green" href="https://heraline.github.io/Family-Wallet/">💳 Open Family Wallet PWA</a>
-    <p id="test-status" style="font-size:12px;color:var(--green);text-align:center;margin-top:10px;display:none">✓ Copied! Now open Family Wallet →</p>
+  <div class="card" style="animation:fadeUp 0.5s 0.4s ease both">
+    <p class="card-label lg">🧪 Test the clipboard bridge</p>
+    <p style="font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px">Tap below to copy a sample transaction. Then press the Home button and reopen Family Wallet — the form should auto-fill!</p>
+    <button class="btn btn-purple" onclick="testClipboard()">📋 Copy Test Transaction</button>
+    <a class="btn btn-ghost-green" href="https://heraline.github.io/Family-Wallet/">💳 Open Family Wallet</a>
+    <p id="ts" style="font-size:12px;color:var(--green);text-align:center;margin-top:10px;display:none">✓ Copied! Now close & reopen Family Wallet →</p>
   </div>
 
 </div>
 <script>
 function testClipboard(){
-  var data = JSON.stringify({
-    fw_shortcut: true,
-    amount: 12.50,
-    desc: "GrabFood",
-    cat: "food",
-    date: new Date().toISOString().slice(0,10),
-    cur: "MYR",
-    notes: "Lunch delivery test"
-  });
+  var data=JSON.stringify({fw_shortcut:true,amount:12.50,desc:'GrabFood',cat:'food',date:new Date().toISOString().slice(0,10),cur:'MYR',notes:'Lunch delivery test'});
   navigator.clipboard.writeText(data).then(function(){
-    document.getElementById('test-status').style.display='block';
+    document.getElementById('ts').style.display='block';
   }).catch(function(){
-    alert('Could not access clipboard. Try from Safari on iPhone.');
+    alert('Cannot access clipboard. Open in Safari on iPhone.');
   });
 }
 </script>
