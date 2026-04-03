@@ -806,82 +806,13 @@ function showApp(){document.getElementById('authContainer').innerHTML='';documen
     try{
       const p=new URLSearchParams(window.location.search);
 
-      // ── scan=1 mode: shortcut copies Base64 image to clipboard, app reads it and does AI scanning ──
+      // ── scan=1 mode: shortcut copies Base64 image to clipboard, app shows tap button ──
       if(p.get('scan')==='1'){
         window.history.replaceState({},'','/Family-Wallet/');
-        const aiProvider=localStorage.getItem('fw_ai_provider')||'gemini';
-        const aiKey=aiProvider==='openai'
-          ?(localStorage.getItem('fw_openai_key')||'').trim()
-          :(localStorage.getItem('fw_gemini_key')||'').trim();
-        S.addForm=blankForm();S.editTxKey=null;S.view='add';render();
-        if(!aiKey){toast('⚠️ Add your AI key in Settings first','var(--yellow)');return;}
-        toast('🌟 Reading image from clipboard...');
-        // Read Base64 image from clipboard (put there by the Shortcut)
-        if(!navigator.clipboard||!navigator.clipboard.readText){
-          toast('❌ Clipboard not available — try from Safari','var(--red)');return;
-        }
-        navigator.clipboard.readText().then(function(imgData){
-          if(!imgData||imgData.length<100){
-            toast('❌ No image found in clipboard. Run the Shortcut first.','var(--red)');return;
-          }
-          // Clear clipboard so it doesn't re-trigger
-          navigator.clipboard.writeText('').catch(function(){});
-          toast('🌟 Scanning receipt with AI...');
-          const cats=getCats();
-          const catKeys=Object.keys(cats).filter(k=>k!=='income');
-          const catDescriptions=catKeys.map(k=>{
-            const c=cats[k];
-            const subcatKeys=c.subcats?Object.keys(c.subcats):[];
-            return k+(subcatKeys.length?' (subcats: '+subcatKeys.join(', ')+')':'');
-          }).join('; ');
-          const prompt='Extract the transaction from this receipt image. Return ONLY a raw JSON object with no markdown, no backticks, no explanation: {"amount":0.00,"description":"merchant name max 40 chars","date":"'+new Date().toISOString().slice(0,10)+'","category":"food","subcat":"","currency":"MYR","notes":""}. Available categories with subcategories: '+catDescriptions+'. Rules: amount is a plain number. category must be one of: '+catKeys.join(', ')+'. subcat must be a valid subcat key for the chosen category or empty string. Default currency to MYR.';
-          (async()=>{
-            try{
-              let parsed;
-              if(aiProvider==='openai'){
-                const resp=await fetch('https://api.openai.com/v1/chat/completions',{
-                  method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+aiKey},
-                  body:JSON.stringify({model:'gpt-4o',max_tokens:300,messages:[{role:'user',content:[
-                    {type:'image_url',image_url:{url:'data:image/jpeg;base64,'+imgData,detail:'high'}},
-                    {type:'text',text:prompt}
-                  ]}]})
-                });
-                const data=JSON.parse(await resp.text());
-                const text=data?.choices?.[0]?.message?.content||'';
-                const clean=text.replace(/```json|```/g,'').trim();
-                try{parsed=JSON.parse(clean);}catch(e){const m=clean.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);}
-              }else{
-                const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+aiKey,{
-                  method:'POST',headers:{'Content-Type':'application/json'},
-                  body:JSON.stringify({contents:[{parts:[
-                    {inline_data:{mime_type:'image/jpeg',data:imgData}},
-                    {text:prompt}
-                  ]}]})
-                });
-                const data=JSON.parse(await resp.text());
-                const text=data?.candidates?.[0]?.content?.parts?.[0]?.text||'';
-                const clean=text.replace(/```json|```/g,'').trim();
-                try{parsed=JSON.parse(clean);}catch(e){const m=clean.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);}
-              }
-              if(!parsed)throw new Error('Could not read receipt. Try a clearer photo.');
-              const cats2=getCats();
-              if(parsed.amount)S.addForm.amount=String(parseFloat(parsed.amount)||'');
-              if(parsed.description)S.addForm.description=parsed.description.substring(0,40);
-              if(parsed.date)S.addForm.date=parsed.date;
-              if(parsed.category&&cats2[parsed.category])S.addForm.category=parsed.category;
-              if(parsed.subcat&&cats2[S.addForm.category]?.subcats?.[parsed.subcat])S.addForm.subcat=parsed.subcat;
-              if(parsed.currency&&CURRENCIES[parsed.currency])S.addForm.currency=parsed.currency;
-              if(parsed.notes&&parsed.notes.trim()){
-                const note=parsed.notes.trim().substring(0,60);
-                if(!S.addForm.description.includes(note))S.addForm.description=(S.addForm.description+' — '+note).substring(0,80);
-              }
-              S.addForm.type='expense';
-              render();toast('✨ Receipt scanned — review and save!');
-            }catch(e){console.error('Shortcut scan error:',e);toast('❌ Scan failed: '+e.message,'var(--red)');}
-          })();
-        }).catch(function(){
-          toast('❌ Could not read clipboard. Open app from Safari and allow clipboard access.','var(--red)');
-        });
+        S.addForm=blankForm();S.editTxKey=null;S.view='add';
+        S._pendingShortcutScan=true;
+        render();
+        toast('📋 Tap "Scan Receipt" to fill from your screenshot');
         return;
       }
 
@@ -3669,6 +3600,11 @@ function renderAdd(){
     <input type="file" id="receiptCamera"  accept="image/*" capture="environment" style="display:none" onchange="handlePhotoSelected(this)">
     <input type="file" id="receiptLibrary" accept="image/*"                        style="display:none" onchange="handlePhotoSelected(this)">
 
+    ${S._pendingShortcutScan?`
+    <button id="shortcutScanBtn" onclick="scanFromShortcut()" style="width:100%;padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:14px">
+      <span style="font-size:20px">📋</span> Tap to Scan Receipt
+    </button>`:''}
+
     ${!aiKey?`
     <div style="background:rgba(255,230,109,0.1);border:1px solid rgba(255,230,109,0.25);border-radius:14px;padding:13px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px">
       <span style="font-size:18px">⚠️</span>
@@ -6319,9 +6255,86 @@ Rules: amount must be a plain number (no currency symbol). Return ONLY the JSON 
     }
   }
 };
-// ══════════════════════════════════════════
-//  ASSETS PAGE
-// ══════════════════════════════════════════
+window.scanFromShortcut=async()=>{
+  const aiProvider=localStorage.getItem('fw_ai_provider')||'gemini';
+  const aiKey=aiProvider==='openai'
+    ?(localStorage.getItem('fw_openai_key')||'').trim()
+    :(localStorage.getItem('fw_gemini_key')||'').trim();
+  if(!aiKey){toast('⚠️ Add your AI key in Settings first','var(--yellow)');return;}
+  let imgData;
+  try{
+    imgData=await navigator.clipboard.readText();
+  }catch(e){
+    toast('❌ Could not read clipboard — please allow clipboard access','var(--red)');return;
+  }
+  if(!imgData||imgData.length<100){
+    toast('❌ No image in clipboard — run the Shortcut first','var(--red)');return;
+  }
+  navigator.clipboard.writeText('').catch(function(){});
+  S._pendingShortcutScan=false;
+  const status=document.getElementById('scanStatus');
+  const statusMsg=document.getElementById('scanStatusMsg');
+  if(status)status.style.display='block';
+  if(statusMsg)statusMsg.textContent='Scanning receipt with AI...';
+  const shortcutBtn=document.getElementById('shortcutScanBtn');
+  if(shortcutBtn)shortcutBtn.style.display='none';
+  const cats=getCats();
+  const catKeys=Object.keys(cats).filter(k=>k!=='income');
+  const catDescriptions=catKeys.map(k=>{
+    const c=cats[k];
+    const subcatKeys=c.subcats?Object.keys(c.subcats):[];
+    return k+(subcatKeys.length?' (subcats: '+subcatKeys.join(', ')+')':'');
+  }).join('; ');
+  const prompt='Extract the transaction from this receipt image. Return ONLY a raw JSON object with no markdown, no backticks, no explanation: {"amount":0.00,"description":"merchant name max 40 chars","date":"'+new Date().toISOString().slice(0,10)+'","category":"food","subcat":"","currency":"MYR","notes":""}. Available categories with subcategories: '+catDescriptions+'. Rules: amount is a plain number. category must be one of: '+catKeys.join(', ')+'. subcat must be a valid subcat key for the chosen category or empty string. Default currency to MYR.';
+  try{
+    let parsed;
+    if(aiProvider==='openai'){
+      const resp=await fetch('https://api.openai.com/v1/chat/completions',{
+        method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+aiKey},
+        body:JSON.stringify({model:'gpt-4o',max_tokens:300,messages:[{role:'user',content:[
+          {type:'image_url',image_url:{url:'data:image/jpeg;base64,'+imgData,detail:'high'}},
+          {type:'text',text:prompt}
+        ]}]})
+      });
+      const data=JSON.parse(await resp.text());
+      const text=data?.choices?.[0]?.message?.content||'';
+      const clean=text.replace(/```json|```/g,'').trim();
+      try{parsed=JSON.parse(clean);}catch(e){const m=clean.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);}
+    }else{
+      const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='+aiKey,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[
+          {inline_data:{mime_type:'image/jpeg',data:imgData}},
+          {text:prompt}
+        ]}]})
+      });
+      const data=JSON.parse(await resp.text());
+      const text=data?.candidates?.[0]?.content?.parts?.[0]?.text||'';
+      const clean=text.replace(/```json|```/g,'').trim();
+      try{parsed=JSON.parse(clean);}catch(e){const m=clean.match(/\{[\s\S]*\}/);if(m)parsed=JSON.parse(m[0]);}
+    }
+    if(!parsed)throw new Error('Could not read receipt. Try a clearer photo.');
+    if(status)status.style.display='none';
+    const cats2=getCats();
+    if(parsed.amount)S.addForm.amount=String(parseFloat(parsed.amount)||'');
+    if(parsed.description)S.addForm.description=parsed.description.substring(0,40);
+    if(parsed.date)S.addForm.date=parsed.date;
+    if(parsed.category&&cats2[parsed.category])S.addForm.category=parsed.category;
+    if(parsed.subcat&&cats2[S.addForm.category]?.subcats?.[parsed.subcat])S.addForm.subcat=parsed.subcat;
+    if(parsed.currency&&CURRENCIES[parsed.currency])S.addForm.currency=parsed.currency;
+    if(parsed.notes&&parsed.notes.trim()){
+      const note=parsed.notes.trim().substring(0,60);
+      if(!S.addForm.description.includes(note))S.addForm.description=(S.addForm.description+' — '+note).substring(0,80);
+    }
+    S.addForm.type='expense';
+    render();toast('✨ Receipt scanned — review and save!');
+  }catch(e){
+    if(status)status.style.display='none';
+    if(shortcutBtn)shortcutBtn.style.display='block';
+    console.error('Shortcut scan error:',e);
+    toast('❌ Scan failed: '+e.message,'var(--red)');
+  }
+};
 const ASSET_TYPES=[
   {key:'bank',   icon:'🏦', label:'Bank Account', color:'#6C63FF'},
   {key:'cash',   icon:'💵', label:'Cash',         color:'#69D2A0'},
