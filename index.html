@@ -838,7 +838,7 @@ function showApp(){document.getElementById('authContainer').innerHTML='';documen
           coPayorMode:'equal',splitMode:'equal',customSplits:{},assetId:'',origAmount:null
         };
         S.editTxKey=null;S.view='add';render();
-        window.history.replaceState({},'',window.location.pathname);
+        window.history.replaceState({},'','/Family-Wallet/');
         toast('✓ Transaction from Shortcut — review and save');
         return;
       }
