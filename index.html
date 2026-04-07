@@ -845,6 +845,36 @@ function showApp(){document.getElementById('authContainer').innerHTML='';documen
     }catch(e){console.warn('URL shortcut parse error:',e);}
   },800);
 
+  // ── LOCALSTORAGE SHORTCUT BRIDGE (relay.html → index.html) ──
+  setTimeout(function(){
+    try{
+      var raw=localStorage.getItem('fw_shortcut_pending');
+      if(!raw)return;
+      var d=JSON.parse(raw);
+      if(d.fw_shortcut!==true)return;
+      // Ignore stale payloads older than 5 minutes
+      if(d._ts&&(Date.now()-d._ts)>300000)return;
+      localStorage.removeItem('fw_shortcut_pending');
+      var cats=getCats();
+      var cat=fuzzyMatchCat(d.cat||'',cats);
+      var subcat=fuzzyMatchSubcat(d.subcat||'',cat,cats);
+      var cur=d.cur||S.ledgerCurrency||'MYR';
+      S.addForm={
+        type:'expense',
+        amount:String(parseFloat(d.amount)||''),
+        description:d.notes?((d.desc||'')+' — '+d.notes).substring(0,80):(d.desc||''),
+        category:cat,subcat:subcat,
+        date:d.date||new Date().toISOString().slice(0,10),
+        currency:CURRENCIES[cur]?cur:(S.ledgerCurrency||'MYR'),
+        member:S.user?S.user.uid:'',
+        splitWith:[],coPayors:[],coPayorAmounts:{},
+        coPayorMode:'equal',splitMode:'equal',customSplits:{},assetId:'',origAmount:null
+      };
+      S.editTxKey=null;S.view='add';render();
+      toast('✨ Transaction from Shortcut — review and save!');
+    }catch(e){}
+  },800);
+
   // ── CLIPBOARD BRIDGE (PWA mode — best experience) ──
   setTimeout(function(){
     if(!navigator.clipboard||!navigator.clipboard.readText)return;

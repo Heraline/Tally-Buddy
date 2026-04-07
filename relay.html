@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Family Wallet</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;background:#0A0A14;display:flex;align-items:center;justify-content:center;font-family:sans-serif}
+  .dot{width:10px;height:10px;border-radius:50%;background:#6C63FF;animation:pulse 0.8s infinite alternate}
+  @keyframes pulse{from{opacity:0.3;transform:scale(0.8)}to{opacity:1;transform:scale(1.2)}}
+</style>
+</head>
+<body>
+<div class="dot"></div>
+<script>
+  (function(){
+    try{
+      var p = new URLSearchParams(window.location.search);
+      if(p.get('shortcut')==='1'){
+        var payload = {
+          fw_shortcut: true,
+          amount:  p.get('amount')  || '',
+          desc:    p.get('desc')    || '',
+          cat:     p.get('cat')     || '',
+          subcat:  p.get('subcat')  || '',
+          date:    p.get('date')    || '',
+          cur:     p.get('cur')     || '',
+          notes:   p.get('notes')   || '',
+          _ts:     Date.now()
+        };
+        localStorage.setItem('fw_shortcut_pending', JSON.stringify(payload));
+      }
+    }catch(e){}
+    // Redirect into the main app — stays inside web clip scope
+    window.location.replace('/Family-Wallet/index.html');
+  })();
+</script>
+</body>
+</html>
