@@ -5023,8 +5023,14 @@ function renderSettings(){
       <button onclick="goPaymentMethods()" class="export-btn" style="margin-bottom:8px">💳 Payment Methods</button>
       <button onclick="goCategories()" class="export-btn" style="margin-bottom:8px">✏️ Edit Categories</button>
       <button onclick="goBudget()" class="export-btn" style="margin-bottom:8px">💰 Manage Budget</button>
+      ${S.totalView?`
+      <div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:14px;padding:14px 16px;margin-top:4px">
+        <p style="font-size:13px;font-weight:600;margin-bottom:4px">🏦 Asset Accounts &amp; 🔄 Recurring Transactions</p>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">These are per-ledger settings. Select a specific ledger to manage them.</p>
+        <button onclick="openLedgerPicker()" style="margin-top:10px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;border:none">Switch Ledger</button>
+      </div>`:`
       <button onclick="goAssets()" class="export-btn" style="margin-bottom:8px">🏦 Asset Accounts</button>
-      <button onclick="goRecurring()" class="export-btn">🔄 Recurring Transactions</button>
+      <button onclick="goRecurring()" class="export-btn">🔄 Recurring Transactions</button>`}
     </div>
 
     <!-- DATA -->
