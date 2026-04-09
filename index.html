@@ -5023,13 +5023,11 @@ function renderSettings(){
       <button onclick="goPaymentMethods()" class="export-btn" style="margin-bottom:8px">💳 Payment Methods</button>
       <button onclick="goCategories()" class="export-btn" style="margin-bottom:8px">✏️ Edit Categories</button>
       <button onclick="goBudget()" class="export-btn" style="margin-bottom:8px">💰 Manage Budget</button>
-      ${S.totalView?`
-      <div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:14px;padding:14px 16px;margin-top:4px">
+      ${S.totalView?`<div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:14px;padding:14px 16px;margin-top:4px">
         <p style="font-size:13px;font-weight:600;margin-bottom:4px">🏦 Asset Accounts &amp; 🔄 Recurring Transactions</p>
-        <p style="font-size:12px;color:var(--muted);line-height:1.6">These are per-ledger settings. Select a specific ledger to manage them.</p>
-        <button onclick="openLedgerPicker()" style="margin-top:10px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;border:none">Switch Ledger</button>
-      </div>`:`
-      <button onclick="goAssets()" class="export-btn" style="margin-bottom:8px">🏦 Asset Accounts</button>
+        <p style="font-size:12px;color:var(--muted);line-height:1.6">These are per-ledger settings.<br>Select a specific ledger to manage them.</p>
+        <button onclick="openLedgerPicker()" style="margin-top:10px;padding:8px 16px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:12px;font-weight:700;border:none;cursor:pointer">Switch Ledger</button>
+      </div>`:`<button onclick="goAssets()" class="export-btn" style="margin-bottom:8px">🏦 Asset Accounts</button>
       <button onclick="goRecurring()" class="export-btn">🔄 Recurring Transactions</button>`}
     </div>
 
@@ -5511,8 +5509,8 @@ window.goInvite    =()=>{_code=null;S.view='invite';render();};
 window.goBudget    =()=>{const nowYm=new Date().toISOString().slice(0,7);if(S.budgetMonth!==nowYm)switchBudgetMonth(nowYm);window._bgtDirty=false;S.view='budget';render();};
 window.goCategories=()=>{editCatKey=null;editSubcatKey=null;S.view='categories';render();};
 window.goGuests    =()=>{S.view='guests';render();};
-window.goAssets    =()=>{S.view='assets';render();};
-window.goRecurring =()=>{S.view='recurring';render();processRecurring();};
+window.goAssets    =()=>{if(S.totalView){openLedgerPicker();return;}S.view='assets';render();};
+window.goRecurring =()=>{if(S.totalView){openLedgerPicker();return;}S.view='recurring';render();processRecurring();};
 window.goProfile   =()=>{S.view='profile';render();};
 window.goAssetForm =()=>{S.editAssetId=null;selAssetType=0;_assetIconMode='emoji';_assetIconEmoji=0;_assetIconImage=-1;_assetCustomIcon=null;_assetCroppedIcon=null;_assetCropImg=null;_assetCropZoom=1;S.view='assetForm';render();};
 window.goRecurForm =()=>{S.editRecurId=null;selRecurFreq=2;S.view='recurForm';render();};
@@ -6416,6 +6414,7 @@ function getAssetType(k){return ASSET_TYPES.find(t=>t.key===k)||ASSET_TYPES[0];}
 function totalAssets(){return Object.values(S.assets||{}).reduce((s,a)=>s+convertToLedger(parseFloat(a.balance)||0,a.currency||S.ledgerCurrency),0);}
 
 function renderAssetsPage(){
+  if(S.totalView){S.view='settings';setTimeout(render,0);return'';}
   const cur=getCur();
   const assetArr=Object.entries(S.assets||{}).map(([id,a])=>({id,...a}));
   const cards=assetArr.length?assetArr.map(a=>{
@@ -6606,6 +6605,7 @@ function nextDueLabel(r){
 }
 
 function renderRecurringPage(){
+  if(S.totalView){S.view='settings';setTimeout(render,0);return'';}
   const cur=getCur();
   const recArr=Object.entries(S.recurring||{}).map(([id,r])=>({id,...r})).sort((a,b)=>(a.nextDate||'').localeCompare(b.nextDate||''));
   const monthlyTotal=recArr.filter(r=>r.freq==='monthly').reduce((s,r)=>s+parseFloat(r.amount||0),0);
