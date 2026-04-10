@@ -17,6 +17,63 @@
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
   :root{--bg:#0A0A14;--bg2:#12121E;--bg3:#1A1A2E;--accent:#6C63FF;--accent2:#4ECDC4;--green:#69D2A0;--red:#FF6B6B;--yellow:#FFE66D;--text:#F0EEF6;--muted:#8A88AA;--dim:#5A587A;--border:rgba(255,255,255,0.07)}
   :root.light{--bg:#F4F4FA;--bg2:#FFFFFF;--bg3:#ECEAF6;--accent:#6C63FF;--accent2:#4ECDC4;--green:#2EB87A;--red:#E84545;--yellow:#D4A000;--text:#1A1830;--muted:#6B6890;--dim:#9896B8;--border:rgba(0,0,0,0.08)}
+
+  /* ── UI Style: Paper White ── */
+  :root.ui-paper-white{--bg:#F7F7F5;--bg2:#FFFFFF;--bg3:#F0EFED;--accent:#111111;--accent2:#555555;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#111111;--muted:#888888;--dim:#AAAAAA;--border:rgba(0,0,0,0.09);--card-radius:16px;--font-weight-balance:300;--balance-letter-spacing:-0.04em}
+  :root.ui-paper-white .card{border:0.5px solid rgba(0,0,0,0.09);box-shadow:none;background:var(--bg3)}
+  :root.ui-paper-white .surface{background:#fff;border:0.5px solid rgba(0,0,0,0.09)}
+  :root.ui-paper-white .btn-primary{background:#111;box-shadow:none}
+  :root.ui-paper-white .balance-amount{font-weight:300;letter-spacing:-0.04em}
+  :root.ui-paper-white .tab-btn.active{background:#111;color:#fff}
+  :root.ui-paper-white .fab{background:#111;box-shadow:none}
+  :root.ui-paper-white .bottom-nav{background:#F7F7F5;border-top:0.5px solid rgba(0,0,0,0.09)}
+  :root.ui-paper-white .nav-btn.active{color:#111}
+  :root.ui-paper-white .glow1,:root.ui-paper-white .glow2{display:none}
+  :root.ui-paper-white .tx-row{background:#fff;border:0.5px solid rgba(0,0,0,0.07)}
+  :root.ui-paper-white .tx-icon{border-radius:10px}
+  :root.ui-paper-white .chip.active{background:#111;color:#fff}
+  :root.ui-paper-white .member-pill.active{background:#111;color:#fff}
+  :root.ui-paper-white .tab-bar{background:rgba(0,0,0,0.05)}
+  :root.ui-paper-white .modal-sheet{background:#fff}
+  :root.ui-paper-white .modal-handle{background:rgba(0,0,0,0.15)}
+
+  /* ── UI Style: Warm Cream ── */
+  :root.ui-warm-cream{--bg:#FAF8F3;--bg2:#FFFFFF;--bg3:#F0EDE6;--accent:#2C2416;--accent2:#C8B87A;--green:#2D9B6F;--red:#C05A3A;--yellow:#B8860B;--text:#2C2416;--muted:#A89880;--dim:#C4B8A8;--border:rgba(44,36,22,0.1);--card-radius:18px}
+  :root.ui-warm-cream .card{border:0.5px solid rgba(44,36,22,0.1);box-shadow:none;background:#F0EDE6}
+  :root.ui-warm-cream .surface{background:#fff;border:0.5px solid rgba(44,36,22,0.09)}
+  :root.ui-warm-cream .btn-primary{background:#2C2416;box-shadow:none}
+  :root.ui-warm-cream .balance-amount{font-weight:300;letter-spacing:-0.04em}
+  :root.ui-warm-cream .tab-btn.active{background:#2C2416;color:#FAF8F3}
+  :root.ui-warm-cream .fab{background:#2C2416;box-shadow:none}
+  :root.ui-warm-cream .bottom-nav{background:#FAF8F3;border-top:0.5px solid rgba(44,36,22,0.1)}
+  :root.ui-warm-cream .nav-btn.active{color:#2C2416}
+  :root.ui-warm-cream .glow1,:root.ui-warm-cream .glow2{display:none}
+  :root.ui-warm-cream .tx-row{background:#fff;border:0.5px solid rgba(44,36,22,0.07)}
+  :root.ui-warm-cream .tx-icon{border-radius:12px;background:#EDE8DF}
+  :root.ui-warm-cream .chip.active{background:#2C2416;color:#FAF8F3}
+  :root.ui-warm-cream .member-pill.active{background:#2C2416;color:#FAF8F3}
+  :root.ui-warm-cream .tab-bar{background:rgba(44,36,22,0.06)}
+  :root.ui-warm-cream .modal-sheet{background:#FAF8F3}
+  :root.ui-warm-cream .modal-handle{background:rgba(44,36,22,0.15)}
+
+  /* ── UI Style: Cool Slate ── */
+  :root.ui-cool-slate{--bg:#F2F4F7;--bg2:#FFFFFF;--bg3:#EAECF0;--accent:#1A2035;--accent2:#4A7FA5;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#1A2035;--muted:#8890A4;--dim:#B0B8CC;--border:rgba(26,32,53,0.1);--card-radius:14px}
+  :root.ui-cool-slate .card{border:0.5px solid rgba(26,32,53,0.1);box-shadow:none;background:#EAECF0}
+  :root.ui-cool-slate .surface{background:#fff;border:0.5px solid rgba(26,32,53,0.09)}
+  :root.ui-cool-slate .btn-primary{background:#1A2035;box-shadow:none}
+  :root.ui-cool-slate .balance-amount{font-weight:500;letter-spacing:-0.03em}
+  :root.ui-cool-slate .tab-btn.active{background:#1A2035;color:#fff}
+  :root.ui-cool-slate .fab{background:#1A2035;box-shadow:none}
+  :root.ui-cool-slate .bottom-nav{background:#F2F4F7;border-top:0.5px solid rgba(26,32,53,0.1)}
+  :root.ui-cool-slate .nav-btn.active{color:#1A2035}
+  :root.ui-cool-slate .glow1,:root.ui-cool-slate .glow2{display:none}
+  :root.ui-cool-slate .tx-row{background:#fff;border:0.5px solid rgba(26,32,53,0.07)}
+  :root.ui-cool-slate .tx-icon{border-radius:9px;background:#EAECF0}
+  :root.ui-cool-slate .chip.active{background:#1A2035;color:#fff}
+  :root.ui-cool-slate .member-pill.active{background:#1A2035;color:#fff}
+  :root.ui-cool-slate .tab-bar{background:rgba(26,32,53,0.06)}
+  :root.ui-cool-slate .modal-sheet{background:#F2F4F7}
+  :root.ui-cool-slate .modal-handle{background:rgba(26,32,53,0.15)}
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;transition:background-color 0.25s,color 0.15s,border-color 0.2s}
 
   /* Single layout that works in both Safari browser and standalone PWA */
@@ -384,6 +441,7 @@ const S={
   persistentListeners:[],  // never cleared on ledger switch
   dailyStyle:'b',
   colorMode:'dark',
+  uiStyle:'original',
   _colorModeLoaded:false,
   totalView:false,
   allLedgerTxs:{},
@@ -722,6 +780,8 @@ onAuthStateChanged(auth,async user=>{
       S.colorMode=s.exists()?s.val()?.colorMode||'dark':'dark';
       applyColorMode(S.colorMode);
       S.dailyStyle=s.exists()?s.val()?.dailyStyle||'b':'b';
+      S.uiStyle=s.exists()?s.val()?.uiStyle||'original':'original';
+      applyUiStyle(S.uiStyle);
       safeRender();
     };
     onValue(rPref,fnPref);
@@ -4746,13 +4806,118 @@ window.removeGuest=async id=>{if(!confirm('Remove this guest member?'))return;aw
 // ── APPEARANCE ──
 function renderAppearancePage(){
   const isDark=S.colorMode!=='light';
+  const cur=S.uiStyle||'original';
+  const isMinimal=cur!=='original';
+
+  function styleCard(id,label,desc,previewHtml){
+    const active=cur===id;
+    const border=active?'2px solid var(--accent)':'1px solid var(--border)';
+    const bg=active?'rgba(108,99,255,0.06)':'rgba(255,255,255,0.02)';
+    return`<div onclick="setUiStyle('${id}')" style="cursor:pointer;border-radius:18px;border:${border};background:${bg};margin-bottom:12px;overflow:hidden;transition:all 0.2s">
+      <div style="padding:14px 16px 10px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <p style="font-size:14px;font-weight:700;color:var(--text);margin:0">${label}</p>
+          <p style="font-size:11px;color:var(--dim);margin:3px 0 0">${desc}</p>
+        </div>
+        ${active?'<span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:8px">Active</span>':'<span style="font-size:10px;color:var(--dim)">Tap to apply</span>'}
+      </div>
+      <div style="margin:0 12px 12px;border-radius:12px;overflow:hidden;border:1px solid var(--border)">${previewHtml}</div>
+    </div>`;
+  }
+
+  // Mini preview snippets (self-contained, not affected by current theme vars)
+  const previewOriginal=`<div style="background:#0A0A14;padding:12px 14px;font-family:'Sora',sans-serif">
+    <p style="font-size:9px;color:#5A587A;letter-spacing:0.1em;margin:0 0 4px">TOTAL BALANCE</p>
+    <p style="font-size:22px;font-weight:700;color:#F0EEF6;margin:0;letter-spacing:-0.03em;font-family:'DM Mono',monospace">RM 2,140.32</p>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <div style="flex:1;padding:8px;border-radius:10px;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2)">
+        <p style="font-size:9px;color:#69D2A0;margin:0">INCOME</p>
+        <p style="font-size:13px;font-weight:600;color:#69D2A0;margin:2px 0 0">+1,164</p>
+      </div>
+      <div style="flex:1;padding:8px;border-radius:10px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2)">
+        <p style="font-size:9px;color:#FF6B6B;margin:0">EXPENSES</p>
+        <p style="font-size:13px;font-weight:600;color:#FF6B6B;margin:2px 0 0">−949</p>
+      </div>
+    </div>
+    <div style="margin-top:8px;display:flex;gap:6px">
+      <div style="flex:1;background:#1A1A2E;border-radius:10px;padding:8px 10px;display:flex;align-items:center;gap:8px">
+        <div style="width:28px;height:28px;border-radius:8px;background:rgba(108,99,255,0.2);display:flex;align-items:center;justify-content:center;font-size:12px">🛒</div>
+        <div style="flex:1"><p style="font-size:11px;font-weight:600;color:#F0EEF6;margin:0">Aeon</p><p style="font-size:9px;color:#8A88AA;margin:1px 0 0">Family</p></div>
+        <p style="font-size:11px;color:#FF6B6B;margin:0">−50</p>
+      </div>
+    </div>
+  </div>`;
+
+  const previewPaper=`<div style="background:#F7F7F5;padding:12px 14px;font-family:'Sora',sans-serif">
+    <p style="font-size:9px;color:#AAAAAA;letter-spacing:0.08em;margin:0 0 2px">TOTAL BALANCE</p>
+    <p style="font-size:22px;font-weight:300;color:#111;margin:0;letter-spacing:-0.04em;font-family:'DM Mono',monospace">RM 2,140<span style="font-size:13px;color:#aaa">.32</span></p>
+    <div style="display:flex;gap:10px;margin-top:8px">
+      <div style="flex:1;padding:8px;border-radius:10px;background:#fff;border:0.5px solid rgba(0,0,0,0.08)">
+        <p style="font-size:9px;color:#aaa;margin:0">INCOME</p>
+        <p style="font-size:13px;font-weight:500;color:#2D9B6F;margin:2px 0 0">+1,164</p>
+      </div>
+      <div style="flex:1;padding:8px;border-radius:10px;background:#fff;border:0.5px solid rgba(0,0,0,0.08)">
+        <p style="font-size:9px;color:#aaa;margin:0">EXPENSES</p>
+        <p style="font-size:13px;font-weight:500;color:#E05252;margin:2px 0 0">−949</p>
+      </div>
+    </div>
+    <div style="margin-top:8px;background:#fff;border-radius:10px;border:0.5px solid rgba(0,0,0,0.07);padding:8px 10px;display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:8px;background:#F0EFED;display:flex;align-items:center;justify-content:center;font-size:12px">🛒</div>
+      <div style="flex:1"><p style="font-size:11px;font-weight:500;color:#111;margin:0">Aeon</p><p style="font-size:9px;color:#aaa;margin:1px 0 0">Family</p></div>
+      <p style="font-size:11px;color:#E05252;margin:0">−50</p>
+    </div>
+  </div>`;
+
+  const previewCream=`<div style="background:#FAF8F3;padding:12px 14px;font-family:'Sora',sans-serif">
+    <p style="font-size:9px;color:#A89880;letter-spacing:0.08em;margin:0 0 2px">NET BALANCE</p>
+    <div style="background:#2C2416;border-radius:10px;padding:10px 12px;margin:6px 0 8px">
+      <p style="font-size:20px;font-weight:300;color:#FAF8F3;margin:0;letter-spacing:-0.04em;font-family:'DM Mono',monospace">RM 214<span style="font-size:12px;color:rgba(255,255,255,0.4)">.32</span></p>
+      <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:6px">
+        <div style="width:52%;height:100%;background:#C8B87A;border-radius:2px"></div>
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:10px;border:0.5px solid rgba(44,36,22,0.08);padding:8px 10px;display:flex;align-items:center;gap:8px">
+      <div style="width:28px;height:28px;border-radius:8px;background:#EDE8DF;display:flex;align-items:center;justify-content:center;font-size:12px">🛒</div>
+      <div style="flex:1"><p style="font-size:11px;font-weight:500;color:#2C2416;margin:0">Aeon</p><p style="font-size:9px;color:#A89880;margin:1px 0 0">Family</p></div>
+      <p style="font-size:11px;color:#C05A3A;margin:0">−50</p>
+    </div>
+  </div>`;
+
+  const previewSlate=`<div style="background:#F2F4F7;padding:12px 14px;font-family:'Sora',sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div><p style="font-size:9px;color:#8890A4;margin:0">Family Wallet</p><p style="font-size:20px;font-weight:500;color:#1A2035;margin:2px 0 0;letter-spacing:-0.03em;font-family:'DM Mono',monospace">RM 214.32</p></div>
+      <div style="width:26px;height:26px;border-radius:8px;background:#1A2035;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">◎</div>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <div style="flex:1;padding:7px 8px;background:#fff;border-radius:8px;border:0.5px solid #DDE1E8"><p style="font-size:9px;color:#8890A4;margin:0">Income</p><p style="font-size:12px;font-weight:500;color:#2D9B6F;margin:2px 0 0">+1,164</p></div>
+      <div style="flex:1;padding:7px 8px;background:#fff;border-radius:8px;border:0.5px solid #DDE1E8"><p style="font-size:9px;color:#8890A4;margin:0">Expense</p><p style="font-size:12px;font-weight:500;color:#E05252;margin:2px 0 0">−949</p></div>
+      <div style="flex:1;padding:7px 8px;background:#1A2035;border-radius:8px"><p style="font-size:9px;color:rgba(255,255,255,0.4);margin:0">Safe/day</p><p style="font-size:12px;font-weight:500;color:#fff;margin:2px 0 0">58</p></div>
+    </div>
+    <div style="background:#fff;border-radius:8px;border:0.5px solid #DDE1E8;padding:8px 10px;display:flex;align-items:center;gap:8px">
+      <div style="width:26px;height:26px;border-radius:7px;background:#EAECF0;display:flex;align-items:center;justify-content:center;font-size:11px">🛒</div>
+      <div style="flex:1"><p style="font-size:11px;font-weight:500;color:#1A2035;margin:0">Aeon</p><p style="font-size:9px;color:#8890A4;margin:1px 0 0">Family</p></div>
+      <p style="font-size:11px;color:#E05252;margin:0">−50</p>
+    </div>
+  </div>`;
+
   return`<div class="settings-page fade-in">
     <button class="btn-ghost" onclick="goSettings()" style="margin-bottom:22px">← Back</button>
-    <h2 style="font-size:24px;font-weight:700;margin-bottom:18px">Appearance</h2>
+    <h2 style="font-size:24px;font-weight:700;margin-bottom:6px">Appearance</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:24px">Customise how your app looks across all ledgers</p>
 
     <div class="settings-section">
+      <p class="label" style="margin-bottom:4px">UI Style</p>
+      <p style="font-size:12px;color:var(--dim);margin-bottom:16px">Choose your preferred visual theme</p>
+
+      ${styleCard('original','Original','Bold, vibrant dark or light mode',previewOriginal)}
+      ${styleCard('paper-white','Paper White','Pure white, ultra-clean minimalist',previewPaper)}
+      ${styleCard('warm-cream','Warm Cream','Soft beige tones, organic feel',previewCream)}
+      ${styleCard('cool-slate','Cool Slate','Structured, cool grey with navy accents',previewSlate)}
+    </div>
+
+    ${isMinimal?'':`<div class="settings-section">
       <p class="label" style="margin-bottom:12px">Theme</p>
+      <p style="font-size:11px;color:var(--dim);margin-bottom:12px">Only applies when Original style is active</p>
       <div style="display:flex;gap:10px;margin-bottom:6px">
         <div onclick="setColorMode('dark')" style="flex:1;cursor:pointer;padding:16px;border-radius:16px;border:2px solid ${isDark?'var(--accent)':'var(--border)'};background:${isDark?'rgba(108,99,255,0.08)':'rgba(255,255,255,0.03)'};text-align:center;transition:all 0.18s">
           <p style="font-size:28px;margin-bottom:8px">🌙</p>
@@ -4767,7 +4932,7 @@ function renderAppearancePage(){
           ${!isDark?'<div style="margin-top:8px"><span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:8px">Active</span></div>':''}
         </div>
       </div>
-    </div>
+    </div>`}
 
     <div class="settings-section">
       <p class="label" style="margin-bottom:12px">Budget Display Style</p>
@@ -5226,6 +5391,31 @@ function applyColorMode(mode){
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta)meta.content=mode==='light'?'#F4F4FA':'#0A0A14';
 }
+
+function applyUiStyle(style){
+  const root=document.documentElement;
+  // Remove all ui style classes first
+  root.classList.remove('ui-paper-white','ui-warm-cream','ui-cool-slate');
+  if(style==='paper-white'){root.classList.add('ui-paper-white');root.classList.add('light');}
+  else if(style==='warm-cream'){root.classList.add('ui-warm-cream');root.classList.add('light');}
+  else if(style==='cool-slate'){root.classList.add('ui-cool-slate');root.classList.add('light');}
+  // For 'original' style, just restore the user's colorMode preference
+  if(style==='original'){applyColorMode(S.colorMode||'dark');}
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta){
+    if(style==='paper-white')meta.content='#F7F7F5';
+    else if(style==='warm-cream')meta.content='#FAF8F3';
+    else if(style==='cool-slate')meta.content='#F2F4F7';
+  }
+}
+
+window.setUiStyle=async style=>{
+  S.uiStyle=style;
+  applyUiStyle(style);
+  try{await set(ref(db,'users/'+S.user.uid+'/preferences/uiStyle'),style);}
+  catch(e){console.warn('uiStyle save:',e);}
+  renderPage();
+};
 
 window.setDailyStyle=async style=>{
   S.dailyStyle=style;
