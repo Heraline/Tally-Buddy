@@ -9,12 +9,12 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Family Wallet">
 <meta name="theme-color" content="#6C63FF">
-<!-- manifest disabled in offline mode -->
+<!-- manifest disabled -->
 <!-- Apple touch icons (fallback for iOS since manifest icons aren't used on iOS) -->
-<!-- apple-touch-icon disabled in offline mode -->
+<!-- apple-touch-icon disabled -->
 <title>Family Wallet</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Figtree:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Figtree:wght@300;400;500;600;700&display=swap');
   /* Font pair CSS variables — overridden per font style */
   :root{--font-ui:'Sora',sans-serif;--font-num:'DM Mono',monospace;--num-tracking:-0.03em;--num-weight:700;--label-transform:uppercase;--label-tracking:0.12em;--label-size:11px;--bg:#0A0A14;--bg2:#12121E;--bg3:#1A1A2E;--accent:#6C63FF;--accent2:#4ECDC4;--green:#69D2A0;--red:#FF6B6B;--yellow:#FFE66D;--text:#F0EEF6;--muted:#8A88AA;--dim:#5A587A;--border:rgba(255,255,255,0.07)}
   :root.light{--bg:#F4F4FA;--bg2:#FFFFFF;--bg3:#ECEAF6;--accent:#6C63FF;--accent2:#4ECDC4;--green:#2EB87A;--red:#E84545;--yellow:#D4A000;--text:#1A1830;--muted:#6B6890;--dim:#9896B8;--border:rgba(0,0,0,0.08)}
@@ -25,8 +25,6 @@
   :root.font-rounded{--font-ui:'Nunito',sans-serif;--font-num:'Nunito',sans-serif;--num-tracking:-0.01em;--num-weight:700;--label-transform:none;--label-tracking:0.02em;--label-size:12px}
   /* ── Font Style: Modern (DM Sans — neutral, airy) ── */
   :root.font-modern{--font-ui:'DM Sans',sans-serif;--font-num:'Figtree',sans-serif;--num-tracking:-0.025em;--num-weight:600;--label-transform:uppercase;--label-tracking:0.08em;--label-size:11px}
-  /* ── Font Style: Inter (Inter — sharp, neutral, Combifi-like) ── */
-  :root.font-inter{--font-ui:'Inter',sans-serif;--font-num:'Inter',sans-serif;--num-tracking:-0.03em;--num-weight:700;--label-transform:none;--label-tracking:0.01em;--label-size:12px}
 
   /* ── UI Style: Paper White ── */
   :root.ui-paper-white{--bg:#F7F7F5;--bg2:#FFFFFF;--bg3:#F0EFED;--accent:#111111;--accent2:#555555;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#111111;--muted:#888888;--dim:#AAAAAA;--border:rgba(0,0,0,0.09);--card-radius:16px;--font-weight-balance:300;--balance-letter-spacing:-0.04em}
@@ -84,104 +82,6 @@
   :root.ui-cool-slate .tab-bar{background:rgba(26,32,53,0.06)}
   :root.ui-cool-slate .modal-sheet{background:#F2F4F7}
   :root.ui-cool-slate .modal-handle{background:rgba(26,32,53,0.15)}
-
-  /* ── UI Style: Ghost White ── */
-  :root.ui-ghost-white{--bg:#F7F7F7;--bg2:#FFFFFF;--bg3:#F0F0F0;--accent:#1A56DB;--accent2:#4A90D9;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#111111;--muted:#888888;--dim:#AAAAAA;--border:rgba(0,0,0,0.09);--card-radius:14px;--font-ui:'Inter',sans-serif;--font-num:'Inter',sans-serif;--num-tracking:-0.03em;--num-weight:700;--label-transform:none;--label-tracking:0.01em;--label-size:12px}
-  :root.ui-ghost-white .card{border:0.5px solid rgba(0,0,0,0.09);box-shadow:none;background:#fff}
-  :root.ui-ghost-white .surface{background:#fff;border:0.5px solid rgba(0,0,0,0.09)}
-  :root.ui-ghost-white .btn-primary{background:#1A56DB;box-shadow:none}
-  :root.ui-ghost-white .balance-amount{font-weight:700;letter-spacing:-0.03em}
-  :root.ui-ghost-white .tab-btn.active{background:#1A56DB;color:#fff}
-  :root.ui-ghost-white .fab{background:#1A56DB;box-shadow:none}
-  :root.ui-ghost-white .bottom-nav{background:#fff;border-top:0.5px solid rgba(0,0,0,0.09)}
-  :root.ui-ghost-white .nav-btn.active{color:#1A56DB}
-  :root.ui-ghost-white .glow1,:root.ui-ghost-white .glow2{display:none}
-  :root.ui-ghost-white .tx-row{background:#fff;border:0.5px solid rgba(0,0,0,0.08);box-shadow:none}
-  :root.ui-ghost-white .tx-icon{border-radius:10px;background:#F0F3FF}
-  :root.ui-ghost-white .chip.active{background:#1A56DB;color:#fff}
-  :root.ui-ghost-white .member-pill.active{background:#1A56DB;color:#fff}
-  :root.ui-ghost-white .tab-bar{background:rgba(0,0,0,0.05)}
-  :root.ui-ghost-white .modal-sheet{background:#fff}
-  :root.ui-ghost-white .modal-handle{background:rgba(0,0,0,0.12)}
-  :root.ui-ghost-white .mini-card.income{background:rgba(45,155,111,0.07);border-color:rgba(45,155,111,0.15)}
-  :root.ui-ghost-white .mini-card.expense{background:rgba(224,82,82,0.07);border-color:rgba(224,82,82,0.15)}
-  :root.ui-ghost-white .settings-row{background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
-  :root.ui-ghost-white .ledger-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
-  :root.ui-ghost-white .ledger-card.active-ledger{border:2px solid #1A56DB}
-  :root.ui-ghost-white .input-card{background:#fff;border:0.5px solid rgba(0,0,0,0.09)}
-  :root.ui-ghost-white .asset-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
-  :root.ui-ghost-white .recur-card{background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
-  :root.ui-ghost-white .debt-row{background:#fff;border:0.5px solid rgba(0,0,0,0.08)}
-  :root.ui-ghost-white .balance-card{background:#fff;border:0.5px solid rgba(0,0,0,0.09)}
-  :root.ui-ghost-white .user-badge{background:rgba(26,86,219,0.08);border-color:rgba(26,86,219,0.2);color:#1A56DB}
-  :root.ui-ghost-white .invite-code-box{background:rgba(26,86,219,0.05);border:1px solid rgba(26,86,219,0.15)}
-  :root.ui-ghost-white .auth-input{background:#fff;border:1px solid rgba(0,0,0,0.12)}
-  :root.ui-ghost-white .spinner{border-color:rgba(26,86,219,0.15);border-top-color:#1A56DB}
-
-  /* ── UI Style: Soft Slate ── */
-  :root.ui-soft-slate{--bg:#F5F6FA;--bg2:#FFFFFF;--bg3:#ECEEF5;--accent:#4D5FD4;--accent2:#7B8FE8;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#1A1A2E;--muted:#9899BB;--dim:#B8BAD0;--border:rgba(77,95,212,0.12);--card-radius:16px;--font-ui:'DM Sans',sans-serif;--font-num:'DM Sans',sans-serif;--num-tracking:-0.02em;--num-weight:700;--label-transform:none;--label-tracking:0.01em;--label-size:12px}
-  :root.ui-soft-slate .card{border:none;box-shadow:0 2px 16px rgba(77,95,212,0.08);background:#fff}
-  :root.ui-soft-slate .surface{background:#fff;border:none;box-shadow:0 1px 8px rgba(77,95,212,0.07)}
-  :root.ui-soft-slate .btn-primary{background:#4D5FD4;box-shadow:0 6px 18px rgba(77,95,212,0.25)}
-  :root.ui-soft-slate .balance-amount{font-weight:700;letter-spacing:-0.02em}
-  :root.ui-soft-slate .tab-btn.active{background:#4D5FD4;color:#fff}
-  :root.ui-soft-slate .fab{background:#4D5FD4;box-shadow:0 6px 18px rgba(77,95,212,0.3)}
-  :root.ui-soft-slate .bottom-nav{background:#fff;border-top:0.5px solid rgba(77,95,212,0.1)}
-  :root.ui-soft-slate .nav-btn.active{color:#4D5FD4}
-  :root.ui-soft-slate .glow1,:root.ui-soft-slate .glow2{display:none}
-  :root.ui-soft-slate .tx-row{background:#fff;border:none;box-shadow:0 1px 8px rgba(77,95,212,0.07)}
-  :root.ui-soft-slate .tx-icon{border-radius:12px;background:#ECEEFF}
-  :root.ui-soft-slate .chip.active{background:#4D5FD4;color:#fff}
-  :root.ui-soft-slate .member-pill.active{background:#4D5FD4;color:#fff}
-  :root.ui-soft-slate .tab-bar{background:rgba(77,95,212,0.07)}
-  :root.ui-soft-slate .modal-sheet{background:#F5F6FA}
-  :root.ui-soft-slate .modal-handle{background:rgba(77,95,212,0.15)}
-  :root.ui-soft-slate .mini-card.income{background:rgba(45,155,111,0.08);border-color:rgba(45,155,111,0.15)}
-  :root.ui-soft-slate .mini-card.expense{background:rgba(224,82,82,0.08);border-color:rgba(224,82,82,0.15)}
-  :root.ui-soft-slate .settings-row{background:#fff;box-shadow:0 1px 6px rgba(77,95,212,0.06);border:none}
-  :root.ui-soft-slate .ledger-card{background:#fff;border:none;box-shadow:0 2px 12px rgba(77,95,212,0.08)}
-  :root.ui-soft-slate .ledger-card.active-ledger{border:2px solid #4D5FD4;box-shadow:0 2px 16px rgba(77,95,212,0.15)}
-  :root.ui-soft-slate .input-card{background:#fff;box-shadow:0 1px 8px rgba(77,95,212,0.07);border:none}
-  :root.ui-soft-slate .asset-card{background:#fff;border:none;box-shadow:0 2px 12px rgba(77,95,212,0.08)}
-  :root.ui-soft-slate .recur-card{background:#fff;border:none;box-shadow:0 1px 8px rgba(77,95,212,0.07)}
-  :root.ui-soft-slate .debt-row{background:#fff;border:none;box-shadow:0 1px 6px rgba(77,95,212,0.06)}
-  :root.ui-soft-slate .user-badge{background:rgba(77,95,212,0.1);border-color:rgba(77,95,212,0.2);color:#4D5FD4}
-  :root.ui-soft-slate .invite-code-box{background:rgba(77,95,212,0.06);border:1px solid rgba(77,95,212,0.15)}
-  :root.ui-soft-slate .auth-input{background:#fff;border:1px solid rgba(77,95,212,0.15)}
-  :root.ui-soft-slate .spinner{border-color:rgba(77,95,212,0.15);border-top-color:#4D5FD4}
-
-  /* ── UI Style: Warm Stone ── */
-  :root.ui-warm-stone{--bg:#FAFAF8;--bg2:#FFFFFF;--bg3:#F5F0E8;--accent:#8A7A60;--accent2:#B8A882;--green:#2D9B6F;--red:#C05A3A;--yellow:#B8860B;--text:#2C2416;--muted:#A89880;--dim:#C4B8A8;--border:rgba(44,36,22,0.1);--card-radius:16px;--font-ui:'Nunito',sans-serif;--font-num:'Nunito',sans-serif;--num-tracking:-0.02em;--num-weight:800;--label-transform:none;--label-tracking:0.02em;--label-size:12px}
-  :root.ui-warm-stone .card{border:0.5px solid rgba(44,36,22,0.1);box-shadow:none;background:#F5F0E8}
-  :root.ui-warm-stone .surface{background:#fff;border:0.5px solid rgba(44,36,22,0.09)}
-  :root.ui-warm-stone .btn-primary{background:#8A7A60;box-shadow:none}
-  :root.ui-warm-stone .balance-amount{font-weight:800;letter-spacing:-0.02em}
-  :root.ui-warm-stone .tab-btn.active{background:#8A7A60;color:#FAFAF8}
-  :root.ui-warm-stone .fab{background:#8A7A60;box-shadow:none}
-  :root.ui-warm-stone .bottom-nav{background:#FAFAF8;border-top:0.5px solid rgba(44,36,22,0.1)}
-  :root.ui-warm-stone .nav-btn.active{color:#8A7A60}
-  :root.ui-warm-stone .glow1,:root.ui-warm-stone .glow2{display:none}
-  :root.ui-warm-stone .tx-row{background:#fff;border:0.5px solid rgba(44,36,22,0.08);box-shadow:none}
-  :root.ui-warm-stone .tx-icon{border-radius:12px;background:#F5F0E8}
-  :root.ui-warm-stone .chip.active{background:#8A7A60;color:#FAFAF8}
-  :root.ui-warm-stone .member-pill.active{background:#8A7A60;color:#FAFAF8}
-  :root.ui-warm-stone .tab-bar{background:rgba(44,36,22,0.06)}
-  :root.ui-warm-stone .modal-sheet{background:#FAFAF8}
-  :root.ui-warm-stone .modal-handle{background:rgba(44,36,22,0.15)}
-  :root.ui-warm-stone .mini-card.income{background:rgba(45,155,111,0.08);border-color:rgba(45,155,111,0.18)}
-  :root.ui-warm-stone .mini-card.expense{background:rgba(192,90,58,0.08);border-color:rgba(192,90,58,0.18)}
-  :root.ui-warm-stone .settings-row{background:#fff;border:0.5px solid rgba(44,36,22,0.08)}
-  :root.ui-warm-stone .ledger-card{background:#fff;border:0.5px solid rgba(44,36,22,0.08)}
-  :root.ui-warm-stone .ledger-card.active-ledger{border:2px solid #8A7A60}
-  :root.ui-warm-stone .input-card{background:#fff;border:0.5px solid rgba(44,36,22,0.09)}
-  :root.ui-warm-stone .asset-card{background:#fff;border:0.5px solid rgba(44,36,22,0.08)}
-  :root.ui-warm-stone .recur-card{background:#fff;border:0.5px solid rgba(44,36,22,0.08)}
-  :root.ui-warm-stone .debt-row{background:#fff;border:0.5px solid rgba(44,36,22,0.08)}
-  :root.ui-warm-stone .user-badge{background:rgba(138,122,96,0.1);border-color:rgba(138,122,96,0.2);color:#8A7A60}
-  :root.ui-warm-stone .invite-code-box{background:rgba(138,122,96,0.07);border:1px solid rgba(138,122,96,0.2)}
-  :root.ui-warm-stone .auth-input{background:#fff;border:1px solid rgba(44,36,22,0.12)}
-  :root.ui-warm-stone .spinner{border-color:rgba(138,122,96,0.15);border-top-color:#8A7A60}
-
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;transition:background-color 0.25s,color 0.15s,border-color 0.2s}
 
   /* Single layout that works in both Safari browser and standalone PWA */
@@ -371,185 +271,120 @@
 
 <script>
 // ── LOCAL STORAGE DATABASE SHIM (replaces Firebase) ──
-// All data is stored locally in the browser — no server required.
-// Data persists across page reloads via localStorage.
+// All data stored locally in your browser. No server needed.
 
-const _LS_PREFIX = 'fw_db_';
-function _lsKey(path){ return _LS_PREFIX + path.split('/').join('__'); }
-function _lsGet(path){
-  if(!path) return null;
-  try{ return JSON.parse(localStorage.getItem(_lsKey(path))); }catch(e){ return null; }
+const _LS_PRE = 'fw_db_';
+function _lsKey(p){ return _LS_PRE + p.split('/').join('__'); }
+function _lsGet(p){
+  if(!p) return null;
+  try{ return JSON.parse(localStorage.getItem(_lsKey(p))); }catch(e){ return null; }
 }
-function _lsSet(path, val){
-  if(!path) return;
+function _lsSet(p, v){
+  if(!p) return;
   try{
-    localStorage.setItem(_lsKey(path), JSON.stringify(val));
-    // Also update all parent path objects so they stay consistent
-    const parts = path.split('/');
-    for(let i=parts.length-1; i>0; i--){
-      const parentPath = parts.slice(0,i).join('/');
-      const childKey = parts[i];
-      let parent = _lsGet(parentPath);
-      if(parent===null) parent={};
-      if(typeof parent==='object' && !Array.isArray(parent)){
-        if(val===null){ delete parent[childKey]; }
-        else { parent[childKey] = _lsGet(path) ?? val; }
-        // only update if child is the direct child
-        if(i===parts.length-1) parent[childKey]=val;
-        localStorage.setItem(_lsKey(parentPath), JSON.stringify(parent));
-      } else { break; } // can't merge into non-object
+    localStorage.setItem(_lsKey(p), JSON.stringify(v));
+    // propagate up so parent paths stay in sync
+    const parts = p.split('/');
+    for(let i = parts.length-1; i > 0; i--){
+      const par = parts.slice(0,i).join('/');
+      const key = parts[i];
+      let obj = _lsGet(par);
+      if(obj === null) obj = {};
+      if(typeof obj === 'object' && !Array.isArray(obj)){
+        if(v === null) delete obj[key]; else obj[key] = (i === parts.length-1) ? v : (_lsGet(p) ?? v);
+        localStorage.setItem(_lsKey(par), JSON.stringify(obj));
+      } else break;
     }
   }catch(e){}
 }
-function _lsDel(path){ localStorage.removeItem(_lsKey(path)); }
+function _lsDel(p){ localStorage.removeItem(_lsKey(p)); }
 
-// Mimic Firebase ref/snapshot API
-function ref(dbOrPath, path){ if(typeof dbOrPath==='string'){return{path:dbOrPath};} return path?{path}:{path:''}; }
-function _nestedGet(obj, parts){
-  let cur = obj;
-  for(const p of parts){ if(cur==null||typeof cur!=='object')return undefined; cur=cur[p]; }
-  return cur;
-}
-function _nestedSet(obj, parts, val){
-  let cur = obj;
-  for(let i=0;i<parts.length-1;i++){
-    const p=parts[i];
-    if(cur[p]==null||typeof cur[p]!=='object')cur[p]={};
-    cur=cur[p];
-  }
-  cur[parts[parts.length-1]]=val;
-}
-// Get data by path from localStorage
-async function get(r){
-  const data = _lsGet(r.path);
-  return { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } };
-}
-// Set data at path
-async function set(r, val){
-  _lsSet(r.path, val);
-  _notifyListeners(r.path, val);
-}
-// Update multiple paths at once
-async function update(r, updates){
-  // Form 1: update(ref(db), {'/path/a': val}) — multi-path flat update (r.path is empty/root)
-  // Form 2: update(ref(db,'some/path'), {key: val}) — partial merge at path
-  const rpath = r && r.path ? r.path : '';
-  if(!rpath){
-    Object.entries(updates).forEach(([path, val])=>{
-      const p = path.replace(/^\//,'');
-      _lsSet(p, val);
-      _notifyListeners(p, val);
-    });
-  } else {
-    const existing = _lsGet(rpath)||{};
-    const merged = Object.assign({}, existing, updates);
-    _lsSet(rpath, merged);
-    _notifyListeners(rpath, merged);
-  }
-}
-// Remove data
-async function remove(r){
-  _lsDel(r.path);
-  _notifyListeners(r.path, null);
-}
-// Generate a unique push key and optionally write data
-function push(r, data){
-  const key = '-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
-  const newPath = r.path+'/'+key;
-  if(data !== undefined){
-    _lsSet(newPath, data);
-    _notifyListeners(r.path, _lsGet(r.path));
-  }
-  return { key, path: newPath };
-}
+function _snap(data){ return { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>cb({key:k,val:()=>v}));} } }; }
 
-// Listener registry for onValue/off
-const _listeners = {};
-function _makeSnap(data){ return { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } }; }
-function _notifyListeners(changedPath, _val){
-  Object.keys(_listeners).forEach(lpath=>{
-    // Notify if: exact match, changed path is child of listener, listener is child of changed path
-    if(changedPath===lpath || changedPath.startsWith(lpath+'/') || lpath.startsWith(changedPath+'/')){
-      const data = _lsGet(lpath);
-      const snap = _makeSnap(data);
-      (_listeners[lpath]||[]).forEach(fn=>{ try{fn(snap);}catch(e){} });
+const _lvl = {}; // listeners
+function _notify(changed){
+  Object.keys(_lvl).forEach(lp=>{
+    if(changed===lp||changed.startsWith(lp+'/')||lp.startsWith(changed+'/')){
+      const s=_snap(_lsGet(lp));
+      (_lvl[lp]||[]).forEach(fn=>{ try{fn(s);}catch(e){} });
     }
   });
 }
-function onValue(r, fn){
-  const path = r.path;
-  if(!_listeners[path]) _listeners[path]=[];
-  _listeners[path].push(fn);
-  // Fire immediately with current value
-  const data = _lsGet(path);
-  const snap = { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } };
-  try{fn(snap);}catch(e){}
+
+function ref(dbOrPath, path){
+  if(typeof dbOrPath==='string') return {path:dbOrPath};
+  return path ? {path} : {path:''};
 }
-function off(r, _type, fn){
-  const path = r.path;
-  if(!_listeners[path]) return;
-  if(fn) _listeners[path] = _listeners[path].filter(f=>f!==fn);
-  else delete _listeners[path];
+async function get(r){ return _snap(_lsGet(r.path)); }
+async function set(r, v){ _lsSet(r.path, v); _notify(r.path); }
+async function remove(r){ _lsDel(r.path); _notify(r.path); }
+function push(r, data){
+  const key = '-'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+  const np = r.path+'/'+key;
+  if(data!==undefined){ _lsSet(np, data); _notify(r.path); }
+  return {key, path:np};
+}
+async function update(r, updates){
+  const rp = r && r.path ? r.path : '';
+  if(!rp){
+    Object.entries(updates).forEach(([p,v])=>{ const cp=p.replace(/^\//,''); _lsSet(cp,v); _notify(cp); });
+  } else {
+    const merged = Object.assign({}, _lsGet(rp)||{}, updates);
+    _lsSet(rp, merged); _notify(rp);
+  }
+}
+function onValue(r, fn){
+  if(!_lvl[r.path]) _lvl[r.path]=[];
+  _lvl[r.path].push(fn);
+  try{ fn(_snap(_lsGet(r.path))); }catch(e){}
+}
+function off(r, _t, fn){
+  if(!_lvl[r.path]) return;
+  if(fn) _lvl[r.path]=_lvl[r.path].filter(f=>f!==fn);
+  else delete _lvl[r.path];
 }
 
 // ── LOCAL AUTH SHIM ──
-const _AUTH_KEY = 'fw_local_auth';
-const _USERS_KEY = 'fw_local_users';
-function _getUsers(){ try{return JSON.parse(localStorage.getItem(_USERS_KEY))||{};}catch(e){return{};} }
-function _saveUsers(u){ localStorage.setItem(_USERS_KEY, JSON.stringify(u)); }
-function _getSession(){ try{return JSON.parse(localStorage.getItem(_AUTH_KEY));}catch(e){return null;} }
-function _saveSession(u){ localStorage.setItem(_AUTH_KEY, JSON.stringify(u)); }
-function _clearSession(){ localStorage.removeItem(_AUTH_KEY); }
+const _AK='fw_auth_session', _UK='fw_auth_users';
+function _getUsers(){ try{return JSON.parse(localStorage.getItem(_UK))||{};}catch(e){return{};} }
+function _saveUsers(u){ localStorage.setItem(_UK, JSON.stringify(u)); }
+function _getSession(){ try{return JSON.parse(localStorage.getItem(_AK));}catch(e){return null;} }
+function _saveSession(u){ localStorage.setItem(_AK, JSON.stringify(u)); }
+function _clearSession(){ localStorage.removeItem(_AK); }
 
-const auth = {
-  currentUser: _getSession(),
-  _listeners: [],
-  _fire(user){ this.currentUser=user; this._listeners.forEach(fn=>{ try{fn(user);}catch(e){} }); }
+const auth = { currentUser: _getSession(), _fns: [],
+  _fire(u){ this.currentUser=u; this._fns.forEach(fn=>{try{fn(u);}catch(e){}}); }
 };
-const db = {}; // not used directly — ref() just needs to exist
+const db = {};
 
-function onAuthStateChanged(_auth, fn){
-  auth._listeners.push(fn);
-  // Fire immediately (async to let the rest of the script load first)
-  setTimeout(()=>{ try{fn(auth.currentUser);}catch(e){} }, 0);
+function onAuthStateChanged(_a, fn){
+  auth._fns.push(fn);
+  setTimeout(()=>{try{fn(auth.currentUser);}catch(e){}}, 0);
 }
-async function createUserWithEmailAndPassword(_auth, email, pass){
-  const users = _getUsers();
+async function createUserWithEmailAndPassword(_a, email, pass){
+  const users=_getUsers();
   if(users[email]) throw {code:'auth/email-already-in-use', message:'Email already registered.'};
   if(pass.length<6) throw {message:'Password must be at least 6 characters.'};
-  const uid = 'u_'+Math.random().toString(36).slice(2,10);
-  users[email] = {uid, email, password: pass};
+  const uid='u_'+Math.random().toString(36).slice(2,12);
+  users[email]={uid,email,password:pass,displayName:''};
   _saveUsers(users);
-  const user = {uid, email, displayName:''};
-  _saveSession(user);
-  auth._fire(user);
+  const user={uid,email,displayName:''};
+  _saveSession(user); auth._fire(user);
   return {user};
 }
-async function signInWithEmailAndPassword(_auth, email, pass){
-  const users = _getUsers();
-  const rec = users[email];
-  if(!rec || rec.password!==pass) throw {code:'auth/invalid-credential', message:'Wrong email or password.'};
-  const user = {uid:rec.uid, email, displayName:rec.displayName||''};
-  _saveSession(user);
-  auth._fire(user);
+async function signInWithEmailAndPassword(_a, email, pass){
+  const users=_getUsers(), rec=users[email];
+  if(!rec||rec.password!==pass) throw {code:'auth/invalid-credential', message:'Wrong email or password.'};
+  const user={uid:rec.uid,email,displayName:rec.displayName||''};
+  _saveSession(user); auth._fire(user);
   return {user};
 }
-async function signOut(_auth){
-  _clearSession();
-  auth._fire(null);
-}
+async function signOut(_a){ _clearSession(); auth._fire(null); }
 async function updateProfile(user, {displayName}){
   if(displayName) user.displayName=displayName;
-  // Update stored session
-  const sess = _getSession();
-  if(sess){ sess.displayName=displayName; _saveSession(sess); }
-  // Update users registry
-  const users = _getUsers();
-  if(users[user.email]) users[user.email].displayName=displayName;
-  _saveUsers(users);
+  const sess=_getSession(); if(sess){sess.displayName=displayName;_saveSession(sess);}
+  const users=_getUsers(); if(users[user.email]){users[user.email].displayName=displayName;_saveUsers(users);}
 }
-
-const db_real = db; // alias (not used)
 
 // ── CURRENCIES ──
 const CURRENCIES={
@@ -1364,7 +1199,6 @@ window.doCreateLedger=async()=>{
   }catch(e){if(msg){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}}
 };
 async function joinByCode(code,msgEl){
-  // In offline/local mode, invite codes only work for ledgers already stored locally.
   if(!code||code.length!==6){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Enter a valid 6-character code.';}return;}
   try{
     const snap=await get(ref(db,'ledgers'));
@@ -1372,7 +1206,7 @@ async function joinByCode(code,msgEl){
     if(snap.exists()&&typeof snap.val()==='object'){
       Object.entries(snap.val()).forEach(([k,v])=>{if(v&&v.inviteCode===code){tid=k;tl=v;}});
     }
-    if(!tid){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Invite code not found on this device. (Offline mode — codes only work locally.)';}return;}
+    if(!tid){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Code not found. (Offline mode — codes only work on this device.)';}return;}
     if(S.ledgers[tid]){if(msgEl){msgEl.style.color='var(--accent2)';msgEl.textContent='Already a member!';}return;}
     const up={};
     up['ledgers/'+tid+'/members/'+S.user.uid]=true;
@@ -5060,7 +4894,7 @@ window.removeGuest=async id=>{if(!confirm('Remove this guest member?'))return;aw
 function renderAppearancePage(){
   const isDark=S.colorMode!=='light';
   const cur=S.uiStyle||'original';
-  const isMinimal=['paper-white','warm-cream','cool-slate','ghost-white','soft-slate','warm-stone'].includes(cur);
+  const isMinimal=cur!=='original';
 
   function styleCard(id,label,desc,previewHtml){
     const active=cur===id;
@@ -5136,65 +4970,7 @@ function renderAppearancePage(){
     </div>
   </div>`;
 
-  const previewGhost=`<div style="background:#F7F7F7;padding:12px 14px;font-family:'Inter',sans-serif">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <p style="font-size:13px;font-weight:700;color:#111;margin:0">Family Wallet</p>
-      <div style="width:22px;height:22px;border-radius:50%;background:#F0F0F0;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#555">⚙</span></div>
-    </div>
-    <div style="background:#fff;border-radius:10px;border:0.5px solid rgba(0,0,0,0.09);padding:10px 12px;margin-bottom:7px">
-      <p style="font-size:9px;color:#aaa;margin:0 0 2px">Monthly Balance</p>
-      <p style="font-size:21px;font-weight:700;color:#111;margin:0;letter-spacing:-0.03em">RM 214.32</p>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(45,155,111,0.07);border:0.5px solid rgba(45,155,111,0.15)"><p style="font-size:8px;color:#2D9B6F;margin:0">Income</p><p style="font-size:11px;font-weight:700;color:#2D9B6F;margin:1px 0 0">+1,164</p></div>
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(224,82,82,0.07);border:0.5px solid rgba(224,82,82,0.15)"><p style="font-size:8px;color:#E05252;margin:0">Expenses</p><p style="font-size:11px;font-weight:700;color:#E05252;margin:1px 0 0">−949</p></div>
-      </div>
-    </div>
-    <div style="background:#fff;border-radius:10px;border:0.5px solid rgba(0,0,0,0.08);padding:8px 10px;display:flex;align-items:center;gap:8px">
-      <div style="width:26px;height:26px;border-radius:8px;background:#F0F3FF;display:flex;align-items:center;justify-content:center;font-size:11px">🛒</div>
-      <div style="flex:1"><p style="font-size:11px;font-weight:600;color:#111;margin:0">Dining</p><p style="font-size:9px;color:#aaa;margin:1px 0 0">A&W · 19:21</p></div>
-      <p style="font-size:11px;font-weight:700;color:#111;margin:0">24.80</p>
-    </div>
-  </div>`;
-
-  const previewSoftSlate=`<div style="background:#F5F6FA;padding:12px 14px;font-family:'DM Sans',system-ui,sans-serif">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <p style="font-size:13px;font-weight:700;color:#1A1A2E;margin:0;letter-spacing:-0.2px">Family Wallet</p>
-      <div style="width:22px;height:22px;border-radius:50%;background:#E8EAF2;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#6B6E9E">⚙</span></div>
-    </div>
-    <div style="background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(77,95,212,0.09);padding:10px 12px;margin-bottom:7px">
-      <p style="font-size:9px;color:#9899BB;margin:0 0 2px">Monthly Balance</p>
-      <p style="font-size:21px;font-weight:700;color:#1A1A2E;margin:0;letter-spacing:-0.02em">RM 214.32</p>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(45,155,111,0.08)"><p style="font-size:8px;color:#2D9B6F;margin:0">Income</p><p style="font-size:11px;font-weight:700;color:#2D9B6F;margin:1px 0 0">+1,164</p></div>
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:rgba(224,82,82,0.08)"><p style="font-size:8px;color:#E05252;margin:0">Expenses</p><p style="font-size:11px;font-weight:700;color:#E05252;margin:1px 0 0">−949</p></div>
-      </div>
-    </div>
-    <div style="background:#fff;border-radius:10px;box-shadow:0 1px 6px rgba(77,95,212,0.08);padding:8px 10px;display:flex;align-items:center;gap:8px">
-      <div style="width:26px;height:26px;border-radius:9px;background:#ECEEFF;display:flex;align-items:center;justify-content:center;font-size:11px">🍽</div>
-      <div style="flex:1"><p style="font-size:11px;font-weight:600;color:#1A1A2E;margin:0">Dining</p><p style="font-size:9px;color:#9899BB;margin:1px 0 0">A&W · 19:21</p></div>
-      <p style="font-size:11px;font-weight:700;color:#1A1A2E;margin:0">24.80</p>
-    </div>
-  </div>`;
-
-  const previewWarmStone=`<div style="background:#FAFAF8;padding:12px 14px;font-family:'Nunito',system-ui,sans-serif">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-      <p style="font-size:13px;font-weight:800;color:#2C2416;margin:0">Family Wallet</p>
-      <div style="width:22px;height:22px;border-radius:50%;background:#F0EDE6;display:flex;align-items:center;justify-content:center"><span style="font-size:9px;color:#8A7A60">⚙</span></div>
-    </div>
-    <div style="background:#F5F0E8;border-radius:12px;border:0.5px solid rgba(44,36,22,0.1);padding:10px 12px;margin-bottom:7px">
-      <p style="font-size:9px;color:#A89880;margin:0 0 2px">Monthly Balance</p>
-      <p style="font-size:21px;font-weight:800;color:#2C2416;margin:0;letter-spacing:-0.02em">RM 214.32</p>
-      <div style="display:flex;gap:8px;margin-top:8px">
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:#fff;border:0.5px solid rgba(44,36,22,0.09)"><p style="font-size:8px;color:#2D9B6F;margin:0">Income</p><p style="font-size:11px;font-weight:800;color:#2D9B6F;margin:1px 0 0">+1,164</p></div>
-        <div style="flex:1;padding:6px 8px;border-radius:8px;background:#fff;border:0.5px solid rgba(44,36,22,0.09)"><p style="font-size:8px;color:#C05A3A;margin:0">Expenses</p><p style="font-size:11px;font-weight:800;color:#C05A3A;margin:1px 0 0">−949</p></div>
-      </div>
-    </div>
-    <div style="background:#fff;border-radius:10px;border:0.5px solid rgba(44,36,22,0.08);padding:8px 10px;display:flex;align-items:center;gap:8px">
-      <div style="width:26px;height:26px;border-radius:9px;background:#F5F0E8;display:flex;align-items:center;justify-content:center;font-size:11px">🍽</div>
-      <div style="flex:1"><p style="font-size:11px;font-weight:700;color:#2C2416;margin:0">Dining</p><p style="font-size:9px;color:#A89880;margin:1px 0 0">A&W · 19:21</p></div>
-      <p style="font-size:11px;font-weight:800;color:#2C2416;margin:0">24.80</p>
-    </div>
-  </div>`;
+  const previewSlate=`<div style="background:#F2F4F7;padding:12px 14px;font-family:'Sora',sans-serif">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
       <div><p style="font-size:9px;color:#8890A4;margin:0">Family Wallet</p><p style="font-size:20px;font-weight:500;color:#1A2035;margin:2px 0 0;letter-spacing:-0.03em;font-family:'DM Mono',monospace">RM 214.32</p></div>
       <div style="width:26px;height:26px;border-radius:8px;background:#1A2035;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">◎</div>
@@ -5224,10 +5000,6 @@ function renderAppearancePage(){
       ${styleCard('paper-white','Paper White','Pure white, ultra-clean minimalist',previewPaper)}
       ${styleCard('warm-cream','Warm Cream','Soft beige tones, organic feel',previewCream)}
       ${styleCard('cool-slate','Cool Slate','Structured, cool grey with navy accents',previewSlate)}
-      <p class="label" style="margin:20px 0 12px;letter-spacing:0.06em;font-size:10px">NEW — Clean & Minimal</p>
-      ${styleCard('ghost-white','Ghost White','Pure white, hairline borders, blue accent — Combifi-inspired',previewGhost)}
-      ${styleCard('soft-slate','Soft Slate','Cool grey page, white shadow cards, indigo accent — Tally-inspired',previewSoftSlate)}
-      ${styleCard('warm-stone','Warm Stone','Off-white paper, tan tones, Nunito — earthy & friendly',previewWarmStone)}
     </div>
 
     ${isMinimal?'':`<div class="settings-section">
@@ -5255,14 +5027,13 @@ function renderAppearancePage(){
 
       ${[
         {id:'original', name:'Classic', sub:'Sora + DM Mono', desc:'Sharp geometric sans with monospace numbers. Technical, precise.', sample:{ui:'Sora',num:'DM Mono'}},
-        {id:'inter',    name:'Sharp', sub:'Inter', desc:'The cleanest neutral sans. Sharp, highly legible — used by Combifi.', sample:{ui:'Inter',num:'Inter'}},
         {id:'tally',    name:'Fintech', sub:'Plus Jakarta Sans', desc:'Clean rounded sans for both text and numbers — closest to Tally AI.', sample:{ui:'Jakarta',num:'Jakarta'}},
         {id:'rounded',  name:'Friendly', sub:'Nunito', desc:'Soft, rounded letterforms. Warm and approachable.', sample:{ui:'Nunito',num:'Nunito'}},
         {id:'modern',   name:'Modern',  sub:'DM Sans + Figtree', desc:'Airy neutral body with balanced numeric display.', sample:{ui:'DM Sans',num:'Figtree'}},
       ].map(f=>{
         const active=(S.fontStyle||'original')===f.id;
-        const sampleFontUi=f.id==='original'?'Sora':f.id==='inter'?'Inter':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'DM Sans';
-        const sampleFontNum=f.id==='original'?'DM Mono':f.id==='inter'?'Inter':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'Figtree';
+        const sampleFontUi=f.id==='original'?'Sora':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'DM Sans';
+        const sampleFontNum=f.id==='original'?'DM Mono':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'Figtree';
         return`<div onclick="setFontStyle('${f.id}')" style="cursor:pointer;padding:14px 16px;border-radius:16px;border:2px solid ${active?'var(--accent)':'var(--border)'};background:${active?'rgba(108,99,255,0.06)':'rgba(255,255,255,0.02)'};margin-bottom:10px;transition:all 0.2s">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
             <div style="flex:1">
@@ -5273,7 +5044,7 @@ function renderAppearancePage(){
               <p style="font-size:11px;color:var(--dim);margin:0 0 10px">${f.desc}</p>
               <div style="background:rgba(128,128,128,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:baseline;justify-content:space-between">
                 <span style="font-family:'${sampleFontUi}',sans-serif;font-size:13px;font-weight:500;color:var(--muted)">Monthly balance</span>
-                <span style="font-family:'${sampleFontNum}',${f.id==='original'?'monospace':'sans-serif'};font-size:20px;font-weight:${f.id==='original'?700:f.id==='rounded'?800:600};color:var(--text);letter-spacing:${f.id==='original'?'-0.03em':'-0.02em'}">+214.32</span>
+                <span style="font-family:'${sampleFontNum}',${f.id==='original'?'monospace':'sans-serif'};font-size:20px;font-weight:${f.id==='original'?700:600};color:var(--text);letter-spacing:${f.id==='original'?'-0.03em':'-0.02em'}">+214.32</span>
               </div>
             </div>
             <div style="flex-shrink:0;margin-top:2px">${active?`<span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:8px">Active</span>`:`<span style="font-size:10px;color:var(--dim)">Tap</span>`}</div>
@@ -5742,17 +5513,18 @@ function applyColorMode(mode){
 
 function applyUiStyle(style){
   const root=document.documentElement;
-  root.classList.remove('ui-paper-white','ui-warm-cream','ui-cool-slate','ui-ghost-white','ui-soft-slate','ui-warm-stone');
-  const lightStyles=['paper-white','warm-cream','cool-slate','ghost-white','soft-slate','warm-stone'];
-  if(lightStyles.includes(style)){root.classList.add('ui-'+style);root.classList.add('light');}
+  // Remove all ui style classes first
+  root.classList.remove('ui-paper-white','ui-warm-cream','ui-cool-slate');
+  if(style==='paper-white'){root.classList.add('ui-paper-white');root.classList.add('light');}
+  else if(style==='warm-cream'){root.classList.add('ui-warm-cream');root.classList.add('light');}
+  else if(style==='cool-slate'){root.classList.add('ui-cool-slate');root.classList.add('light');}
+  // For 'original' style, just restore the user's colorMode preference
   if(style==='original'){applyColorMode(S.colorMode||'dark');}
   const meta=document.querySelector('meta[name="theme-color"]');
   if(meta){
-    const colors={
-      'paper-white':'#F7F7F5','warm-cream':'#FAF8F3','cool-slate':'#F2F4F7',
-      'ghost-white':'#F7F7F7','soft-slate':'#F5F6FA','warm-stone':'#FAFAF8'
-    };
-    meta.content=colors[style]||'#6C63FF';
+    if(style==='paper-white')meta.content='#F7F7F5';
+    else if(style==='warm-cream')meta.content='#FAF8F3';
+    else if(style==='cool-slate')meta.content='#F2F4F7';
   }
 }
 
@@ -5766,11 +5538,10 @@ window.setUiStyle=async style=>{
 
 function applyFontStyle(style){
   const root=document.documentElement;
-  root.classList.remove('font-tally','font-rounded','font-modern','font-inter');
+  root.classList.remove('font-tally','font-rounded','font-modern');
   if(style==='tally')root.classList.add('font-tally');
   else if(style==='rounded')root.classList.add('font-rounded');
   else if(style==='modern')root.classList.add('font-modern');
-  else if(style==='inter')root.classList.add('font-inter');
   // 'original' = no class added, uses default Sora + DM Mono
 }
 
@@ -7561,7 +7332,7 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
   }
 })();
 
-// Service worker disabled in offline/local mode
+// Service worker disabled in offline mode
 
 </script>
 </body>
