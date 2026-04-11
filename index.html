@@ -9,9 +9,9 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Family Wallet">
 <meta name="theme-color" content="#6C63FF">
-<link rel="manifest" href="/Family-Wallet/manifest.json">
+<!-- manifest disabled in offline mode -->
 <!-- Apple touch icons (fallback for iOS since manifest icons aren't used on iOS) -->
-<link rel="apple-touch-icon" href="/Family-Wallet/icon-192.png">
+<!-- apple-touch-icon disabled in offline mode -->
 <title>Family Wallet</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Figtree:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -369,49 +369,187 @@
      Hidden in standalone mode via CSS. -->
 <div id="scrollTrigger" style="height:1px;width:1px;position:absolute;bottom:0;opacity:0;pointer-events:none"></div>
 
-<script src="firebase-config.js" onerror="window.__FIREBASE_CONFIG_MISSING__=true"></script>
 <script>
-// Guard runs AFTER firebase-config.js has loaded (or failed).
-// Only show the setup screen if the config is genuinely missing.
-if(window.__FIREBASE_CONFIG_MISSING__ || typeof window.__FIREBASE_CONFIG__ === 'undefined'){
-  document.addEventListener('DOMContentLoaded', function(){
-    var ls = document.getElementById('loadingScreen');
-    if(ls){
-      ls.innerHTML = '<div style="max-width:340px;text-align:center;padding:0 24px">'
-        + '<div style="font-size:52px;margin-bottom:18px">⚙️</div>'
-        + '<div style="font-size:20px;font-weight:700;color:var(--text);margin-bottom:10px">Firebase Setup Required</div>'
-        + '<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:22px">'
-        + 'This app needs a <code style="background:rgba(108,99,255,0.15);color:var(--accent);padding:2px 6px;border-radius:5px">firebase-config.js</code> file '
-        + 'in the same folder as <code style="background:rgba(108,99,255,0.15);color:var(--accent);padding:2px 6px;border-radius:5px">index.html</code>.<br><br>'
-        + 'Create the file with your Firebase project credentials:'
-        + '</div>'
-        + '<pre style="background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:14px 16px;font-size:11px;text-align:left;color:var(--text);overflow-x:auto;line-height:1.6">'
-        + 'window.__FIREBASE_CONFIG__ = {\n'
-        + '  apiKey: "YOUR_API_KEY",\n'
-        + '  authDomain: "YOUR_PROJECT.firebaseapp.com",\n'
-        + '  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",\n'
-        + '  projectId: "YOUR_PROJECT_ID",\n'
-        + '  storageBucket: "YOUR_PROJECT.appspot.com",\n'
-        + '  messagingSenderId: "YOUR_SENDER_ID",\n'
-        + '  appId: "YOUR_APP_ID"\n'
-        + '};'
-        + '</pre>'
-        + '<div style="font-size:12px;color:var(--dim);margin-top:16px">Get these values from your <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent)">Firebase Console</a> → Project Settings → Your Apps.</div>'
-        + '</div>';
+// ── LOCAL STORAGE DATABASE SHIM (replaces Firebase) ──
+// All data is stored locally in the browser — no server required.
+// Data persists across page reloads via localStorage.
+
+const _LS_PREFIX = 'fw_db_';
+function _lsKey(path){ return _LS_PREFIX + path.split('/').join('__'); }
+function _lsGet(path){
+  if(!path) return null;
+  try{ return JSON.parse(localStorage.getItem(_lsKey(path))); }catch(e){ return null; }
+}
+function _lsSet(path, val){
+  if(!path) return;
+  try{
+    localStorage.setItem(_lsKey(path), JSON.stringify(val));
+    // Also update all parent path objects so they stay consistent
+    const parts = path.split('/');
+    for(let i=parts.length-1; i>0; i--){
+      const parentPath = parts.slice(0,i).join('/');
+      const childKey = parts[i];
+      let parent = _lsGet(parentPath);
+      if(parent===null) parent={};
+      if(typeof parent==='object' && !Array.isArray(parent)){
+        if(val===null){ delete parent[childKey]; }
+        else { parent[childKey] = _lsGet(path) ?? val; }
+        // only update if child is the direct child
+        if(i===parts.length-1) parent[childKey]=val;
+        localStorage.setItem(_lsKey(parentPath), JSON.stringify(parent));
+      } else { break; } // can't merge into non-object
+    }
+  }catch(e){}
+}
+function _lsDel(path){ localStorage.removeItem(_lsKey(path)); }
+
+// Mimic Firebase ref/snapshot API
+function ref(dbOrPath, path){ if(typeof dbOrPath==='string'){return{path:dbOrPath};} return path?{path}:{path:''}; }
+function _nestedGet(obj, parts){
+  let cur = obj;
+  for(const p of parts){ if(cur==null||typeof cur!=='object')return undefined; cur=cur[p]; }
+  return cur;
+}
+function _nestedSet(obj, parts, val){
+  let cur = obj;
+  for(let i=0;i<parts.length-1;i++){
+    const p=parts[i];
+    if(cur[p]==null||typeof cur[p]!=='object')cur[p]={};
+    cur=cur[p];
+  }
+  cur[parts[parts.length-1]]=val;
+}
+// Get data by path from localStorage
+async function get(r){
+  const data = _lsGet(r.path);
+  return { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } };
+}
+// Set data at path
+async function set(r, val){
+  _lsSet(r.path, val);
+  _notifyListeners(r.path, val);
+}
+// Update multiple paths at once
+async function update(r, updates){
+  // Form 1: update(ref(db), {'/path/a': val}) — multi-path flat update (r.path is empty/root)
+  // Form 2: update(ref(db,'some/path'), {key: val}) — partial merge at path
+  const rpath = r && r.path ? r.path : '';
+  if(!rpath){
+    Object.entries(updates).forEach(([path, val])=>{
+      const p = path.replace(/^\//,'');
+      _lsSet(p, val);
+      _notifyListeners(p, val);
+    });
+  } else {
+    const existing = _lsGet(rpath)||{};
+    const merged = Object.assign({}, existing, updates);
+    _lsSet(rpath, merged);
+    _notifyListeners(rpath, merged);
+  }
+}
+// Remove data
+async function remove(r){
+  _lsDel(r.path);
+  _notifyListeners(r.path, null);
+}
+// Generate a unique push key and optionally write data
+function push(r, data){
+  const key = '-' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+  const newPath = r.path+'/'+key;
+  if(data !== undefined){
+    _lsSet(newPath, data);
+    _notifyListeners(r.path, _lsGet(r.path));
+  }
+  return { key, path: newPath };
+}
+
+// Listener registry for onValue/off
+const _listeners = {};
+function _makeSnap(data){ return { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } }; }
+function _notifyListeners(changedPath, _val){
+  Object.keys(_listeners).forEach(lpath=>{
+    // Notify if: exact match, changed path is child of listener, listener is child of changed path
+    if(changedPath===lpath || changedPath.startsWith(lpath+'/') || lpath.startsWith(changedPath+'/')){
+      const data = _lsGet(lpath);
+      const snap = _makeSnap(data);
+      (_listeners[lpath]||[]).forEach(fn=>{ try{fn(snap);}catch(e){} });
     }
   });
 }
-</script>
-<script type="module">
-import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import{getAuth,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,updateProfile}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import{getDatabase,ref,set,get,push,onValue,off,update,remove}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+function onValue(r, fn){
+  const path = r.path;
+  if(!_listeners[path]) _listeners[path]=[];
+  _listeners[path].push(fn);
+  // Fire immediately with current value
+  const data = _lsGet(path);
+  const snap = { exists:()=>data!=null, val:()=>data, forEach:(cb)=>{ if(data&&typeof data==='object'){Object.entries(data).forEach(([k,v])=>{cb({key:k,val:()=>v});});} } };
+  try{fn(snap);}catch(e){}
+}
+function off(r, _type, fn){
+  const path = r.path;
+  if(!_listeners[path]) return;
+  if(fn) _listeners[path] = _listeners[path].filter(f=>f!==fn);
+  else delete _listeners[path];
+}
 
-// Guard: stop execution if Firebase config is not loaded
-if(!window.__FIREBASE_CONFIG__){throw new Error('Firebase config missing — see setup instructions on screen.');}
+// ── LOCAL AUTH SHIM ──
+const _AUTH_KEY = 'fw_local_auth';
+const _USERS_KEY = 'fw_local_users';
+function _getUsers(){ try{return JSON.parse(localStorage.getItem(_USERS_KEY))||{};}catch(e){return{};} }
+function _saveUsers(u){ localStorage.setItem(_USERS_KEY, JSON.stringify(u)); }
+function _getSession(){ try{return JSON.parse(localStorage.getItem(_AUTH_KEY));}catch(e){return null;} }
+function _saveSession(u){ localStorage.setItem(_AUTH_KEY, JSON.stringify(u)); }
+function _clearSession(){ localStorage.removeItem(_AUTH_KEY); }
 
-const app=initializeApp(window.__FIREBASE_CONFIG__);
-const auth=getAuth(app),db=getDatabase(app);
+const auth = {
+  currentUser: _getSession(),
+  _listeners: [],
+  _fire(user){ this.currentUser=user; this._listeners.forEach(fn=>{ try{fn(user);}catch(e){} }); }
+};
+const db = {}; // not used directly — ref() just needs to exist
+
+function onAuthStateChanged(_auth, fn){
+  auth._listeners.push(fn);
+  // Fire immediately (async to let the rest of the script load first)
+  setTimeout(()=>{ try{fn(auth.currentUser);}catch(e){} }, 0);
+}
+async function createUserWithEmailAndPassword(_auth, email, pass){
+  const users = _getUsers();
+  if(users[email]) throw {code:'auth/email-already-in-use', message:'Email already registered.'};
+  if(pass.length<6) throw {message:'Password must be at least 6 characters.'};
+  const uid = 'u_'+Math.random().toString(36).slice(2,10);
+  users[email] = {uid, email, password: pass};
+  _saveUsers(users);
+  const user = {uid, email, displayName:''};
+  _saveSession(user);
+  auth._fire(user);
+  return {user};
+}
+async function signInWithEmailAndPassword(_auth, email, pass){
+  const users = _getUsers();
+  const rec = users[email];
+  if(!rec || rec.password!==pass) throw {code:'auth/invalid-credential', message:'Wrong email or password.'};
+  const user = {uid:rec.uid, email, displayName:rec.displayName||''};
+  _saveSession(user);
+  auth._fire(user);
+  return {user};
+}
+async function signOut(_auth){
+  _clearSession();
+  auth._fire(null);
+}
+async function updateProfile(user, {displayName}){
+  if(displayName) user.displayName=displayName;
+  // Update stored session
+  const sess = _getSession();
+  if(sess){ sess.displayName=displayName; _saveSession(sess); }
+  // Update users registry
+  const users = _getUsers();
+  if(users[user.email]) users[user.email].displayName=displayName;
+  _saveUsers(users);
+}
+
+const db_real = db; // alias (not used)
 
 // ── CURRENCIES ──
 const CURRENCIES={
@@ -1226,18 +1364,22 @@ window.doCreateLedger=async()=>{
   }catch(e){if(msg){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}}
 };
 async function joinByCode(code,msgEl){
+  // In offline/local mode, invite codes only work for ledgers already stored locally.
   if(!code||code.length!==6){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Enter a valid 6-character code.';}return;}
   try{
-    const snap=await get(ref(db,'ledgers'));if(!snap.exists()){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='No ledgers found.';}return;}
-    let tid=null,tl=null;snap.forEach(c=>{if(c.val().inviteCode===code){tid=c.key;tl=c.val();}});
-    if(!tid){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Invalid invite code.';}return;}
+    const snap=await get(ref(db,'ledgers'));
+    let tid=null,tl=null;
+    if(snap.exists()&&typeof snap.val()==='object'){
+      Object.entries(snap.val()).forEach(([k,v])=>{if(v&&v.inviteCode===code){tid=k;tl=v;}});
+    }
+    if(!tid){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Invite code not found on this device. (Offline mode — codes only work locally.)';}return;}
     if(S.ledgers[tid]){if(msgEl){msgEl.style.color='var(--accent2)';msgEl.textContent='Already a member!';}return;}
     const up={};
-    up[`ledgers/${tid}/members/${S.user.uid}`]=true;
-    up[`userLedgers/${S.user.uid}/${tid}`]={name:tl.name,icon:tl.icon||'💼',role:'member'};
-    up[`ledgerMembers/${tid}/${S.user.uid}`]={displayName:S.profile.displayName,avatar:S.profile.avatar,color:S.profile.color,role:'member',joinedAt:Date.now()};
+    up['ledgers/'+tid+'/members/'+S.user.uid]=true;
+    up['userLedgers/'+S.user.uid+'/'+tid]={name:tl.name,icon:tl.icon||'💼',role:'member'};
+    up['ledgerMembers/'+tid+'/'+S.user.uid]={displayName:S.profile.displayName,avatar:S.profile.avatar,color:S.profile.color,role:'member',joinedAt:Date.now()};
     await update(ref(db),up);S.ledgers[tid]={name:tl.name,icon:tl.icon||'💼',role:'member'};
-    if(msgEl){msgEl.style.color='var(--green)';msgEl.textContent='✓ Joined "'+tl.name+'"!';}
+    if(msgEl){msgEl.style.color='var(--green)';msgEl.textContent='Joined "'+tl.name+'"!';}
     await switchLedger(tid);return tl.name;
   }catch(e){if(msgEl){msgEl.style.color='var(--red)';msgEl.textContent='Error: '+e.message;}}
 }
@@ -7419,14 +7561,7 @@ window.setProfTab=tab=>{profTab=tab;renderPage();};
   }
 })();
 
-// ── SERVICE WORKER REGISTRATION ──
-if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('/Family-Wallet/sw.js',{scope:'/Family-Wallet/'})
-      .then(()=>console.log('SW registered'))
-      .catch(e=>console.log('SW registration failed:',e));
-  });
-}
+// Service worker disabled in offline/local mode
 
 </script>
 </body>
