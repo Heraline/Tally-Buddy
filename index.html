@@ -941,6 +941,7 @@ function showApp(){document.getElementById('authContainer').innerHTML='';documen
         description:d.notes?((d.desc||'')+' — '+d.notes).substring(0,80):(d.desc||''),
         category:cat,subcat:subcat,
         date:d.date||new Date().toISOString().slice(0,10),
+        time:d.time||tt(),
         currency:CURRENCIES[cur]?cur:(S.ledgerCurrency||'MYR'),
         member:S.user?S.user.uid:'',
         splitWith:[],coPayors:[],coPayorAmounts:{},
@@ -980,6 +981,7 @@ function tryClipboardShortcut(){
         description:d.notes?((d.desc||'')+' — '+d.notes).substring(0,80):(d.desc||''),
         category:cat,subcat:subcat,
         date:d.date||new Date().toISOString().slice(0,10),
+        time:d.time||tt(),
         currency:CURRENCIES[cur]?cur:(S.ledgerCurrency||'MYR'),
         member:S.user?S.user.uid:'',
         splitWith:[],coPayors:[],coPayorAmounts:{},
@@ -6453,6 +6455,7 @@ Extract the transaction details and return ONLY a valid JSON object with no mark
   "amount": <number, the total amount paid — look for "TOTAL", "JUMLAH", "合计", or the largest amount>,
   "description": <string, the merchant or store name, max 40 chars>,
   "date": <string, YYYY-MM-DD format. Use today's date if not visible: ${new Date().toISOString().slice(0,10)}>,
+  "time": <string, HH:MM 24-hour format. Extract from receipt if visible (e.g. receipt timestamp, transaction time). Use current time if not found: ${tt()}>,
   "category": <string, ONE of these exact keys: ${catKeys}>,
   "currency": <string, 3-letter ISO code. Default to MYR if not shown>,
   "notes": <string, brief summary of items or purpose, max 60 chars, or "">
@@ -6543,6 +6546,7 @@ Rules: amount must be a plain number (no currency symbol). Return ONLY the JSON 
     if(parsed.amount)      S.addForm.amount=String(parseFloat(parsed.amount)||'');
     if(parsed.description) S.addForm.description=parsed.description.substring(0,40);
     if(parsed.date)        S.addForm.date=parsed.date;
+    if(parsed.time)        S.addForm.time=parsed.time.substring(0,5);
     if(parsed.category&&cats[parsed.category])S.addForm.category=parsed.category;
     if(parsed.currency&&CURRENCIES[parsed.currency])S.addForm.currency=parsed.currency;
     if(parsed.notes&&parsed.notes.trim()){
@@ -6616,7 +6620,7 @@ window.scanFromShortcut=async()=>{
     const subcatKeys=c.subcats?Object.keys(c.subcats):[];
     return k+(subcatKeys.length?' (subcats: '+subcatKeys.join(', ')+')':'');
   }).join('; ');
-  const prompt='Extract the transaction from this receipt image. Return ONLY a raw JSON object with no markdown, no backticks, no explanation: {"amount":0.00,"description":"merchant name max 40 chars","date":"'+new Date().toISOString().slice(0,10)+'","category":"food","subcat":"","currency":"MYR","notes":""}. Available categories with subcategories: '+catDescriptions+'. Rules: amount is a plain number. category must be one of: '+catKeys.join(', ')+'. subcat must be a valid subcat key for the chosen category or empty string. Default currency to MYR.';
+  const prompt='Extract the transaction from this receipt image. Return ONLY a raw JSON object with no markdown, no backticks, no explanation: {"amount":0.00,"description":"merchant name max 40 chars","date":"'+new Date().toISOString().slice(0,10)+'","time":"'+tt()+'","category":"food","subcat":"","currency":"MYR","notes":""}. Available categories with subcategories: '+catDescriptions+'. Rules: amount is a plain number. category must be one of: '+catKeys.join(', ')+'. subcat must be a valid subcat key for the chosen category or empty string. Default currency to MYR.';
   try{
     let parsed;
     if(aiProvider==='openai'){
@@ -6650,6 +6654,7 @@ window.scanFromShortcut=async()=>{
     if(parsed.amount)S.addForm.amount=String(parseFloat(parsed.amount)||'');
     if(parsed.description)S.addForm.description=parsed.description.substring(0,40);
     if(parsed.date)S.addForm.date=parsed.date;
+    if(parsed.time)S.addForm.time=parsed.time.substring(0,5);
     if(parsed.category&&cats2[parsed.category])S.addForm.category=parsed.category;
     if(parsed.subcat&&cats2[S.addForm.category]?.subcats?.[parsed.subcat])S.addForm.subcat=parsed.subcat;
     if(parsed.currency&&CURRENCIES[parsed.currency])S.addForm.currency=parsed.currency;
