@@ -1336,7 +1336,7 @@ function renderHome(){
         </div>
         <div style="text-align:right;flex-shrink:0">
           <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">${t.type==='income'?'+':'-'}RM ${myAmt.toFixed(2)}</p>
-          ${myAmt!==t._amtMYR?`<p style="font-size:10px;color:var(--dim);font-family:'DM Mono',monospace">of RM ${t._amtMYR.toFixed(2)}</p>`:''}
+          ${myAmt!==t._amtMYR?`<p style="font-size:10px;color:var(--dim);font-family:var(--font-num)">of RM ${t._amtMYR.toFixed(2)}</p>`:''}
         </div>
       </div>`;
     }).join('');
@@ -1349,7 +1349,7 @@ function renderHome(){
           <p style="font-size:14px;font-weight:600">${l.name}</p>
           <p style="font-size:10px;color:var(--accent);margin-top:1px">${l.split>0?`÷ RM ${l.split.toFixed(2)} split`:''}${l.split>0&&l.solo>0?' + ':''}${l.solo>0?`RM ${l.solo.toFixed(2)} solo`:''}</p>
         </div>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600">RM ${l.exp.toFixed(2)}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:600">RM ${l.exp.toFixed(2)}</p>
         <span style="font-size:12px;color:var(--muted);min-width:36px;text-align:right">(${pct}%)</span>
       </div>`;
     }).join('');
@@ -1377,7 +1377,7 @@ function renderHome(){
         <div style="display:flex;gap:8px;align-items:center">
           <div style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:4px;display:flex;align-items:center;gap:0">
             <button onclick="" style="background:rgba(255,255,255,0.10);border:none;border-radius:14px;width:32px;height:32px;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🌐</button>
-            <button onclick="openLedgerPicker()" style="background:none;border:none;padding:3px 8px 3px 6px;display:flex;align-items:center;gap:4px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;font-weight:600">
+            <button onclick="openLedgerPicker()" style="background:none;border:none;padding:3px 8px 3px 6px;display:flex;align-items:center;gap:4px;color:var(--text);font-family:var(--font-ui);font-size:13px;font-weight:600">
               <span>All Ledgers</span><span style="color:var(--dim);font-size:12px">⌄</span>
             </button>
           </div>
@@ -1391,11 +1391,11 @@ function renderHome(){
       <div style="padding:18px 20px 0;display:flex;align-items:flex-end;justify-content:space-between">
         <div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:4px">My Spend Today</p>
-          <p style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-0.03em;color:var(--text)">RM ${spentToday.toFixed(2)}</p>
+          <p style="font-family:var(--font-num);font-size:36px;font-weight:700;letter-spacing:-0.03em;color:var(--text)">RM ${spentToday.toFixed(2)}</p>
         </div>
         <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px;margin-bottom:6px">
           <span style="font-size:11px;color:var(--muted);font-weight:500">My Balance</span>
-          <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${myBalance>=0?'var(--accent)':'var(--red)'}"> RM ${Math.abs(myBalance).toFixed(2)}</span>
+          <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${myBalance>=0?'var(--accent)':'var(--red)'}"> RM ${Math.abs(myBalance).toFixed(2)}</span>
         </div>
       </div>
 
@@ -1411,11 +1411,11 @@ function renderHome(){
           <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px">
             <div>
               <p style="font-size:11px;color:var(--muted);margin-bottom:3px">My Expense</p>
-              <p style="font-family:'DM Mono',monospace;font-size:28px;font-weight:700">RM ${myExp.toFixed(2)}</p>
+              <p style="font-family:var(--font-num);font-size:28px;font-weight:700">RM ${myExp.toFixed(2)}</p>
             </div>
             <div style="text-align:right">
               <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Income</p>
-              <p style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--accent)">RM ${myInc.toFixed(2)}</p>
+              <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:var(--accent)">RM ${myInc.toFixed(2)}</p>
             </div>
           </div>
 
@@ -1423,12 +1423,12 @@ function renderHome(){
           <div style="display:flex;gap:8px;margin-bottom:14px">
             <div style="flex:1;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.18);border-radius:12px;padding:10px 12px">
               <p style="font-size:10px;color:var(--dim);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Shared</p>
-              <p style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--accent)">RM ${mySplitExp.toFixed(2)}</p>
+              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:var(--accent)">RM ${mySplitExp.toFixed(2)}</p>
               <p style="font-size:10px;color:var(--dim);margin-top:2px">÷ split portion</p>
             </div>
             <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:10px 12px">
               <p style="font-size:10px;color:var(--dim);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Solo</p>
-              <p style="font-family:'DM Mono',monospace;font-size:15px;font-weight:700;color:var(--text)">RM ${mySoloExp.toFixed(2)}</p>
+              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:var(--text)">RM ${mySoloExp.toFixed(2)}</p>
               <p style="font-size:10px;color:var(--dim);margin-top:2px">personal only</p>
             </div>
           </div>
@@ -1444,7 +1444,7 @@ function renderHome(){
             ${S.dailyStyle==='c'?`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
               <span style="font-size:12px;color:var(--muted)">Remaining Budget</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;color:${allRemaining<0?'var(--red)':'var(--accent)'}">RM ${Math.abs(allRemaining).toFixed(2)}</span>
+              <span style="font-family:var(--font-num);font-size:12px;color:${allRemaining<0?'var(--red)':'var(--accent)'}">RM ${Math.abs(allRemaining).toFixed(2)}</span>
             </div>
             ${allDailySafe>0?`
             <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2);border-radius:12px;padding:9px 14px">
@@ -1454,7 +1454,7 @@ function renderHome(){
               </div>
               <div style="display:flex;align-items:center;gap:6px">
                 <span style="font-size:10px;color:var(--dim)">${daysLeftTv}d left</span>
-                <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${allDailySafe<20?'var(--red)':allDailySafe<50?'var(--yellow)':'var(--green)'}">RM ${allDailySafe.toFixed(2)}</span>
+                <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${allDailySafe<20?'var(--red)':allDailySafe<50?'var(--yellow)':'var(--green)'}">RM ${allDailySafe.toFixed(2)}</span>
               </div>
             </div>`:allRemaining<=0?`<p style="font-size:11px;color:var(--red);text-align:center">Over budget</p>`:``}
             `:`
@@ -1636,7 +1636,7 @@ function renderHome(){
       <div style="display:flex;gap:8px;align-items:center">
         <div style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:4px 4px 4px 4px;font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:0">
           <button onclick="${S.totalView?'':'openLedgerIconModal()'}" style="background:rgba(255,255,255,0.10);border:none;border-radius:14px;width:32px;height:32px;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0" id="headerLedgerIcon">${S.totalView?'🌐':linfo.icon||'🏠'}</button>
-          <button onclick="openLedgerPicker()" style="background:none;border:none;padding:3px 8px 3px 6px;display:flex;align-items:center;gap:4px;color:var(--text);font-family:'Sora',sans-serif;font-size:13px;font-weight:600">
+          <button onclick="openLedgerPicker()" style="background:none;border:none;padding:3px 8px 3px 6px;display:flex;align-items:center;gap:4px;color:var(--text);font-family:var(--font-ui);font-size:13px;font-weight:600">
             <span style="max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${S.totalView?'All Ledgers':linfo.name||'Ledger'}</span><span style="color:var(--dim);font-size:12px">⌄</span>
           </button>
         </div>
@@ -1650,11 +1650,11 @@ function renderHome(){
     <div style="padding:18px 20px 0;display:flex;align-items:flex-end;justify-content:space-between">
       <div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:4px">Spent Today</p>
-        <p style="font-family:'DM Mono',monospace;font-size:36px;font-weight:700;letter-spacing:-0.03em;color:var(--text)">${fmt(spentToday)}</p>
+        <p style="font-family:var(--font-num);font-size:36px;font-weight:700;letter-spacing:-0.03em;color:var(--text)">${fmt(spentToday)}</p>
       </div>
       <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px;margin-bottom:6px;cursor:pointer" onclick="goInvite()">
         <span style="font-size:11px;color:var(--muted);font-weight:500">Total Balance</span>
-        <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${all.bal>=0?'var(--accent)':'var(--red)'}"> ${fmt(Math.abs(all.bal))}</span>
+        <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${all.bal>=0?'var(--accent)':'var(--red)'}"> ${fmt(Math.abs(all.bal))}</span>
       </div>
     </div>
 
@@ -1674,11 +1674,11 @@ function renderHome(){
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
         <div>
           <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Expense${isFiltered?` <span style="font-size:10px;opacity:0.6">(your share)</span>`:''}</p>
-          <p style="font-family:'DM Mono',monospace;font-size:28px;font-weight:700;color:var(--text)">${fmt(displayExp)}</p>
+          <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:var(--text)">${fmt(displayExp)}</p>
         </div>
         <div style="text-align:right">
           <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Income</p>
-          <p style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--accent)">${fmt(displayInc)}</p>
+          <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:var(--accent)">${fmt(displayInc)}</p>
         </div>
       </div>
 
@@ -1691,7 +1691,7 @@ function renderHome(){
         ${S.dailyStyle==='c'?`
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
           <span style="font-size:12px;color:var(--muted)">Remaining Budget</span>
-          <span style="font-family:'DM Mono',monospace;font-size:12px;color:${remaining<0?'var(--red)':'var(--accent)'}">${fmt(Math.abs(remaining))}</span>
+          <span style="font-family:var(--font-num);font-size:12px;color:${remaining<0?'var(--red)':'var(--accent)'}">${fmt(Math.abs(remaining))}</span>
         </div>
         ${dailySafeSpend>0?`
         <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2);border-radius:12px;padding:9px 14px">
@@ -1701,7 +1701,7 @@ function renderHome(){
           </div>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="font-size:10px;color:var(--dim)">${daysLeft}d left</span>
-            <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${dailySafeSpend<20?'var(--red)':dailySafeSpend<50?'var(--yellow)':'var(--green)'}">${fmt(dailySafeSpend)}</span>
+            <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${dailySafeSpend<20?'var(--red)':dailySafeSpend<50?'var(--yellow)':'var(--green)'}">${fmt(dailySafeSpend)}</span>
           </div>
         </div>`:remaining<=0?`<p style="font-size:11px;color:var(--red);text-align:center">Over budget</p>`:``}
         `:`
@@ -1723,7 +1723,7 @@ function renderHome(){
           <p style="font-size:14px;font-weight:600;color:var(--accent)">Shared</p>
           <p style="font-size:10px;color:var(--dim);margin-top:1px">Split across members</p>
         </div>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--accent)">${fmt(sharedTotal)}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:var(--accent)">${fmt(sharedTotal)}</p>
         <span style="font-size:12px;color:var(--muted);min-width:36px;text-align:right">(${totalMemberSpend>0?Math.round(sharedTotal/mth.exp*100):0}%)</span>
         <span style="color:var(--dim);font-size:16px;margin-left:2px">›</span>
       </div>`:''}
@@ -1750,7 +1750,7 @@ function renderHome(){
             <p style="font-size:14px;font-weight:600">${m.displayName}${m.guest?'<span class="guest-badge">G</span>':''}</p>
             ${splitShare>0?`<p style="font-size:10px;color:var(--accent);margin-top:1px">÷ ${fmt(splitShare)} split${soloShare>0?` + ${fmt(soloShare)} solo`:''}</p>`:''}
           </div>
-          <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600">${fmt(m.spent)}</p>
+          <p style="font-family:var(--font-num);font-size:14px;font-weight:600">${fmt(m.spent)}</p>
           <span style="font-size:12px;color:var(--muted);min-width:36px;text-align:right">(${pct}%)</span>
           <span style="color:var(--dim);font-size:16px;margin-left:2px">›</span>
         </div>`;
@@ -1981,14 +1981,14 @@ function renderStats(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;padding:14px">
         <p style="font-size:11px;color:var(--muted);margin-bottom:5px">Income</p>
-        <p style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:#4A9EFF">${_fmt(inc)}</p>
+        <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:#4A9EFF">${_fmt(inc)}</p>
         ${incChg!==null?`<div style="margin-top:6px;padding:4px 8px;border-radius:8px;background:${incChg<=0?'rgba(255,107,107,0.15)':'rgba(105,210,160,0.15)'};display:inline-block">
           <p style="font-size:10px;color:${incChg<=0?'var(--red)':'var(--green)'};font-weight:600">${incChg>0?'+':''}${incChg.toFixed(1)}% vs last mo</p>
         </div>`:''}
       </div>
       <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;padding:14px">
         <p style="font-size:11px;color:var(--muted);margin-bottom:5px">Expense</p>
-        <p style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--text)">${_fmt(exp)}</p>
+        <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:var(--text)">${_fmt(exp)}</p>
         ${expChg!==null?`<div style="margin-top:6px;padding:4px 8px;border-radius:8px;background:${expChg>=0?'rgba(255,107,107,0.15)':'rgba(105,210,160,0.15)'};display:inline-block">
           <p style="font-size:10px;color:${expChg>=0?'var(--red)':'var(--green)'};font-weight:600">${expChg>0?'+':''}${expChg.toFixed(1)}% vs last mo</p>
         </div>`:''}
@@ -1997,7 +1997,7 @@ function renderStats(){
     <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">
       <p style="font-size:13px;color:var(--muted)">Net Income</p>
       <div style="text-align:right">
-        <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:${net>=0?'#4A9EFF':'var(--red)'}">${_fmt(Math.abs(net))}</p>
+        <p style="font-family:var(--font-num);font-size:18px;font-weight:700;color:${net>=0?'#4A9EFF':'var(--red)'}">${_fmt(Math.abs(net))}</p>
         ${netChg!==null?`<p style="font-size:10px;color:${netChg>=0?'var(--green)':'var(--red)'};margin-top:2px">${netChg>0?'+':''}${netChg.toFixed(1)}% vs last mo</p>`:''}
       </div>
     </div>
@@ -2027,7 +2027,7 @@ function renderStats(){
             <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.date} · ÷${splitCount} split${isPayer?' · paid by you':''}</p>
           </div>
           <div style="text-align:right;flex-shrink:0">
-            <p style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--red)">-${_fmt(share)}</p>
+            <p style="font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--red)">-${_fmt(share)}</p>
             <p style="font-size:10px;color:var(--dim)">of ${_fmt(t.amount)}</p>
           </div>
         </div>`;
@@ -2043,7 +2043,7 @@ function renderStats(){
             <p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description}</p>
             <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.date}</p>
           </div>
-          <p style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--red)">-${_fmt(t.amount)}</p>
+          <p style="font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--red)">-${_fmt(t.amount)}</p>
         </div>`;
       }).join('')}
       `:''}
@@ -2057,7 +2057,7 @@ function renderStats(){
         <svg width="120" height="120" viewBox="0 0 220 220" style="flex-shrink:0">
           <circle cx="110" cy="110" r="70" fill="none" stroke="rgba(255,255,255,0.07)" stroke-width="28"/>
           ${buildDonut(catData.map(c=>({...c,val:c.total})),exp,c=>c.color,c=>c.label)}
-          <text x="110" y="106" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700" font-family="DM Mono,monospace">${_getCur().symbol}${exp>=1000?(exp/1000).toFixed(1)+'K':exp.toFixed(0)}</text>
+          <text x="110" y="106" text-anchor="middle" fill="var(--text)" font-size="13" font-weight="700" font-family="var(--font-num)">${_getCur().symbol}${exp>=1000?(exp/1000).toFixed(1)+'K':exp.toFixed(0)}</text>
           <text x="110" y="122" text-anchor="middle" fill="var(--muted)" font-size="10">total</text>
         </svg>
         <div style="flex:1;min-width:0">
@@ -2079,7 +2079,7 @@ function renderStats(){
             <div style="flex:1">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
                 <span style="font-size:12px;font-weight:600">${c.label}</span>
-                <span style="font-family:'DM Mono',monospace;font-size:12px">${_fmt(c.total)}</span>
+                <span style="font-family:var(--font-num);font-size:12px">${_fmt(c.total)}</span>
               </div>
               <div style="height:4px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="height:100%;border-radius:999px;background:${c.color};width:${pct}%"></div></div>
             </div>
@@ -2127,7 +2127,7 @@ function renderStats(){
           <p style="font-size:13px;font-weight:600;color:var(--accent)">Shared Expenses</p>
           <p style="font-size:10px;color:var(--dim)">Split across multiple members</p>
         </div>
-        <p style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)">${_fmt(sharedExpTotal)}</p>
+        <p style="font-family:var(--font-num);font-size:13px;font-weight:700;color:var(--accent)">${_fmt(sharedExpTotal)}</p>
       </div>`:''}
       <!-- Per-member rows with split detail -->
       ${memberShareData.map(m=>{
@@ -2141,8 +2141,8 @@ function renderStats(){
             </p>
           </div>
           <div style="text-align:right">
-            <p style="font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--red)">${_fmt(m.share)}</p>
-            ${m.earned>0?`<p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--green)">+${_fmt(m.earned)}</p>`:''}
+            <p style="font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--red)">${_fmt(m.share)}</p>
+            ${m.earned>0?`<p style="font-family:var(--font-num);font-size:10px;color:var(--green)">+${_fmt(m.earned)}</p>`:''}
             <p style="font-size:10px;color:var(--dim)">${pct}%</p>
           </div>
         </div>`;
@@ -2194,7 +2194,7 @@ function renderStats(){
           ?`<span style="font-size:11px;color:var(--dim);font-style:italic">Loading…</span>`
           :monthBudget>0
             ?`<span style="font-size:12px;font-weight:600;background:rgba(255,255,255,0.07);padding:4px 10px;border-radius:10px">${_fmt(monthBudget)}</span>`
-            :`<button onclick="goBudget()" style="font-size:11px;padding:5px 12px;border-radius:8px;background:rgba(108,99,255,0.12);color:var(--accent);border:1px solid rgba(108,99,255,0.2);cursor:pointer;font-family:'Sora',sans-serif">+ Set Budget</button>`}
+            :`<button onclick="goBudget()" style="font-size:11px;padding:5px 12px;border-radius:8px;background:rgba(108,99,255,0.12);color:var(--accent);border:1px solid rgba(108,99,255,0.2);cursor:pointer;font-family:var(--font-ui)">+ Set Budget</button>`}
       </div>
       ${monthBudget>0?`
         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:5px">
@@ -2227,7 +2227,7 @@ function renderStats(){
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
                 <span style="font-size:13px;font-weight:600">${c.label}</span>
                 <div style="text-align:right">
-                  <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700">${_fmt(c.monthTotal)}</span>
+                  <span style="font-family:var(--font-num);font-size:13px;font-weight:700">${_fmt(c.monthTotal)}</span>
                   ${c.bgt>0?`<span style="font-size:10px;color:${bgtOver?'var(--red)':'var(--dim)'}"> / ${_fmt(c.bgt)}</span>`:''}
                 </div>
               </div>
@@ -2248,7 +2248,7 @@ function renderStats(){
                 <div style="width:60px;height:3px;border-radius:999px;background:rgba(255,255,255,0.07)">
                   <div style="height:100%;border-radius:999px;background:${c.color}88;width:${sp}%"></div>
                 </div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:55px;text-align:right">${_fmt(s.monthTotal)}</span>
+                <span style="font-family:var(--font-num);font-size:11px;color:var(--muted);min-width:55px;text-align:right">${_fmt(s.monthTotal)}</span>
                 <span style="font-size:10px;color:var(--dim);min-width:24px;text-align:right">${sp}%</span>
               </div>`;
             }).join('')}
@@ -2274,7 +2274,7 @@ function renderStats(){
             <div style="flex:1;min-width:0">
               <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
                 <span style="font-size:13px;font-weight:600">${c.label}</span>
-                <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700">${_fmt(c.allTimeTotal)}</span>
+                <span style="font-family:var(--font-num);font-size:13px;font-weight:700">${_fmt(c.allTimeTotal)}</span>
               </div>
               <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.07)">
                 <div style="height:100%;border-radius:999px;background:${c.color};width:${barPct}%"></div>
@@ -2293,7 +2293,7 @@ function renderStats(){
                 <div style="width:60px;height:3px;border-radius:999px;background:rgba(255,255,255,0.07)">
                   <div style="height:100%;border-radius:999px;background:${c.color}88;width:${sp}%"></div>
                 </div>
-                <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);min-width:55px;text-align:right">${_fmt(s.allTimeTotal)}</span>
+                <span style="font-family:var(--font-num);font-size:11px;color:var(--muted);min-width:55px;text-align:right">${_fmt(s.allTimeTotal)}</span>
                 <span style="font-size:10px;color:var(--dim);min-width:24px;text-align:right">${sp}%</span>
               </div>`;
             }).join('')}
@@ -2339,7 +2339,7 @@ function renderStats(){
               <span style="color:var(--red)">-${_fmt(m.exp)}</span>
             </div>
           </div>
-          <p style="font-family:'DM Mono',monospace;font-size:12px;font-weight:600;color:${mNet>=0?'var(--green)':'var(--red)'};min-width:70px;text-align:right">${mNet>=0?'+':''}${_fmt(Math.abs(mNet))}</p>
+          <p style="font-family:var(--font-num);font-size:12px;font-weight:600;color:${mNet>=0?'var(--green)':'var(--red)'};min-width:70px;text-align:right">${mNet>=0?'+':''}${_fmt(Math.abs(mNet))}</p>
         </div>`;
       }).join('')}
     </div>`;
@@ -2350,7 +2350,7 @@ function renderStats(){
   return`<div class="fade-in settings-page" style="padding-top:0">
     <div style="position:sticky;top:0;z-index:20;background:var(--bg);padding-top:52px">
       <div style="display:flex;border-bottom:1px solid var(--border);padding:0 4px">
-        ${tabs.map(t=>`<button data-stab="${t}" style="flex:1;padding:12px 8px;font-size:13px;font-weight:700;background:none;border:none;border-bottom:2px solid ${S.statsTab===t?'var(--accent)':'transparent'};color:${S.statsTab===t?'var(--accent)':'var(--muted)'};cursor:pointer;font-family:'Sora',sans-serif">${tabLabels[t]}</button>`).join('')}
+        ${tabs.map(t=>`<button data-stab="${t}" style="flex:1;padding:12px 8px;font-size:13px;font-weight:700;background:none;border:none;border-bottom:2px solid ${S.statsTab===t?'var(--accent)':'transparent'};color:${S.statsTab===t?'var(--accent)':'var(--muted)'};cursor:pointer;font-family:var(--font-ui)">${tabLabels[t]}</button>`).join('')}
       </div>
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px">
         <button id="statsPrevBtn" style="width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.07);border:none;color:var(--text);font-size:16px;cursor:pointer">‹</button>
@@ -2364,7 +2364,7 @@ function renderStats(){
           const activeBg=m.id==='shared'?'rgba(78,205,196,0.2)':m.id==='all'?'rgba(108,99,255,0.2)':`${col}33`;
           const activeBorder=m.id==='shared'?'var(--accent2)':m.id==='all'?'var(--accent)':col;
           const activeColor=m.id==='shared'?'var(--accent2)':m.id==='all'?'var(--accent)':col;
-          return`<button data-smem="${m.id}" style="flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid ${isActive?activeBorder:'var(--border)'};background:${isActive?activeBg:'rgba(255,255,255,0.04)'};color:${isActive?activeColor:'var(--muted)'};cursor:pointer;font-family:'Sora',sans-serif">${m.avatar} ${m.displayName}</button>`;
+          return`<button data-smem="${m.id}" style="flex-shrink:0;padding:6px 13px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid ${isActive?activeBorder:'var(--border)'};background:${isActive?activeBg:'rgba(255,255,255,0.04)'};color:${isActive?activeColor:'var(--muted)'};cursor:pointer;font-family:var(--font-ui)">${m.avatar} ${m.displayName}</button>`;
         }).join('')}
       </div>
     </div>
@@ -2500,19 +2500,19 @@ function renderCalendar(){
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 16px 0;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;overflow:hidden">
       <div style="padding:10px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">
         <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Income</p>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:#4A9EFF">${fmt(totalInc)}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:#4A9EFF">${fmt(totalInc)}</p>
       </div>
       <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
         <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Expense</p>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--red)">${fmt(totalExp)}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:var(--red)">${fmt(totalExp)}</p>
       </div>
       <div style="padding:10px 14px;border-right:1px solid var(--border)">
         <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Carry-over</p>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:var(--text)">${fmt(Math.abs(carryOver))}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:var(--text)">${fmt(Math.abs(carryOver))}</p>
       </div>
       <div style="padding:10px 14px">
         <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Balance</p>
-        <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;color:${balance+carryOver>=0?'#4A9EFF':'var(--red)'}"> ${fmt(Math.abs(balance+carryOver))}</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${balance+carryOver>=0?'#4A9EFF':'var(--red)'}"> ${fmt(Math.abs(balance+carryOver))}</p>
       </div>
     </div>
 
@@ -2534,8 +2534,8 @@ function renderCalendar(){
         const future=dateStr>todayStr;
         return`<div onclick="selectCalDay('${dateStr}')" style="border:0.5px solid rgba(255,255,255,0.05);min-height:62px;padding:5px 4px;cursor:pointer;background:${isSel?'rgba(108,99,255,0.25)':isToday?'rgba(108,99,255,0.15)':'transparent'};position:relative;transition:background 0.15s">
           <p style="font-size:12px;font-weight:${isToday?'700':'500'};color:${isToday?'var(--accent)':future?'var(--dim)':dayColor};text-align:center;line-height:1.2">${d}</p>
-          ${dd.inc>0?`<p style="font-size:9px;color:#4A9EFF;text-align:center;margin-top:2px;font-family:'DM Mono',monospace;line-height:1.2">${shortFmt(dd.inc)}</p>`:''}
-          ${dd.exp>0?`<p style="font-size:9px;color:var(--red);text-align:center;margin-top:1px;font-family:'DM Mono',monospace;line-height:1.2">${shortFmt(dd.exp)}</p>`:''}
+          ${dd.inc>0?`<p style="font-size:9px;color:#4A9EFF;text-align:center;margin-top:2px;font-family:var(--font-num);line-height:1.2">${shortFmt(dd.inc)}</p>`:''}
+          ${dd.exp>0?`<p style="font-size:9px;color:var(--red);text-align:center;margin-top:1px;font-family:var(--font-num);line-height:1.2">${shortFmt(dd.exp)}</p>`:''}
           ${isToday?`<div style="position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--accent)"></div>`:''}
         </div>`;
       }).join('')}
@@ -2621,7 +2621,7 @@ function renderSearchPage(){
       <div style="flex:1;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:14px;padding:10px 14px">
         <span style="font-size:16px;color:var(--dim)">🔍</span>
         <input id="searchInput" type="text" value="${(S.searchQuery||'').replace(/"/g,'&quot;')}" placeholder="Search transactions..." autofocus
-          style="flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Sora',sans-serif;font-size:16px"
+          style="flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-ui);font-size:16px"
           oninput="doSearch(this.value)">
         ${q?`<button onclick="doSearch('',true)" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0">×</button>`:''}
       </div>
@@ -2732,7 +2732,7 @@ function renderSplitsPage(){
         ${splitNames?`<p style="font-size:11px;color:var(--muted);margin-top:2px">÷ with ${splitNames}</p>`:''}
         ${isTotal?'<div style="margin-top:4px">'+ledgerTag+'</div>':''}
       </div>
-      <p style="font-family:'DM Mono',monospace;font-size:14px;font-weight:700;flex-shrink:0">${isTotal?fmtMYR(t.amount):fmt(t.amount)}</p>
+      <p style="font-family:var(--font-num);font-size:14px;font-weight:700;flex-shrink:0">${isTotal?fmtMYR(t.amount):fmt(t.amount)}</p>
     </div>`;
   };
 
@@ -2782,7 +2782,7 @@ function renderSplitsPage(){
             <p style="font-size:14px;font-weight:700">${f.displayName||d.from} → ${t.displayName||d.to}</p>
             <p style="font-size:11px;color:var(--dim)">${iOwe?'You owe':theyOwe?'You are owed':'Outstanding balance'}</p>
           </div>
-          <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:${iOwe?'var(--red)':theyOwe?'var(--green)':'var(--yellow)'}">${fmtMYR(d.amount)}</p>
+          <p style="font-family:var(--font-num);font-size:18px;font-weight:700;color:${iOwe?'var(--red)':theyOwe?'var(--green)':'var(--yellow)'}">${fmtMYR(d.amount)}</p>
         </div>
         <div style="display:flex;gap:8px">
           <button onclick="openSettleModal('${d.from}','${d.to}',${d.amount.toFixed(2)},'${d.lid}')" style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer">✓ Settle Up</button>
@@ -2816,12 +2816,12 @@ function renderSplitsPage(){
       <div style="display:flex;gap:10px;padding:16px 20px 0">
         <div style="flex:1;background:${allDbs.length?'rgba(255,107,107,0.08)':'rgba(105,210,160,0.08)'};border:1px solid ${allDbs.length?'rgba(255,107,107,0.2)':'rgba(105,210,160,0.2)'};border-radius:14px;padding:12px">
           <p style="font-size:10px;color:${allDbs.length?'var(--red)':'var(--green)'};font-weight:600;letter-spacing:0.06em;margin-bottom:4px">PENDING</p>
-          <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700">${fmtMYR(totalPending)}</p>
+          <p style="font-family:var(--font-num);font-size:18px;font-weight:700">${fmtMYR(totalPending)}</p>
           <p style="font-size:10px;color:var(--dim);margin-top:2px">${allDbs.length} balance${allDbs.length!==1?'s':''}</p>
         </div>
         <div style="flex:1;background:rgba(105,210,160,0.06);border:1px solid rgba(105,210,160,0.2);border-radius:14px;padding:12px">
           <p style="font-size:10px;color:var(--green);font-weight:600;letter-spacing:0.06em;margin-bottom:4px">SETTLED</p>
-          <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700">${fmtMYR(totalSettled)}</p>
+          <p style="font-family:var(--font-num);font-size:18px;font-weight:700">${fmtMYR(totalSettled)}</p>
           <p style="font-size:10px;color:var(--dim);margin-top:2px">${allSettleLog.length} record${allSettleLog.length!==1?'s':''}</p>
         </div>
       </div>
@@ -2859,7 +2859,7 @@ function renderSplitsPage(){
           <p style="font-size:14px;font-weight:700">${f.displayName} → ${t.displayName}</p>
           <p style="font-size:11px;color:var(--dim)">${iOwe?'You owe':theyOwe?'You are owed':'Outstanding balance'}</p>
         </div>
-        <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:${iOwe?'var(--red)':theyOwe?'var(--green)':'var(--yellow)'}">${fmt(d.amount)}</p>
+        <p style="font-family:var(--font-num);font-size:18px;font-weight:700;color:${iOwe?'var(--red)':theyOwe?'var(--green)':'var(--yellow)'}">${fmt(d.amount)}</p>
       </div>
       <div style="display:flex;gap:8px">
         <button onclick="openSettleModal('${d.from}','${d.to}',${d.amount.toFixed(2)})" style="flex:1;padding:10px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer">✓ Settle Up</button>
@@ -3054,7 +3054,7 @@ function renderHistory(){
       <p style="font-size:22px;font-weight:700;letter-spacing:-0.02em;flex:1">History</p>
       <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:20px;padding:7px 13px">
         <span style="font-size:11px;color:var(--muted)">Total Balance</span>
-        <span style="font-family:'DM Mono',monospace;font-size:13px;font-weight:700;color:var(--accent)">${fmt(Math.abs(allTimeTotals().bal))}</span>
+        <span style="font-family:var(--font-num);font-size:13px;font-weight:700;color:var(--accent)">${fmt(Math.abs(allTimeTotals().bal))}</span>
       </div>
     </div>
 
@@ -3088,11 +3088,11 @@ function renderHistory(){
       <div style="display:flex;gap:12px;margin-bottom:${totalBudget>0?12:16}px">
         <div style="flex:1;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.15);border-radius:14px;padding:12px">
           <p style="font-size:10px;color:var(--red);letter-spacing:0.08em;font-weight:600;margin-bottom:4px">EXPENSE</p>
-          <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--text)">${fmt(exp)}</p>
+          <p style="font-family:var(--font-num);font-size:18px;font-weight:700;color:var(--text)">${fmt(exp)}</p>
         </div>
         <div style="flex:1;background:rgba(105,210,160,0.08);border:1px solid rgba(105,210,160,0.15);border-radius:14px;padding:12px">
           <p style="font-size:10px;color:var(--green);letter-spacing:0.08em;font-weight:600;margin-bottom:4px">INCOME</p>
-          <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;color:var(--text)">${fmt(inc)}</p>
+          <p style="font-family:var(--font-num);font-size:18px;font-weight:700;color:var(--text)">${fmt(inc)}</p>
         </div>
       </div>
 
@@ -3118,7 +3118,7 @@ function renderHistory(){
           <div style="flex:1;min-width:0">
             <div style="display:flex;justify-content:space-between;margin-bottom:3px">
               <span style="font-size:12px;font-weight:600">${c.label}</span>
-              <span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--muted)">${fmt(c.total)}</span>
+              <span style="font-family:var(--font-num);font-size:12px;color:var(--muted)">${fmt(c.total)}</span>
             </div>
             <div style="height:4px;border-radius:999px;background:rgba(255,255,255,0.07)"><div style="height:100%;border-radius:999px;background:${c.color};width:${pct}%"></div></div>
           </div>
@@ -3132,8 +3132,8 @@ function renderHistory(){
       ${memberBreakdown.map(m=>`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:6px">
         <span style="font-size:20px">${m.avatar}</span>
         <span style="font-size:13px;font-weight:600;flex:1">${m.displayName}</span>
-        ${m.spent>0?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--red)">-${fmt(m.spent)}</span>`:''}
-        ${m.earned>0?`<span style="font-family:'DM Mono',monospace;font-size:12px;color:var(--green);margin-left:6px">+${fmt(m.earned)}</span>`:''}
+        ${m.spent>0?`<span style="font-family:var(--font-num);font-size:12px;color:var(--red)">-${fmt(m.spent)}</span>`:''}
+        ${m.earned>0?`<span style="font-family:var(--font-num);font-size:12px;color:var(--green);margin-left:6px">+${fmt(m.earned)}</span>`:''}
       </div>`).join('')}`:''}
 
       <!-- vs last month -->
@@ -3225,7 +3225,7 @@ function renderTxRow(t,cats){
     </div>
     <div style="text-align:right;flex-shrink:0">
       <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">${t.type==='income'?'+':'-'}${fmt(t.amount,S.ledgerCurrency)}</p>
-      ${t.origAmount&&t.currency&&t.currency!==S.ledgerCurrency?`<p style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">${t.type==='income'?'+':'-'}${fmt(t.origAmount,t.currency)}</p>`:''}
+      ${t.origAmount&&t.currency&&t.currency!==S.ledgerCurrency?`<p style="font-size:10px;color:var(--muted);font-family:var(--font-num);margin-top:2px">${t.type==='income'?'+':'-'}${fmt(t.origAmount,t.currency)}</p>`:''}
     </div>
   </div>`;
 }
@@ -3275,7 +3275,7 @@ function renderAnalytics(fil,totalExp){
       <div class="cat-bar-header">
         <span style="display:flex;align-items:center;gap:8px"><span style="font-size:18px;display:flex;align-items:center;justify-content:center">${renderCatIcon(c.icon,18,true)}</span><span style="color:var(--muted)">${c.label}</span></span>
         <span style="display:flex;align-items:center;gap:6px">
-          <span style="font-family:'DM Mono',monospace;font-size:13px">${fmt(c.total)}${c.budget>0?` <span style="color:var(--dim);font-size:11px">/ ${fmt(c.budget)}</span>`:''}</span>
+          <span style="font-family:var(--font-num);font-size:13px">${fmt(c.total)}${c.budget>0?` <span style="color:var(--dim);font-size:11px">/ ${fmt(c.budget)}</span>`:''}</span>
           <span style="color:var(--dim);font-size:14px">›</span>
         </span>
       </div>
@@ -3290,7 +3290,7 @@ function renderAnalytics(fil,totalExp){
     return`<div class="debt-row surface" style="display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:14px;margin-bottom:8px">
       <span style="font-size:20px">${f.avatar}</span>
       <span style="font-size:13px;color:var(--muted);flex:1">${f.displayName} owes ${t.displayName}</span>
-      <span style="font-family:'DM Mono',monospace;font-size:14px;color:var(--yellow);font-weight:600">${fmt(d.amount)}</span>
+      <span style="font-family:var(--font-num);font-size:14px;color:var(--yellow);font-weight:600">${fmt(d.amount)}</span>
       <button onclick="openSettleModal('${d.from}','${d.to}',${d.amount.toFixed(2)})" style="padding:6px 12px;border-radius:10px;background:rgba(105,210,160,0.15);color:var(--green);font-size:12px;font-weight:700;border:1px solid rgba(105,210,160,0.3);flex-shrink:0">Settle</button>
     </div>`;
   }).join(''):'<p style="font-size:13px;color:var(--dim)">No split balances. 🎉</p>';
@@ -3299,7 +3299,7 @@ function renderAnalytics(fil,totalExp){
     return`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;margin-bottom:6px;background:rgba(105,210,160,0.06);border:1px solid rgba(105,210,160,0.15)">
       <span style="font-size:18px">${f.avatar}</span>
       <div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:600">${f.displayName} → ${t.displayName}</p><p style="font-size:11px;color:var(--dim)">${s.note||'Settled'} · ${s.date||''}</p></div>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;color:var(--green);font-weight:600">${fmt(s.amount)}</span>
+      <span style="font-family:var(--font-num);font-size:13px;color:var(--green);font-weight:600">${fmt(s.amount)}</span>
       <button onclick="deleteSettle('${sk}')" style="font-size:10px;padding:3px 8px;border-radius:7px;background:rgba(255,107,107,0.12);color:var(--red);font-weight:600;border:none">✕</button>
     </div>`;
   }).join('');
@@ -3319,7 +3319,7 @@ function renderAnalytics(fil,totalExp){
           <p style="font-size:11px;color:var(--dim)">Spent ${fmt(m.spent)}</p></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px">
-        ${m.earned>0?`<p style="font-family:'DM Mono',monospace;font-size:13px;color:var(--green)">+${fmt(m.earned)}</p>`:''}
+        ${m.earned>0?`<p style="font-family:var(--font-num);font-size:13px;color:var(--green)">+${fmt(m.earned)}</p>`:''}
         <span style="color:var(--dim);font-size:18px">›</span>
       </div>
     </div>`).join('')||'<p style="font-size:13px;color:var(--dim)">No data yet.</p>';
@@ -3388,11 +3388,11 @@ function renderTxByMember(){
     <div style="margin:16px 20px 0;display:flex;gap:10px">
       <div style="flex:1;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.15);border-radius:14px;padding:12px">
         <p style="font-size:10px;color:var(--red);letter-spacing:0.08em;font-weight:600;margin-bottom:4px">EXPENSE</p>
-        <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700">${fmt(exp)}</p>
+        <p style="font-family:var(--font-num);font-size:18px;font-weight:700">${fmt(exp)}</p>
       </div>
       <div style="flex:1;background:rgba(105,210,160,0.08);border:1px solid rgba(105,210,160,0.15);border-radius:14px;padding:12px">
         <p style="font-size:10px;color:var(--green);letter-spacing:0.08em;font-weight:600;margin-bottom:4px">INCOME</p>
-        <p style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700">${fmt(inc)}</p>
+        <p style="font-family:var(--font-num);font-size:18px;font-weight:700">${fmt(inc)}</p>
       </div>
     </div>
 
@@ -3485,7 +3485,7 @@ function renderTxByCategory(){
     <!-- Total -->
     <div style="margin:16px 20px 0;background:${cat.color}15;border:1px solid ${cat.color}33;border-radius:14px;padding:14px 16px">
       <p style="font-size:10px;color:${cat.color};letter-spacing:0.08em;font-weight:600;margin-bottom:4px;text-transform:uppercase">Total · ${monthLabel}</p>
-      <p style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700">${fmt(total)}</p>
+      <p style="font-family:var(--font-num);font-size:22px;font-weight:700">${fmt(total)}</p>
     </div>
 
     <!-- Transaction list -->
@@ -3581,7 +3581,7 @@ function renderTxByShared(){
     <!-- Total -->
     <div style="margin:16px 20px 0;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:14px;padding:14px 16px">
       <p style="font-size:10px;color:var(--accent);letter-spacing:0.08em;font-weight:600;margin-bottom:4px;text-transform:uppercase">Total Shared · ${monthLabel}</p>
-      <p style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--accent)">${fmt(total)}</p>
+      <p style="font-family:var(--font-num);font-size:22px;font-weight:700;color:var(--accent)">${fmt(total)}</p>
     </div>
 
     <!-- Transaction list -->
@@ -3700,7 +3700,7 @@ function renderAdd(){
         </div>`;}).join('');
       coPayorDetail=`<div style="margin-top:10px">${rows}
         <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:${coPayorSum>totalAmt?'var(--red)':'var(--muted)'}">
-          <span>Allocated</span><span style="font-family:'DM Mono',monospace;font-weight:700">${fmt(coPayorSum,f.currency)} / ${fmt(totalAmt,f.currency)}</span>
+          <span>Allocated</span><span style="font-family:var(--font-num);font-weight:700">${fmt(coPayorSum,f.currency)} / ${fmt(totalAmt,f.currency)}</span>
         </div>
         <p style="font-size:11px;margin-top:4px;color:${coPayorSum>totalAmt?'var(--red)':primFronts>0?'var(--green)':'var(--accent2)'}">
           ${coPayorSum>totalAmt?'⚠ Co-payer total exceeds amount':primFronts>0?getMem(f.member).displayName+' fronts '+fmt(primFronts,f.currency):'✓ Fully covered by co-payers'}
@@ -3831,7 +3831,7 @@ function renderAdd(){
           if(lockedCur){
             return`<span style="background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:var(--accent);font-size:12px;font-weight:700;padding:5px 10px">${CURRENCIES[lockedCur]?.flag||''} ${lockedCur}</span>`;
           }
-          return`<select onchange="setFF('currency',this.value);renderPage()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:5px 8px;outline:none">
+          return`<select onchange="setFF('currency',this.value);renderPage()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:var(--text);font-family:var(--font-ui);font-size:12px;font-weight:600;padding:5px 8px;outline:none">
             ${Object.entries(CURRENCIES).map(([k,c])=>`<option value="${k}" ${k===f.currency?'selected':''}>${c.flag} ${k}</option>`).join('')}
           </select>`;
         })()}
@@ -3842,7 +3842,7 @@ function renderAdd(){
         const dispCur=f.assetId&&S.assets[f.assetId]?S.assets[f.assetId].currency||S.ledgerCurrency:f.currency;
         if(dispCur&&dispCur!==S.ledgerCurrency&&parseFloat(f.amount)>0){
           const converted=convertToLedger(parseFloat(f.amount),dispCur);
-          return`<p id="convDisplay" style="font-size:12px;color:var(--accent2);margin-top:6px;font-family:'DM Mono',monospace">≈ ${fmt(converted,S.ledgerCurrency)} <span style="color:var(--dim);font-size:10px;font-family:'Sora',sans-serif">in ${S.ledgerCurrency}</span></p>`;
+          return`<p id="convDisplay" style="font-size:12px;color:var(--accent2);margin-top:6px;font-family:var(--font-num)">≈ ${fmt(converted,S.ledgerCurrency)} <span style="color:var(--dim);font-size:10px;font-family:var(--font-ui)">in ${S.ledgerCurrency}</span></p>`;
         }
         return'';
       })()}
@@ -3952,7 +3952,7 @@ function buildAssetPicker(f){
       onclick="pickAsset('${a.id}','${a.currency||S.ledgerCurrency}')">
       <div class="m-avatar" style="font-size:18px">${aDispIcon}</div>
       <div style="font-size:11px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:72px">${a.name}</div>
-      <div style="font-size:10px;color:${isCredit&&bal>0?'var(--red)':bal<0?'var(--red)':'var(--accent2)'};font-family:'DM Mono',monospace;margin-top:2px">${fmt(Math.abs(bal),a.currency||S.ledgerCurrency)}</div>
+      <div style="font-size:10px;color:${isCredit&&bal>0?'var(--red)':bal<0?'var(--red)':'var(--accent2)'};font-family:var(--font-num);margin-top:2px">${fmt(Math.abs(bal),a.currency||S.ledgerCurrency)}</div>
     </button>`;
   }).join('');
   const noneBtn=`<button class="member-box ${!f.assetId?'active':''}"
@@ -4001,7 +4001,7 @@ function renderModal(){
           <span style="font-size:24px">${m.avatar}</span>
           <span style="font-size:14px;font-weight:500;flex:1">${m.displayName}${m.guest?'<span class="guest-badge">GUEST</span>':''}</span>
           ${ip?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">paid</span>`:''}
-          <span style="font-family:'DM Mono',monospace;font-size:14px;color:${ip?'var(--green)':'var(--red)'}">${fmt(amt,txCur)}</span>
+          <span style="font-family:var(--font-num);font-size:14px;color:${ip?'var(--green)':'var(--red)'}">${fmt(amt,txCur)}</span>
         </div>`;}).join('');
     }else{
       const all=[t.member,...(t.splitWith||[])];const sh=t.amount/all.length;
@@ -4010,7 +4010,7 @@ function renderModal(){
           <span style="font-size:24px">${m.avatar}</span>
           <span style="font-size:14px;font-weight:500;flex:1">${m.displayName}${m.guest?'<span class="guest-badge">GUEST</span>':''}</span>
           ${ip?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">paid</span>`:''}
-          <span style="font-family:'DM Mono',monospace;font-size:14px;color:${ip?'var(--green)':'var(--red)'}">${fmt(sh,txCur)}</span>
+          <span style="font-family:var(--font-num);font-size:14px;color:${ip?'var(--green)':'var(--red)'}">${fmt(sh,txCur)}</span>
         </div>`;}).join('');
     }
   }
@@ -4020,7 +4020,7 @@ function renderModal(){
       <span style="font-size:24px">${m.avatar}</span>
       <span style="font-size:14px;font-weight:500;flex:1">${m.displayName}${m.guest?'<span class="guest-badge">GUEST</span>':''}</span>
       <span class="tag" style="background:rgba(78,205,196,0.15);color:var(--accent2)">chipped in</span>
-      <span style="font-family:'DM Mono',monospace;font-size:14px;color:var(--accent2)">${fmt(amt,txCur)}</span>
+      <span style="font-family:var(--font-num);font-size:14px;color:var(--accent2)">${fmt(amt,txCur)}</span>
     </div>`;}).join(''):'';
 
   mc.innerHTML=`<div class="modal-overlay fade-in" onclick="closeModal()">
@@ -4028,8 +4028,8 @@ function renderModal(){
       <div class="modal-handle"></div>
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
         <div>
-          <p style="font-size:22px;font-family:'DM Mono',monospace;color:${t.type==='income'?'var(--green)':'var(--red)'};font-weight:700">${t.type==='income'?'+':'-'}${fmt(t.amount,S.ledgerCurrency)}</p>
-          ${t.origAmount&&t.currency&&t.currency!==S.ledgerCurrency?`<p style="font-size:13px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px">${t.type==='income'?'+':'-'}${fmt(t.origAmount,t.currency)}</p>`:''}
+          <p style="font-size:22px;font-family:var(--font-num);color:${t.type==='income'?'var(--green)':'var(--red)'};font-weight:700">${t.type==='income'?'+':'-'}${fmt(t.amount,S.ledgerCurrency)}</p>
+          ${t.origAmount&&t.currency&&t.currency!==S.ledgerCurrency?`<p style="font-size:13px;color:var(--muted);font-family:var(--font-num);margin-top:2px">${t.type==='income'?'+':'-'}${fmt(t.origAmount,t.currency)}</p>`:''}
           <p style="font-size:15px;font-weight:600;margin-top:4px">${t.description}</p>
           <p style="font-size:12px;color:var(--muted);margin-top:2px">${renderCatIcon(cat.icon,16)} ${cat.label}${subcatLabel?' · '+subcatLabel:''} · ${t.date}</p>
         </div>
@@ -4037,7 +4037,7 @@ function renderModal(){
       </div>
       ${hasCoPayors?`<div style="border-top:1px solid var(--border);padding-top:14px;margin-bottom:14px"><p class="label" style="margin-bottom:10px">Also paid by</p>${coPayorRows}</div>`:''}
       ${hasSplit?`<div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:16px"><p class="label" style="margin-bottom:12px">Split breakdown</p>${rows}</div>`:''}
-      <button style="width:100%;padding:12px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2);font-family:'Sora',sans-serif" onclick="delTxModal('${t._k}')">🗑 Delete Transaction</button>
+      <button style="width:100%;padding:12px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2);font-family:var(--font-ui)" onclick="delTxModal('${t._k}')">🗑 Delete Transaction</button>
     </div>
   </div>`;
 }
@@ -4084,7 +4084,7 @@ function renderSettleModal(){
       <input id="settleNote" type="text" class="normal-input" placeholder="e.g. Cash transfer, PayNow…">
     </div>
     <button id="settleConfirmBtn" class="btn-primary" style="margin-bottom:10px">✓ Record Settlement</button>
-    <button id="settleCancelBtn" style="width:100%;padding:13px;border-radius:14px;background:rgba(255,255,255,0.05);color:var(--muted);font-size:14px;font-weight:600;border:none;font-family:'Sora',sans-serif;cursor:pointer">Cancel</button>`;
+    <button id="settleCancelBtn" style="width:100%;padding:13px;border-radius:14px;background:rgba(255,255,255,0.05);color:var(--muted);font-size:14px;font-weight:600;border:none;font-family:var(--font-ui);cursor:pointer">Cancel</button>`;
   overlay.appendChild(sheet);mc.appendChild(overlay);
   document.getElementById('settleConfirmBtn').addEventListener('click',async()=>{
     const amt=parseFloat(document.getElementById('settleAmt')?.value)||0;
@@ -4137,7 +4137,7 @@ function renderSettleDetailModal(){
           <p style="font-size:11px;color:var(--muted)">${linfo.icon||'💼'} ${linfo.name||tlid} · ${s.date||''}</p>
         </div>
         <div style="text-align:right">
-          <p style="font-family:'DM Mono',monospace;font-size:22px;font-weight:700;color:var(--green)">${fmtS(s.amount)}</p>
+          <p style="font-family:var(--font-num);font-size:22px;font-weight:700;color:var(--green)">${fmtS(s.amount)}</p>
           <span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:6px;background:${isReviewed?'rgba(105,210,160,0.15)':'rgba(255,230,109,0.15)'};color:${isReviewed?'var(--green)':'var(--yellow)'}">${isReviewed?'Reviewed':'Pending Review'}</span>
         </div>
       </div>
@@ -4399,7 +4399,7 @@ function renderBudgetPage(){
     return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.03);margin-bottom:6px">
       <span style="font-size:20px">${linfo.icon||'💼'}</span>
       <span style="font-size:13px;font-weight:600;flex:1">${linfo.name||lid}</span>
-      <span style="font-family:'DM Mono',monospace;font-size:13px;color:${lExp>0?'var(--red)':"var(--dim)"}">-${sym} ${lExp.toFixed(2)}</span>
+      <span style="font-family:var(--font-num);font-size:13px;color:${lExp>0?'var(--red)':"var(--dim)"}">-${sym} ${lExp.toFixed(2)}</span>
     </div>`;
   }).filter(Boolean).join(''):null;
 
@@ -4441,8 +4441,8 @@ function renderBudgetPage(){
         </div>
         ${sDraftBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${sPct}%;background:${sOver?'var(--red)':sPct>80?'var(--yellow)':c.color}"></div></div>`:''}
         <div style="position:relative">
-          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-          <input id="bgt-inp-${subKey}" data-budgetkey="${subKey}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[subKey]||''}" oninput="bgtInputChange('${subKey}',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'34':"26"}px;font-size:14px">
+          <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;color:var(--dim);font-family:var(--font-num)">${sym}</span>
+          <input id="bgt-inp-${subKey}" data-budgetkey="${subKey}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[subKey]||''}" oninput="bgtInputChange('${subKey}',this.value)" style="font-family:var(--font-num);padding-left:${sym.length>1?'34':"26"}px;font-size:14px">
         </div>
       </div>`;
     }).join(''):'';
@@ -4457,8 +4457,8 @@ function renderBudgetPage(){
       </div>
       ${effectiveBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>`:''}
       <div style="position:relative;margin-bottom:${subcatExceedsCat||hasSubcats&&isExpanded?'6':"0"}px">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-        <input id="bgt-inp-${key}" data-budgetkey="${key}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[key]||''}" oninput="bgtInputChange('${key}',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'36':"28"}px">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--dim);font-family:var(--font-num)">${sym}</span>
+        <input id="bgt-inp-${key}" data-budgetkey="${key}" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="No limit" value="${window._bgtDraft[key]||''}" oninput="bgtInputChange('${key}',this.value)" style="font-family:var(--font-num);padding-left:${sym.length>1?'36':"28"}px">
         <span id="bgt-cat-autototal-${key}" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:10px;color:var(--accent2);pointer-events:none">${draftSubcatSum>0?'Auto: '+sym+' '+draftSubcatSum.toFixed(2):''}</span>
       </div>
       <div id="bgt-flag-${key}" class="bgt-flag" style="display:${subcatExceedsCat?'flex':"none"};align-items:flex-start;gap:7px;padding:8px 10px;border-radius:10px;background:rgba(255,230,109,0.1);border:1px solid rgba(255,230,109,0.3);margin-bottom:6px">
@@ -4490,8 +4490,8 @@ function renderBudgetPage(){
     <div class="card" style="padding:20px;margin-bottom:20px;border-radius:18px">
       <p class="label" style="color:var(--accent2);margin-bottom:10px">Total Monthly Budget</p>
       <div style="position:relative;margin-bottom:8px">
-        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--dim);font-family:'DM Mono',monospace">${sym}</span>
-        <input id="bgt__total" data-budgetkey="_total" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="Overall cap (optional)" value="${window._bgtDraft['_total']||''}" oninput="bgtInputChange('_total',this.value)" style="font-family:'DM Mono',monospace;padding-left:${sym.length>1?'38':"28"}px;font-size:17px;font-weight:700">
+        <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--dim);font-family:var(--font-num)">${sym}</span>
+        <input id="bgt__total" data-budgetkey="_total" type="number" inputmode="decimal" class="fw-input bgt-any-input" placeholder="Overall cap (optional)" value="${window._bgtDraft['_total']||''}" oninput="bgtInputChange('_total',this.value)" style="font-family:var(--font-num);padding-left:${sym.length>1?'38':"28"}px;font-size:17px;font-weight:700">
       </div>
       <p style="font-size:11px;color:var(--dim);margin-bottom:6px">Leave blank → auto-sums from categories${draftCatSum>0?' ('+sym+' '+draftCatSum.toFixed(2)+')':''}</p>
       <div id="bgt-total-flag" class="bgt-flag" style="display:${totalFlag?'flex':"none"};align-items:flex-start;gap:7px;padding:8px 10px;border-radius:10px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.25);margin-bottom:8px">
@@ -4510,7 +4510,7 @@ function renderBudgetPage(){
       </div>`:''}
     </div>
     ${isAll&&ledgerRows?`<div class="card" style="padding:16px;margin-bottom:20px;border-radius:18px"><p class="label" style="margin-bottom:10px">Spending by Ledger</p>${ledgerRows}</div>`:''}
-    <button id="budgetCopyBtn" style="width:100%;padding:12px;border-radius:12px;background:rgba(78,205,196,0.1);color:var(--accent2);font-size:13px;font-weight:600;border:1px solid rgba(78,205,196,0.2);margin-bottom:20px;cursor:pointer;font-family:'Sora',sans-serif">📋 Copy budgets from previous month</button>
+    <button id="budgetCopyBtn" style="width:100%;padding:12px;border-radius:12px;background:rgba(78,205,196,0.1);color:var(--accent2);font-size:13px;font-weight:600;border:1px solid rgba(78,205,196,0.2);margin-bottom:20px;cursor:pointer;font-family:var(--font-ui)">📋 Copy budgets from previous month</button>
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
       <p style="font-size:11px;color:var(--muted);font-weight:600;letter-spacing:0.06em;text-transform:uppercase">Category Limits</p>
       <p style="font-size:11px;color:var(--dim)">Tap ▼ to set subcategory limits</p>
@@ -4518,7 +4518,7 @@ function renderBudgetPage(){
     ${catRows}
     <p style="font-size:12px;color:var(--dim);margin-top:8px;text-align:center">${isAll?'All Ledgers budget is personal — only you see it':"Ledger budget shared with all ledger members"}</p>
     <!-- Floating Save button -->
-    <button id="bgt-float-save" onclick="bgtSaveAll()" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 44px);max-width:386px;z-index:60;display:${window._bgtDirty?'flex':"none"};padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 28px rgba(108,99,255,0.45)">
+    <button id="bgt-float-save" onclick="bgtSaveAll()" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 44px);max-width:386px;z-index:60;display:${window._bgtDirty?'flex':"none"};padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-ui);align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 28px rgba(108,99,255,0.45)">
       💾 Save Budget
     </button>
   </div>`;
@@ -4841,9 +4841,9 @@ function renderAppearancePage(){
   }
 
   // Mini preview snippets (self-contained, not affected by current theme vars)
-  const previewOriginal=`<div style="background:#0A0A14;padding:12px 14px;font-family:'Sora',sans-serif">
+  const previewOriginal=`<div style="background:#0A0A14;padding:12px 14px;font-family:var(--font-ui)">
     <p style="font-size:9px;color:#5A587A;letter-spacing:0.1em;margin:0 0 4px">TOTAL BALANCE</p>
-    <p style="font-size:22px;font-weight:700;color:#F0EEF6;margin:0;letter-spacing:-0.03em;font-family:'DM Mono',monospace">RM 2,140.32</p>
+    <p style="font-size:22px;font-weight:700;color:#F0EEF6;margin:0;letter-spacing:-0.03em;font-family:var(--font-num)">RM 2,140.32</p>
     <div style="display:flex;gap:10px;margin-top:8px">
       <div style="flex:1;padding:8px;border-radius:10px;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2)">
         <p style="font-size:9px;color:#69D2A0;margin:0">INCOME</p>
@@ -4863,9 +4863,9 @@ function renderAppearancePage(){
     </div>
   </div>`;
 
-  const previewPaper=`<div style="background:#F7F7F5;padding:12px 14px;font-family:'Sora',sans-serif">
+  const previewPaper=`<div style="background:#F7F7F5;padding:12px 14px;font-family:var(--font-ui)">
     <p style="font-size:9px;color:#AAAAAA;letter-spacing:0.08em;margin:0 0 2px">TOTAL BALANCE</p>
-    <p style="font-size:22px;font-weight:300;color:#111;margin:0;letter-spacing:-0.04em;font-family:'DM Mono',monospace">RM 2,140<span style="font-size:13px;color:#aaa">.32</span></p>
+    <p style="font-size:22px;font-weight:300;color:#111;margin:0;letter-spacing:-0.04em;font-family:var(--font-num)">RM 2,140<span style="font-size:13px;color:#aaa">.32</span></p>
     <div style="display:flex;gap:10px;margin-top:8px">
       <div style="flex:1;padding:8px;border-radius:10px;background:#fff;border:0.5px solid rgba(0,0,0,0.08)">
         <p style="font-size:9px;color:#aaa;margin:0">INCOME</p>
@@ -4883,10 +4883,10 @@ function renderAppearancePage(){
     </div>
   </div>`;
 
-  const previewCream=`<div style="background:#FAF8F3;padding:12px 14px;font-family:'Sora',sans-serif">
+  const previewCream=`<div style="background:#FAF8F3;padding:12px 14px;font-family:var(--font-ui)">
     <p style="font-size:9px;color:#A89880;letter-spacing:0.08em;margin:0 0 2px">NET BALANCE</p>
     <div style="background:#2C2416;border-radius:10px;padding:10px 12px;margin:6px 0 8px">
-      <p style="font-size:20px;font-weight:300;color:#FAF8F3;margin:0;letter-spacing:-0.04em;font-family:'DM Mono',monospace">RM 214<span style="font-size:12px;color:rgba(255,255,255,0.4)">.32</span></p>
+      <p style="font-size:20px;font-weight:300;color:#FAF8F3;margin:0;letter-spacing:-0.04em;font-family:var(--font-num)">RM 214<span style="font-size:12px;color:rgba(255,255,255,0.4)">.32</span></p>
       <div style="height:3px;background:rgba(255,255,255,0.1);border-radius:2px;margin-top:6px">
         <div style="width:52%;height:100%;background:#C8B87A;border-radius:2px"></div>
       </div>
@@ -4898,9 +4898,9 @@ function renderAppearancePage(){
     </div>
   </div>`;
 
-  const previewSlate=`<div style="background:#F2F4F7;padding:12px 14px;font-family:'Sora',sans-serif">
+  const previewSlate=`<div style="background:#F2F4F7;padding:12px 14px;font-family:var(--font-ui)">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-      <div><p style="font-size:9px;color:#8890A4;margin:0">Family Wallet</p><p style="font-size:20px;font-weight:500;color:#1A2035;margin:2px 0 0;letter-spacing:-0.03em;font-family:'DM Mono',monospace">RM 214.32</p></div>
+      <div><p style="font-size:9px;color:#8890A4;margin:0">Family Wallet</p><p style="font-size:20px;font-weight:500;color:#1A2035;margin:2px 0 0;letter-spacing:-0.03em;font-family:var(--font-num)">RM 214.32</p></div>
       <div style="width:26px;height:26px;border-radius:8px;background:#1A2035;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff">◎</div>
     </div>
     <div style="display:flex;gap:6px;margin-bottom:8px">
@@ -4999,8 +4999,8 @@ function renderAppearancePage(){
             <div style="width:16%;height:100%;border-radius:999px;background:rgba(108,99,255,0.6)"></div>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center">
-            <span style="font-size:11px;color:var(--muted)">Remaining <span style="font-family:'DM Mono',monospace;color:var(--accent)">1940 / 2000</span></span>
-            <span style="font-size:11px;color:var(--muted)">Daily Safe Spend: <span style="font-family:'DM Mono',monospace;font-weight:700;color:var(--green)">58</span></span>
+            <span style="font-size:11px;color:var(--muted)">Remaining <span style="font-family:var(--font-num);color:var(--accent)">1940 / 2000</span></span>
+            <span style="font-size:11px;color:var(--muted)">Daily Safe Spend: <span style="font-family:var(--font-num);font-weight:700;color:var(--green)">58</span></span>
           </div>
         </div>
       </div>
@@ -5017,14 +5017,14 @@ function renderAppearancePage(){
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
             <span style="font-size:11px;color:var(--muted)">Remaining Budget</span>
-            <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--accent)">RM 1940.00</span>
+            <span style="font-family:var(--font-num);font-size:11px;color:var(--accent)">RM 1940.00</span>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2);border-radius:8px;padding:6px 10px">
             <div style="display:flex;align-items:center;gap:5px">
               <div style="width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
               <span style="font-size:11px;color:var(--green);font-weight:600">Daily Safe Spend</span>
             </div>
-            <span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--green)">RM 58.00</span>
+            <span style="font-family:var(--font-num);font-size:12px;font-weight:700;color:var(--green)">RM 58.00</span>
           </div>
         </div>
       </div>
@@ -5272,7 +5272,7 @@ function renderSettings(){
         <!-- Gemini key -->
         <div id="geminiKeySection" style="display:${(localStorage.getItem('fw_ai_provider')||'gemini')==='gemini'?'block':'none'}">
           <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">Get your free key at <strong style="color:var(--accent)">aistudio.google.com</strong></p>
-          <input id="geminiKeyInput" class="fw-input" type="password" placeholder="Paste Gemini API key..." value="${localStorage.getItem('fw_gemini_key')||''}" style="margin-bottom:10px;font-family:'DM Mono',monospace;font-size:14px">
+          <input id="geminiKeyInput" class="fw-input" type="password" placeholder="Paste Gemini API key..." value="${localStorage.getItem('fw_gemini_key')||''}" style="margin-bottom:10px;font-family:var(--font-num);font-size:14px">
           <div style="display:flex;gap:8px">
             <button onclick="saveGeminiKey()" style="flex:1;padding:11px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700">Save</button>
             <button onclick="clearGeminiKey()" style="padding:11px 14px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">Clear</button>
@@ -5283,7 +5283,7 @@ function renderSettings(){
         <!-- OpenAI key -->
         <div id="openaiKeySection" style="display:${(localStorage.getItem('fw_ai_provider')||'gemini')==='openai'?'block':'none'}">
           <p style="font-size:12px;color:var(--muted);margin-bottom:8px;line-height:1.6">Get your key at <strong style="color:var(--accent2)">platform.openai.com</strong>. GPT-4o handles mixed-language receipts better.</p>
-          <input id="openaiKeyInput" class="fw-input" type="password" placeholder="Paste OpenAI API key (sk-...)..." value="${localStorage.getItem('fw_openai_key')||''}" style="margin-bottom:10px;font-family:'DM Mono',monospace;font-size:14px">
+          <input id="openaiKeyInput" class="fw-input" type="password" placeholder="Paste OpenAI API key (sk-...)..." value="${localStorage.getItem('fw_openai_key')||''}" style="margin-bottom:10px;font-family:var(--font-num);font-size:14px">
           <div style="display:flex;gap:8px">
             <button onclick="saveOpenAiKey()" style="flex:1;padding:11px;border-radius:12px;background:linear-gradient(135deg,var(--accent2),var(--green));color:#fff;font-size:13px;font-weight:700">Save</button>
             <button onclick="clearOpenAiKey()" style="padding:11px 14px;border-radius:12px;background:rgba(255,107,107,0.12);color:var(--red);font-size:13px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">Clear</button>
@@ -5791,7 +5791,7 @@ window.updateConversionDisplay=(val)=>{
   el.style.display='';
   const converted=convertToLedger(n,dispCur);
   const cur=CURRENCIES[S.ledgerCurrency];
-  el.innerHTML=`≈ ${cur?cur.symbol:''}${converted.toFixed(2)} <span style="color:var(--dim);font-size:10px;font-family:'Sora',sans-serif">in ${S.ledgerCurrency}</span>`;
+  el.innerHTML=`≈ ${cur?cur.symbol:''}${converted.toFixed(2)} <span style="color:var(--dim);font-size:10px;font-family:var(--font-ui)">in ${S.ledgerCurrency}</span>`;
 };
 window.pickAsset   =(id,cur)=>{if(!S.addForm)return;S.addForm.assetId=id;renderPage();};
 window.setFM       =id=>{S.addForm.member=id;S.addForm.splitWith=S.addForm.splitWith.filter(s=>s!==id);S.addForm.coPayors=(S.addForm.coPayors||[]).filter(s=>s!==id);S.addForm.coPayorMode="equal";S.addForm.coPayorAmounts={};S.addForm.customSplits={};renderPage();};
@@ -6706,7 +6706,7 @@ function renderAssetsPage(){
     ${ledgerContextBadge()}
     <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 14px;margin-bottom:22px">
       <span style="font-size:12px;color:var(--muted)">Total</span>
-      <span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--accent)">${fmt(totalAssets())}</span>
+      <span style="font-family:var(--font-num);font-size:16px;font-weight:700;color:var(--accent)">${fmt(totalAssets())}</span>
     </div>
     ${cards}
     <button onclick="goAssetForm()" style="width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;margin-top:8px;border:none;cursor:pointer">＋ Add Asset Account</button>
@@ -6778,7 +6778,7 @@ function renderAssetForm(){
     <div class="form-section"><div class="input-card surface">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <p class="label">Current Balance</p>
-        <select id="assetCurrency" style="background:rgba(255,255,255,0.08);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:var(--text);font-family:'Sora',sans-serif;font-size:12px;font-weight:600;padding:5px 8px;outline:none">
+        <select id="assetCurrency" style="background:rgba(255,255,255,0.08);border:1px solid rgba(108,99,255,0.3);border-radius:10px;color:var(--text);font-family:var(--font-ui);font-size:12px;font-weight:600;padding:5px 8px;outline:none">
           ${Object.entries(CURRENCIES).map(([k,c])=>`<option value="${k}" ${(a.currency||S.ledgerCurrency)===k?'selected':''}>${c.flag} ${k}</option>`).join('')}
         </select>
       </div>
@@ -6881,7 +6881,7 @@ function renderRecurringPage(){
         </div>
       </div>
       <div style="text-align:right;flex-shrink:0">
-        <p style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--red)">-${fmt(r.amount)}</p>
+        <p style="font-family:var(--font-num);font-size:15px;font-weight:600;color:var(--red)">-${fmt(r.amount)}</p>
         <div style="display:flex;gap:5px;margin-top:6px;justify-content:flex-end">
           ${r.nextDate<=td()?`<button onclick="postRecurringNow('${r.id}')" style="font-size:11px;background:rgba(105,210,160,0.15);color:var(--green);border-radius:8px;padding:4px 10px;font-weight:600;border:none">Post</button>`:''}
           <button class="edit-btn" onclick="editRecurring('${r.id}')">Edit</button>
@@ -6898,7 +6898,7 @@ function renderRecurringPage(){
     <p style="font-size:13px;color:var(--muted);margin-bottom:8px">Subscriptions, bills & regular expenses</p>
     ${recArr.length?`<div style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.2);border-radius:12px;padding:8px 14px;margin-bottom:20px">
       <span style="font-size:12px;color:var(--muted)">Monthly total</span>
-      <span style="font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--red)">${fmt(monthlyTotal)}</span>
+      <span style="font-family:var(--font-num);font-size:16px;font-weight:700;color:var(--red)">${fmt(monthlyTotal)}</span>
     </div>`:''}
     ${rows}
     <button onclick="goRecurForm()" style="width:100%;padding:14px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;margin-top:8px;border:none;cursor:pointer">＋ Add Recurring</button>
