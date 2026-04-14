@@ -25,6 +25,10 @@
   :root.font-rounded{--font-ui:'Nunito',sans-serif;--font-num:'Nunito',sans-serif;--num-tracking:-0.01em;--num-weight:700;--label-transform:none;--label-tracking:0.02em;--label-size:12px}
   /* ── Font Style: Modern (DM Sans — neutral, airy) ── */
   :root.font-modern{--font-ui:'DM Sans',sans-serif;--font-num:'Figtree',sans-serif;--num-tracking:-0.025em;--num-weight:600;--label-transform:uppercase;--label-tracking:0.08em;--label-size:11px}
+  /* ── Font Style: Combifi (Inter — clean, neutral fintech) ── */
+  :root.font-combifi{--font-ui:'Inter',sans-serif;--font-num:'Inter',sans-serif;--num-tracking:-0.02em;--num-weight:700;--label-transform:none;--label-tracking:0.01em;--label-size:12px}
+  /* ── Font Style: Tally AI (Plus Jakarta Sans — rounded fintech) ── */
+  :root.font-tallyai{--font-ui:'Plus Jakarta Sans',sans-serif;--font-num:'Plus Jakarta Sans',sans-serif;--num-tracking:-0.025em;--num-weight:700;--label-transform:none;--label-tracking:0.005em;--label-size:12px}
 
   /* ── UI Style: Paper White ── */
   :root.ui-paper-white{--bg:#F7F7F5;--bg2:#FFFFFF;--bg3:#F0EFED;--accent:#111111;--accent2:#555555;--green:#2D9B6F;--red:#E05252;--yellow:#B8860B;--text:#111111;--muted:#888888;--dim:#AAAAAA;--border:rgba(0,0,0,0.09);--card-radius:16px;--font-weight-balance:300;--balance-letter-spacing:-0.04em}
@@ -4950,25 +4954,28 @@ function renderAppearancePage(){
       <p style="font-size:12px;color:var(--dim);margin-bottom:16px">Changes how text and numbers feel across the whole app</p>
 
       ${[
-        {id:'original', name:'Classic', sub:'Sora + DM Mono', desc:'Sharp geometric sans with monospace numbers. Technical, precise.', sample:{ui:'Sora',num:'DM Mono'}},
-        {id:'tally',    name:'Fintech', sub:'Plus Jakarta Sans', desc:'Clean rounded sans for both text and numbers — closest to Tally AI.', sample:{ui:'Jakarta',num:'Jakarta'}},
-        {id:'rounded',  name:'Friendly', sub:'Nunito', desc:'Soft, rounded letterforms. Warm and approachable.', sample:{ui:'Nunito',num:'Nunito'}},
-        {id:'modern',   name:'Modern',  sub:'DM Sans + Figtree', desc:'Airy neutral body with balanced numeric display.', sample:{ui:'DM Sans',num:'Figtree'}},
+        {id:'original', name:'Classic',  sub:'Sora + DM Mono',     desc:'Sharp geometric sans with monospace numbers. Technical, precise.',  sampleUi:'Sora',              sampleNum:'DM Mono',           mono:true,  badge:null},
+        {id:'combifi',  name:'Combifi',  sub:'Inter',               desc:'Crisp neutral sans — mirrors the Combifi app. Clean and legible.',  sampleUi:'Inter',             sampleNum:'Inter',             mono:false, badge:'Combifi'},
+        {id:'tallyai',  name:'Tally AI', sub:'Plus Jakarta Sans',   desc:'Rounded geometric sans — mirrors the Tally AI app. Warm, modern.',  sampleUi:'Plus Jakarta Sans', sampleNum:'Plus Jakarta Sans', mono:false, badge:'Tally AI'},
+        {id:'tally',    name:'Fintech',  sub:'Plus Jakarta Sans',   desc:'Clean rounded sans for both text and numbers.',                      sampleUi:'Plus Jakarta Sans', sampleNum:'Plus Jakarta Sans', mono:false, badge:null},
+        {id:'rounded',  name:'Friendly', sub:'Nunito',              desc:'Soft, rounded letterforms. Warm and approachable.',                 sampleUi:'Nunito',            sampleNum:'Nunito',            mono:false, badge:null},
+        {id:'modern',   name:'Modern',   sub:'DM Sans + Figtree',   desc:'Airy neutral body with balanced numeric display.',                   sampleUi:'DM Sans',           sampleNum:'Figtree',           mono:false, badge:null},
       ].map(f=>{
         const active=(S.fontStyle||'original')===f.id;
-        const sampleFontUi=f.id==='original'?'Sora':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'DM Sans';
-        const sampleFontNum=f.id==='original'?'DM Mono':f.id==='tally'?'Plus Jakarta Sans':f.id==='rounded'?'Nunito':'Figtree';
+        const sampleFontUi=f.sampleUi;
+        const sampleFontNum=f.sampleNum;
+        const appBadge=f.badge?`<span style="font-size:9px;font-weight:700;color:var(--accent2);background:rgba(78,205,196,0.15);padding:2px 8px;border-radius:6px;margin-left:4px">${f.badge}</span>`:''; 
         return`<div onclick="setFontStyle('${f.id}')" style="cursor:pointer;padding:14px 16px;border-radius:16px;border:2px solid ${active?'var(--accent)':'var(--border)'};background:${active?'rgba(108,99,255,0.06)':'rgba(255,255,255,0.02)'};margin-bottom:10px;transition:all 0.2s">
           <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
             <div style="flex:1">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;flex-wrap:wrap">
                 <p style="font-size:14px;font-weight:700;color:var(--text);margin:0">${f.name}</p>
-                <span style="font-size:10px;color:var(--dim);background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px">${f.sub}</span>
+                <span style="font-size:10px;color:var(--dim);background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:6px">${f.sub}</span>${appBadge}
               </div>
               <p style="font-size:11px;color:var(--dim);margin:0 0 10px">${f.desc}</p>
               <div style="background:rgba(128,128,128,0.06);border-radius:10px;padding:10px 12px;display:flex;align-items:baseline;justify-content:space-between">
                 <span style="font-family:'${sampleFontUi}',sans-serif;font-size:13px;font-weight:500;color:var(--muted)">Monthly balance</span>
-                <span style="font-family:'${sampleFontNum}',${f.id==='original'?'monospace':'sans-serif'};font-size:20px;font-weight:${f.id==='original'?700:600};color:var(--text);letter-spacing:${f.id==='original'?'-0.03em':'-0.02em'}">+214.32</span>
+                <span style="font-family:'${sampleFontNum}',${f.mono?'monospace':'sans-serif'};font-size:20px;font-weight:${f.mono?700:700};color:var(--text);letter-spacing:-0.02em">+214.32</span>
               </div>
             </div>
             <div style="flex-shrink:0;margin-top:2px">${active?`<span style="font-size:10px;font-weight:700;color:var(--accent);background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:8px">Active</span>`:`<span style="font-size:10px;color:var(--dim)">Tap</span>`}</div>
@@ -5462,10 +5469,12 @@ window.setUiStyle=async style=>{
 
 function applyFontStyle(style){
   const root=document.documentElement;
-  root.classList.remove('font-tally','font-rounded','font-modern');
+  root.classList.remove('font-tally','font-rounded','font-modern','font-combifi','font-tallyai');
   if(style==='tally')root.classList.add('font-tally');
   else if(style==='rounded')root.classList.add('font-rounded');
   else if(style==='modern')root.classList.add('font-modern');
+  else if(style==='combifi')root.classList.add('font-combifi');
+  else if(style==='tallyai')root.classList.add('font-tallyai');
   // 'original' = no class added, uses default Sora + DM Mono
 }
 
