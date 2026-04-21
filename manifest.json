@@ -1,22 +1,22 @@
 {
-  "name": "Family Wallet",
-  "short_name": "FamWallet",
+  "name": "Tally Buddy",
+  "short_name": "TallyBuddy",
   "description": "Real-time collaborative expense tracker for family and friends",
-  "start_url": "/Family-Wallet/index.html",
-  "scope": "/Family-Wallet/",
+  "start_url": "/Tally-Buddy/index.html",
+  "scope": "/Tally-Buddy/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0A0A14",
   "theme_color": "#6C63FF",
   "icons": [
     {
-      "src": "/Family-Wallet/icon-192.png",
+      "src": "/Tally-Buddy/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/Family-Wallet/icon-512.png",
+      "src": "/Tally-Buddy/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

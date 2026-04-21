@@ -1,6 +1,6 @@
-// Family Wallet — Service Worker
-const CACHE_NAME = 'family-wallet-v1';
-const BASE = '/Family-Wallet';
+// Tally Buddy — Service Worker
+const CACHE_NAME = 'tally-buddy-v1';
+const BASE = '/Tally-Buddy';
 const ASSETS = [
   BASE + '/',
   BASE + '/index.html',
