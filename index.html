@@ -1197,8 +1197,8 @@ function renderNav(){
     <button class="nav-btn ${view==='home'?'active':''}" onclick="goHome('transactions')"><span class="nav-icon">🏠</span><span>Today</span></button>
     <button class="nav-btn ${view==='calendar'?'active':''}" onclick="goCalendar()"><span class="nav-icon">📅</span><span>Calendar</span></button>
     <button class="fab" onclick="goAdd()">+</button>
-    <button class="nav-btn ${view==='stats'?'active':''}" onclick="goStats()"><span class="nav-icon">📊</span><span>Statistics</span></button>
-    <button class="nav-btn ${view==='settings'?'active':''}" onclick="goSettings()"><span class="nav-icon">⚙️</span><span>Settings</span></button>`;
+    <button class="nav-btn ${view==='stats'?'active':''}" onclick="goStats()"><span class="nav-icon">📊</span><span>Stats</span></button>
+    <button class="nav-btn ${view==='settings'?'active':''}" onclick="goSettings()"><span class="nav-icon">⚙️</span><span>Setting</span></button>`;
 }
 function renderPage(){
   const pg=document.getElementById('mainPage');if(!pg)return;
@@ -1370,7 +1370,7 @@ function renderHome(){
     const daysLeftTv=daysInMonthTv-todayDateTv.getDate()+1;
     const allDailySafe=allTotalBudget>0&&allRemaining>0?allRemaining/daysLeftTv:0;
 
-    return`<div class="fade-in">
+    return`<div class="fade-in" style="padding-bottom:calc(100px + env(safe-area-inset-bottom))">
       <!-- HEADER -->
       <div style="padding:52px 20px 0;display:flex;justify-content:space-between;align-items:flex-start">
         <div>
@@ -5773,7 +5773,7 @@ function renderTotalViewAllTx(){
       <p style="font-size:17px;font-weight:700;flex:1">My Transactions</p>
       <select id="totalViewMonthPicker" style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--text);font-family:var(--font-ui)">${monthSelector}</select>
     </div>
-    <div style="padding-bottom:20px">
+    <div style="padding-bottom:calc(100px + env(safe-area-inset-bottom))">
       ${rows||'<p style="text-align:center;color:var(--dim);padding:40px 0;font-size:14px">No transactions this month</p>'}
     </div>
   </div>`;
