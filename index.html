@@ -1226,7 +1226,7 @@ function renderPage(){
     if(_v==='txByShared'){pg.innerHTML=renderTxByShared();attachTxBySharedListeners();_restoreScroll(_v);return;}
     if(_v==='txByMember'){pg.innerHTML=renderTxByMember();attachTxByMemberListeners();_restoreScroll(_v);return;}
     if(_v==='txByCategory'){pg.innerHTML=renderTxByCategory();attachTxByCategoryListeners();_restoreScroll(_v);return;}
-    if(_v==='totalViewAllTx'){pg.innerHTML=renderTotalViewAllTx();_restoreScroll(_v);return;}
+    if(_v==='totalViewAllTx'){pg.innerHTML=renderTotalViewAllTx();attachTotalViewAllTxListeners();_restoreScroll(_v);return;}
     pg.innerHTML=renderHome();_restoreScroll(_v);
   }catch(e){showErr('renderPage ['+_v+']: '+(e.stack||e.message));}
 }
@@ -5769,9 +5769,9 @@ function renderTotalViewAllTx(){
 
   return`<div class="fade-in settings-page" style="padding-top:0">
     <div style="position:sticky;top:0;z-index:20;background:var(--bg);padding:52px 22px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)">
-      <button class="btn-ghost" onclick="S.view='home';render()" style="font-size:20px;padding:0;color:var(--muted)">←</button>
+      <button class="btn-ghost" onclick="goHome()" style="font-size:20px;padding:0;color:var(--muted)">←</button>
       <p style="font-size:17px;font-weight:700;flex:1">My Transactions</p>
-      <select onchange="S.totalViewTxMonth=this.value;renderPage()" style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--text);font-family:var(--font-ui)">${monthSelector}</select>
+      <select id="totalViewMonthPicker" style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:10px;padding:6px 10px;font-size:13px;color:var(--text);font-family:var(--font-ui)">${monthSelector}</select>
     </div>
     <div style="padding-bottom:20px">
       ${rows||'<p style="text-align:center;color:var(--dim);padding:40px 0;font-size:14px">No transactions this month</p>'}
@@ -5781,6 +5781,10 @@ function renderTotalViewAllTx(){
 
 window.goTxByMember=id=>{S.txFilterMember=id;S.historyMonth=new Date().toISOString().slice(0,7);S.view='txByMember';render();};
 window.goTotalViewAllTx=()=>{S.totalViewTxMonth=new Date().toISOString().slice(0,7);S.view='totalViewAllTx';render();};
+function attachTotalViewAllTxListeners(){
+  const picker=document.getElementById('totalViewMonthPicker');
+  if(picker){picker.addEventListener('change',function(){S.totalViewTxMonth=this.value;renderPage();});}
+}
 window.goTxByCategory=key=>{S.txFilterCategory=key;S.historyMonth=new Date().toISOString().slice(0,7);S.view='txByCategory';render();};
 window.goHome      =t=>{S.view='home';if(t)S.tab=t;render();};
 window.goNotifications=()=>{S.view='notifications';render();};
