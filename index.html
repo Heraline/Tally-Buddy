@@ -4295,6 +4295,91 @@ window._bgtShowSaveBtn=()=>{
   btn.disabled=hasErrors;
 };
 
+
+// ── Category/Subcat editing within Budget page ──
+window.startEditCatInBudget=key=>{
+  startEditCat(key);
+  // Show inline modal overlay within budget page
+  _showBudgetCatModal();
+};
+
+window.startEditSubcatInBudget=(catKey,sk)=>{
+  startEditSubcat(catKey,sk);
+  _showBudgetCatModal();
+};
+
+window.startAddSubcatInBudget=key=>{
+  startAddSubcat(key);
+  _showBudgetCatModal();
+};
+
+window._showBudgetCatModal=()=>{
+  // Render categories page content into an overlay modal
+  const overlay=document.createElement('div');
+  overlay.id='budgetCatOverlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:200;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch';
+  overlay.innerHTML=`
+    <div style="position:sticky;top:0;z-index:10;background:var(--bg);padding:calc(env(safe-area-inset-top)+10px) 16px 12px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border)">
+      <button onclick="window._closeBudgetCatModal()" style="background:rgba(255,255,255,0.08);border:none;border-radius:10px;width:34px;height:34px;font-size:16px;color:var(--text);cursor:pointer">←</button>
+      <p style="font-size:16px;font-weight:700">${editSubcatKey?'Edit Subcategory':editCatKey==='__new__'?'Add Category':'Edit Category'}</p>
+    </div>
+    <div style="max-width:420px;margin:0 auto;padding:20px 18px 80px" id="budgetCatOverlayContent">
+    </div>`;
+  document.body.appendChild(overlay);
+  _renderBudgetCatOverlayContent();
+};
+
+window._renderBudgetCatOverlayContent=()=>{
+  const content=document.getElementById('budgetCatOverlayContent');
+  if(!content)return;
+  // Re-render categories page and extract the form portion
+  const tempDiv=document.createElement('div');
+  tempDiv.innerHTML=renderCategoriesPage();
+  // Get the edit form or subcat form
+  const editForm=tempDiv.querySelector('[style*="rgba(108,99,255,0.3)"]')||
+                  tempDiv.querySelector('[style*="rgba(78,205,196,0.3)"]');
+  if(editForm){
+    // Patch save/cancel buttons to close modal after saving
+    content.innerHTML=editForm.outerHTML;
+    _patchBudgetOverlayBtns();
+  } else {
+    // Show full categories list if no form active
+    content.innerHTML=tempDiv.innerHTML;
+    _patchBudgetOverlayBtns();
+  }
+};
+
+window._patchBudgetOverlayBtns=()=>{
+  // Patch saveCat to close modal after
+  const origSaveCat=window.saveCat;
+  window.saveCat=async()=>{
+    await origSaveCat();
+    window._closeBudgetCatModal();
+    renderPage();
+  };
+  // Patch saveSubcat to close modal after  
+  const origSaveSubcat=window.saveSubcat;
+  window.saveSubcat=async(catKey)=>{
+    await origSaveSubcat(catKey);
+    window._closeBudgetCatModal();
+    renderPage();
+  };
+  // Patch cancel buttons
+  const origCancelEditCat=window.cancelEditCat;
+  window.cancelEditCat=()=>{origCancelEditCat();window._closeBudgetCatModal();};
+  const origCancelSubcat=window.cancelSubcat;
+  window.cancelSubcat=()=>{origCancelSubcat();window._closeBudgetCatModal();};
+};
+
+window._closeBudgetCatModal=()=>{
+  const overlay=document.getElementById('budgetCatOverlay');
+  if(overlay)overlay.remove();
+  // Restore original functions
+  window.saveCat=window._origSaveCat||window.saveCat;
+  window.saveSubcat=window._origSaveSubcat||window.saveSubcat;
+  editCatKey=null;editSubcatKey=null;editSubcatCatKey=null;
+};
+
 window.bgtSaveAll=async()=>{
   // Re-validate before save
   const hasErrors=Array.from(document.querySelectorAll('.bgt-flag')).some(el=>el.style.display==='flex');
@@ -4431,7 +4516,7 @@ function renderBudgetPage(){
             ${sDraftBgt>0?`<p style="font-size:10px;color:${sOver?'var(--red)':"var(--muted)"}">Spent ${sym} ${sSpent.toFixed(2)} / ${sym} ${sDraftBgt.toFixed(2)}${sOver?' ⚠️':''}</p>`
             :`<p style="font-size:10px;color:var(--dim)">Spent ${sym} ${sSpent.toFixed(2)}</p>`}
           </div>
-          <button onclick="startEditSubcat('${key}','${sk}');S.view='categories';render()" style="padding:3px 8px;border-radius:7px;font-size:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--muted);cursor:pointer;flex-shrink:0">Edit</button>
+          <button onclick="startEditSubcatInBudget('${key}','${sk}')" style="padding:3px 8px;border-radius:7px;font-size:10px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--muted);cursor:pointer;flex-shrink:0">Edit</button>
           <button onclick="deleteSubcat('${key}','${sk}')" style="padding:3px 8px;border-radius:7px;font-size:10px;font-weight:600;border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.08);color:var(--red);cursor:pointer;flex-shrink:0">Del</button>
         </div>
         ${sDraftBgt>0?`<div class="budget-bar-track" style="margin-bottom:8px"><div class="budget-bar-fill" style="width:${sPct}%;background:${sOver?'var(--red)':sPct>80?'var(--yellow)':c.color}"></div></div>`:''}
@@ -4450,7 +4535,7 @@ function renderBudgetPage(){
           ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid ${isExpanded?'rgba(108,99,255,0.4)':"var(--border)"};background:${isExpanded?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.05)"};color:${isExpanded?'var(--accent)':"var(--muted)"};cursor:pointer">
             ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:rgba(108,99,255,0.2);border-radius:999px;padding:1px 6px;color:var(--accent)">${subcatBudgetCount}</span>`:''}
           </button>`:''}
-          <button onclick="startEditCat('${key}');S.view='categories';render()" style="padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--muted);cursor:pointer">Edit</button>
+          <button onclick="startEditCatInBudget('${key}')" style="padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--muted);cursor:pointer">Edit</button>
           ${key!=='other'?`<button onclick="deleteCat('${key}')" style="padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.08);color:var(--red);cursor:pointer">Del</button>`:''}
         </div>
       </div>
@@ -4466,7 +4551,7 @@ function renderBudgetPage(){
       </div>
       ${subcatRows}
       ${isExpanded?`<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">
-        <button onclick="startAddSubcat('${key}');S.view='categories';render()" style="padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;color:var(--accent2);background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.2);cursor:pointer">+ Add Subcategory</button>
+        <button onclick="startAddSubcatInBudget('${key}')" style="padding:5px 12px;border-radius:8px;font-size:11px;font-weight:600;color:var(--accent2);background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.2);cursor:pointer">+ Add Subcategory</button>
       </div>`:''}
     </div>`;
   }).join('');
@@ -4519,7 +4604,7 @@ function renderBudgetPage(){
     </div>
     ${catRows}
     <p style="font-size:12px;color:var(--dim);margin-top:8px;text-align:center">${isAll?'All Ledgers budget is personal — only you see it':"Ledger budget shared with all ledger members"}</p>
-    <button onclick="startEditCat('__new__');S.view='categories';render()" style="width:100%;margin-top:12px;padding:13px;border-radius:14px;background:rgba(108,99,255,0.08);color:var(--accent);font-size:14px;font-weight:600;border:1px solid rgba(108,99,255,0.2);cursor:pointer">➕ Add New Category</button>
+    <button onclick="startEditCatInBudget('__new__')" style="width:100%;margin-top:12px;padding:13px;border-radius:14px;background:rgba(108,99,255,0.08);color:var(--accent);font-size:14px;font-weight:600;border:1px solid rgba(108,99,255,0.2);cursor:pointer">➕ Add New Category</button>
     <!-- Floating Save button -->
     <button id="bgt-float-save" onclick="bgtSaveAll()" style="position:fixed;bottom:calc(80px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:calc(100% - 44px);max-width:386px;z-index:60;display:${window._bgtDirty?'flex':"none"};padding:16px;border-radius:16px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:var(--font-ui);align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 28px rgba(108,99,255,0.45)">
       💾 Save Budget
