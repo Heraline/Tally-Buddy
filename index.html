@@ -4532,9 +4532,9 @@ function renderBudgetPage(){
         <span style="font-size:22px;display:flex;align-items:center;justify-content:center">${renderCatIcon(c.icon,22,true)}</span>
         <div style="flex:1;min-width:0"><p style="font-size:14px;font-weight:600">${c.label}</p>${catStatusLine}</div>
         <div style="display:flex;gap:5px;flex-shrink:0;align-items:center">
-          ${hasSubcats?`<button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid ${isExpanded?'rgba(108,99,255,0.4)':"var(--border)"};background:${isExpanded?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.05)"};color:${isExpanded?'var(--accent)':"var(--muted)"};cursor:pointer">
+          <button onclick="toggleBudgetCat('${key}')" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:700;border:1px solid ${isExpanded?'rgba(108,99,255,0.4)':"var(--border)"};background:${isExpanded?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.05)"};color:${isExpanded?'var(--accent)':"var(--muted)"};cursor:pointer">
             ${isExpanded?'▲':'▼'} Subcats${subcatBudgetCount>0?` <span style="background:rgba(108,99,255,0.2);border-radius:999px;padding:1px 6px;color:var(--accent)">${subcatBudgetCount}</span>`:''}
-          </button>`:''}
+          </button>
           <button onclick="startEditCatInBudget('${key}')" style="padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid var(--border);background:rgba(255,255,255,0.05);color:var(--muted);cursor:pointer">Edit</button>
           ${key!=='other'?`<button onclick="deleteCat('${key}')" style="padding:4px 9px;border-radius:8px;font-size:11px;font-weight:600;border:1px solid rgba(255,107,107,0.2);background:rgba(255,107,107,0.08);color:var(--red);cursor:pointer">Del</button>`:''}
         </div>
