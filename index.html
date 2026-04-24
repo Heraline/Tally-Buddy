@@ -4609,7 +4609,21 @@ function renderCatBudgetPage(){
   const budgets=S.budgets||{};
   if(!window._bgtDirty){
     window._bgtDraft={};
-    Object.entries(budgets).forEach(([k,v])=>{window._bgtDraft[k]=v>0?String(v):'';});
+    // Load category budgets
+    Object.entries(budgets).forEach(([k,v])=>{
+      if(typeof v==='number'){
+        window._bgtDraft[k]=v>0?String(v):'';
+      } else if(typeof v==='object'&&v!==null){
+        // subcategory budgets stored as nested object
+        Object.entries(v).forEach(([sk,sv])=>{
+          if(typeof sv==='number'&&sv>0){
+            window._bgtDraft[k+'__'+sk]=String(sv);
+          }
+        });
+        // also store parent if exists
+        if(v._total!=null) window._bgtDraft[k]=v._total>0?String(v._total):'';
+      }
+    });
   }
 
   // Compute spending per category
@@ -4645,11 +4659,25 @@ function renderCatBudgetPage(){
       ${subcatEntries.length>0?`<div style="display:flex;flex-direction:column;gap:5px;margin-bottom:10px">
         ${subcatEntries.map(([sk,sv])=>{
           const lbl=getSubcatLabel(sv);const ic=getSubcatIcon(sv);
-          return`<div style="display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border)">
-            ${ic?`<span style="font-size:15px;display:flex;align-items:center;justify-content:center;width:22px;height:22px">${renderCatIcon(ic,16,true)}</span>`:'<span style="width:22px;height:22px;opacity:0.3;display:flex;align-items:center;justify-content:center">•</span>'}
-            <span style="flex:1;font-size:12px;font-weight:500">${lbl}</span>
-            <button class="edit-btn" style="font-size:10px;padding:3px 8px" onclick="startEditSubcat('${key}','${sk}');S.view='categories';render()">Edit</button>
-            <button class="delete-btn" style="font-size:10px;padding:3px 8px" onclick="deleteSubcat('${key}','${sk}')">Del</button>
+          const scBgtKey=key+'__'+sk;
+          const scBgt=parseFloat(window._bgtDraft[scBgtKey])||0;
+          const scSpent=catSpent[key+'__'+sk]||0;
+          return`<div style="padding:8px 10px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:4px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              ${ic?`<span style="font-size:15px;display:flex;align-items:center;justify-content:center;width:22px;height:22px">${renderCatIcon(ic,16,true)}</span>`:'<span style="width:22px;height:22px;opacity:0.3;display:flex;align-items:center;justify-content:center">•</span>'}
+              <span style="flex:1;font-size:12px;font-weight:500">${lbl}</span>
+              <button class="edit-btn" style="font-size:10px;padding:3px 8px" onclick="startEditSubcat('${key}','${sk}');S.view='categories';render()">Edit</button>
+              <button class="delete-btn" style="font-size:10px;padding:3px 8px" onclick="deleteSubcat('${key}','${sk}')">Del</button>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span style="font-size:11px;color:var(--muted)">${cur.symbol}</span>
+              <input class="fw-input cb-bgt-input" data-cat="${scBgtKey}" type="number" inputmode="decimal" placeholder="Subcategory budget..."
+                value="${window._bgtDraft[scBgtKey]||''}"
+                style="flex:1;margin:0;font-size:12px;padding:7px 10px"
+                oninput="window._bgtDirty=true;window._bgtDraft['${scBgtKey}']=this.value;updateCbBgtPreview('${scBgtKey}',this.value,${scSpent})">
+              ${scSpent>0?`<span style="font-size:10px;color:var(--muted);white-space:nowrap">spent ${cur.symbol}${scSpent.toFixed(2)}</span>`:''}
+            </div>
+            <div id="cb-preview-${scBgtKey}"></div>
           </div>`;
         }).join('')}
       </div>`:''}
@@ -4726,10 +4754,13 @@ window.saveCatBudgets=async()=>{
   const up={};
   Object.entries(window._bgtDraft||{}).forEach(([k,v])=>{
     const n=parseFloat(v)||0;
-    up[path+'/'+k]=n>0?n:null;
+    // Replace __ with / for Firebase path (subcat keys are key__sk)
+    const fbKey=k.replace('__','/');
+    up[path+'/'+fbKey]=n>0?n:null;
   });
   await update(ref(db),up);
   window._bgtDirty=false;
+  window._bgtDraft={};
   toast('✓ Budgets saved');
 };
 
