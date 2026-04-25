@@ -1195,9 +1195,7 @@ function renderNav(){
   const unread=unreadCount();
   nav.innerHTML=`
     <button class="nav-btn ${view==='home'?'active':''}" onclick="goHome('transactions')"><span class="nav-icon">🏠</span><span>Today</span></button>
-    <button class="nav-btn ${view==='calendar'?'active':''}" onclick="goCalendar()"><span class="nav-icon">📅</span><span>Calendar</span></button>
     <button class="fab" onclick="goAdd()">+</button>
-    <button class="nav-btn ${view==='stats'?'active':''}" onclick="goStats()"><span class="nav-icon">📊</span><span>Stats</span></button>
     <button class="nav-btn ${view==='settings'?'active':''}" onclick="goSettings()"><span class="nav-icon">⚙️</span><span>Setting</span></button>`;
 }
 function renderPage(){
