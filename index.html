@@ -4566,10 +4566,10 @@ function renderBudgetPage(){
     <h2 style="font-size:24px;font-weight:700;margin-bottom:4px">Budget</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Set monthly limits — edit any field and tap Save when done.</p>
     ${ledgerContextBadge()}
-    ${!S.totalView?`<div style="display:flex;gap:8px;margin-bottom:18px">
-      <button id="scopeLedger" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${!isAll?'var(--accent)':"var(--border)"};background:${!isAll?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${!isAll?'var(--accent)':"var(--muted)"}">📒 This Ledger</button>
-      <button id="scopeAll" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${isAll?'var(--accent)':"var(--border)"};background:${isAll?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${isAll?'var(--accent)':"var(--muted)"}">🌐 All Ledgers</button>
-    </div>`:"<div style=\"margin-bottom:18px\"><div style=\"display:inline-flex;align-items:center;gap:8px;background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:12px;padding:8px 14px\"><span style=\"font-size:14px\">🌐</span><span style=\"font-size:13px;font-weight:700;color:var(--accent)\">All Ledgers Budget</span></div></div>"}
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      ${!S.totalView?`<button id="scopeLedger" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${!isAll?'var(--accent)':"var(--border)"};background:${!isAll?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${!isAll?'var(--accent)':"var(--muted)"}">📒 This Ledger</button>`:''}
+      <button id="scopeAll" style="flex:1;padding:10px;border-radius:12px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid ${isAll||S.totalView?'var(--accent)':"var(--border)"};background:${isAll||S.totalView?'rgba(108,99,255,0.15)':"rgba(255,255,255,0.04)"};color:${isAll||S.totalView?'var(--accent)':"var(--muted)"}">🌐 All Ledgers</button>
+    </div>
     <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(108,99,255,0.1);border:1px solid rgba(108,99,255,0.25);border-radius:16px;padding:12px 16px;margin-bottom:20px">
       <button id="budgetPrevBtn" style="width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.08);border:none;color:var(--text);font-size:20px;cursor:pointer">‹</button>
       <div style="text-align:center">
