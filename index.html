@@ -1765,7 +1765,7 @@ function renderHome(){
     <!-- LEDGER SELECTOR PILL -->
     <div style="padding:0 20px;margin-bottom:16px;display:flex;align-items:center;gap:8px">
       <div style="display:inline-flex;align-items:center;background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:999px;padding:5px">
-        <button onclick="${S.totalView?'':'openLedgerIconModal()'}" style="font-size:18px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.10);border:none;display:flex;align-items:center;justify-content:center" id="headerLedgerIcon">${S.totalView?'🌐':linfo.icon||'🏠'}</button>
+        <button onclick="${S.totalView?'':'openLedgerIconModal()'}" style="font-size:18px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,0.10);border:none;display:flex;align-items:center;justify-content:center;overflow:hidden" id="headerLedgerIcon">${S.totalView?'🌐':linfo.customIcon?renderCatIcon(linfo.customIcon,24,true):linfo.icon||'🏠'}</button>
         <button onclick="openLedgerPicker()" style="background:none;border:none;padding:3px 10px 3px 8px;font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:4px;max-width:110px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
           ${S.totalView?'All Ledgers':linfo.name||'Ledger'} <span style="color:var(--dim);font-size:11px">⌄</span>
         </button>
@@ -5602,7 +5602,7 @@ function renderSettings(){
       <p class="label" style="margin-bottom:12px">Ledger Name</p>
       <div class="surface" style="padding:14px 16px;border-radius:14px">
         <div style="display:flex;align-items:center;gap:10px">
-          <button ${isOwner?`onclick="openLedgerIconModal()"`:'disabled'} id="ledgerIconBtn" style="font-size:26px;background:rgba(255,255,255,0.07);border:2px solid rgba(108,99,255,0.3);border-radius:13px;width:46px;height:46px;flex-shrink:0;cursor:${isOwner?'pointer':'default'};transition:all 0.15s" title="Change icon">${linfo.icon||'🏠'}</button>
+          <button ${isOwner?`onclick="openLedgerIconModal()"`:'disabled'} id="ledgerIconBtn" style="background:rgba(255,255,255,0.07);border:2px solid rgba(108,99,255,0.3);border-radius:13px;width:46px;height:46px;flex-shrink:0;cursor:${isOwner?'pointer':'default'};transition:all 0.15s;display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden" title="Change icon">${linfo.customIcon?renderCatIcon(linfo.customIcon,32,true):linfo.icon||'🏠'}</button>
           ${isOwner
             ? `<input id="ledgerNameInput" class="fw-input" type="text" value="${(linfo.name||'').replace(/"/g,'&quot;')}" placeholder="Ledger name" style="flex:1;margin:0">`
             : `<p style="font-size:15px;font-weight:700;flex:1">${linfo.name||'Ledger'}</p>`
@@ -5804,20 +5804,36 @@ window.saveLedgerName=async()=>{
 
 window.openLedgerIconModal=()=>{
   const lid=S.activeLedgerId;
-  const curIcon=S.ledgers[lid]?.icon||'🏠';
-  const curIdx=LEDGER_ICONS.indexOf(curIcon);
-  window._selLedgerIcon=curIdx>=0?curIdx:0;
-  const iconBtns=LEDGER_ICONS.map((ic,i)=>`<button onclick="pickLedgerIconModal(${i})" id="lim${i}" style="width:48px;height:48px;border-radius:13px;font-size:24px;background:rgba(255,255,255,0.06);border:2px solid ${i===(curIdx>=0?curIdx:0)?'var(--accent)':'transparent'};transition:all 0.15s">${ic}</button>`).join('');
+  const cur=S.ledgers[lid]||{};
+  // Initialise state from current icon
+  _ledgerIconMode='emoji';_ledgerIconEmoji=0;_ledgerIconImage=-1;_ledgerCustomIcon=null;_ledgerCroppedIcon=null;_ledgerCropImg=null;_ledgerCropZoom=1;_ledgerCropOffX=0;_ledgerCropOffY=0;
+  if(cur.customIcon){
+    _ledgerIconMode='custom';_ledgerCroppedIcon=cur.customIcon;_ledgerCustomIcon=cur.customIcon;
+    const img=new Image();img.onload=()=>{_ledgerCropImg=img;};img.src=cur.customIcon;
+  } else {
+    const imgIdx=cur.icon?CAT_IMAGE_ICONS.findIndex(x=>x.url===cur.icon):-1;
+    if(imgIdx>=0){_ledgerIconMode='image';_ledgerIconImage=imgIdx;}
+    else{_ledgerIconMode='emoji';const ei=CAT_ICONS.indexOf(cur.icon||'🏠');_ledgerIconEmoji=ei>=0?ei:0;}
+  }
   const modal=document.getElementById('modalContainer');
   modal.innerHTML=`<div class="modal-overlay" onclick="if(event.target===this)closeModal()">
     <div class="modal-sheet">
       <div class="modal-handle"></div>
-      <p style="font-size:18px;font-weight:700;margin-bottom:6px">Ledger Icon</p>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:18px">Choose an icon for this ledger</p>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-start;margin-bottom:24px">${iconBtns}</div>
-      <button class="btn-primary" style="padding:14px" onclick="saveLedgerIcon()">Save Icon</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
+        <div id="ledgerIconPreview" style="width:48px;height:48px;border-radius:14px;background:rgba(108,99,255,0.15);display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">${renderCatIcon(_ledgerCurrentIcon(),28,true)}</div>
+        <div>
+          <p style="font-size:18px;font-weight:700">Ledger Icon</p>
+          <p style="font-size:12px;color:var(--muted)">Choose an icon for ${cur.name||'this ledger'}</p>
+        </div>
+      </div>
+      ${buildIconPicker('ledger')}
+      <button class="btn-primary" style="padding:14px;margin-top:18px" onclick="saveLedgerIcon()">Save Icon</button>
     </div>
   </div>`;
+  // attach crop listeners if in custom mode
+  if(_ledgerIconMode==='custom'){
+    requestAnimationFrame(()=>{_attachIconCropListeners('ledger',()=>({img:_ledgerCropImg,zoom:_ledgerCropZoom,offX:_ledgerCropOffX,offY:_ledgerCropOffY,dragging:_ledgerCropDragging,lastX:_ledgerCropLastX,lastY:_ledgerCropLastY,lastDist:_ledgerCropLastDist}),s=>{if(s.img!==undefined)_ledgerCropImg=s.img;if(s.zoom!==undefined)_ledgerCropZoom=s.zoom;if(s.offX!==undefined)_ledgerCropOffX=s.offX;if(s.offY!==undefined)_ledgerCropOffY=s.offY;if(s.dragging!==undefined)_ledgerCropDragging=s.dragging;if(s.lastX!==undefined)_ledgerCropLastX=s.lastX;if(s.lastY!==undefined)_ledgerCropLastY=s.lastY;if(s.lastDist!==undefined)_ledgerCropLastDist=s.lastDist;});_drawIconCrop('ledger',document.getElementById('ledgerCropCanvas'),_ledgerCropImg,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);});
+  }
 };
 
 window.pickLedgerIconModal=i=>{
@@ -5827,18 +5843,28 @@ window.pickLedgerIconModal=i=>{
 };
 
 window.saveLedgerIcon=async()=>{
-  const i=window._selLedgerIcon??0;
-  const icon=LEDGER_ICONS[i];
   const lid=S.activeLedgerId;
-  await update(ref(db,'ledgers/'+lid),{icon});
+  let icon=null,customIcon=null;
+  if(_ledgerIconMode==='custom'&&(_ledgerCroppedIcon||_ledgerCustomIcon)){
+    customIcon=_ledgerCroppedIcon||_ledgerCustomIcon;
+    icon=customIcon;
+  } else if(_ledgerIconMode==='image'&&_ledgerIconImage>=0){
+    icon=CAT_IMAGE_ICONS[_ledgerIconImage].url;
+  } else {
+    icon=CAT_ICONS[Math.max(0,_ledgerIconEmoji)]||'🏠';
+  }
+  const up={icon};
+  if(customIcon)up.customIcon=customIcon; else up.customIcon=null;
+  await update(ref(db,'ledgers/'+lid),up);
   await update(ref(db,'userLedgers/'+S.user.uid+'/'+lid),{icon});
-  if(S.ledgers[lid])S.ledgers[lid].icon=icon;
-  window._selLedgerIcon=null;
+  if(S.ledgers[lid]){S.ledgers[lid].icon=icon;if(customIcon)S.ledgers[lid].customIcon=customIcon;else delete S.ledgers[lid].customIcon;}
   toast('✓ Icon updated');
   closeModal();
   // update both the settings preview and the home header icon
-  const btn=document.getElementById('ledgerIconBtn');if(btn)btn.textContent=icon;
-  const hdr=document.getElementById('headerLedgerIcon');if(hdr)hdr.textContent=icon;
+  const btn=document.getElementById('ledgerIconBtn');
+  if(btn){if(customIcon)btn.innerHTML=renderCatIcon(customIcon,28,true);else btn.textContent=icon;}
+  const hdr=document.getElementById('headerLedgerIcon');
+  if(hdr){if(customIcon)hdr.innerHTML=renderCatIcon(customIcon,18,true);else hdr.textContent=icon;}
 };
 
 // ── EDIT GUEST MODAL ──
@@ -6086,6 +6112,7 @@ function _buildIconPickerHTML(ns,iconMode,iconEmoji,iconImage,customIcon,cropped
 function buildIconPicker(ns){
   if(ns==='pm') return _buildIconPickerHTML('pm',_pmIconMode,_pmIconEmoji,_pmIconImage,_pmCustomIcon,_pmCroppedIcon,_pmCropZoom);
   if(ns==='asset') return _buildIconPickerHTML('asset',_assetIconMode,_assetIconEmoji,_assetIconImage,_assetCustomIcon,_assetCroppedIcon,_assetCropZoom);
+  if(ns==='ledger') return _buildIconPickerHTML('ledger',_ledgerIconMode,_ledgerIconEmoji,_ledgerIconImage,_ledgerCustomIcon,_ledgerCroppedIcon,_ledgerCropZoom);
   return '';
 }
 
@@ -7379,6 +7406,53 @@ window.confirmIconCrop_asset=()=>{
   const hint=document.querySelector('#assetCustomGrid p');if(hint){hint.style.color='var(--green)';hint.textContent='✓ Cropped & ready';}
 };
 window.clearIconCustom_asset=()=>{_assetCustomIcon=null;_assetCroppedIcon=null;_assetCropImg=null;_assetCropZoom=1;renderPage();};
+
+// ── Ledger icon picker state ──
+let _ledgerIconMode='emoji';
+let _ledgerIconEmoji=0;
+let _ledgerIconImage=-1;
+let _ledgerCustomIcon=null;
+let _ledgerCroppedIcon=null;
+let _ledgerCropZoom=1,_ledgerCropOffX=0,_ledgerCropOffY=0,_ledgerCropImg=null,_ledgerCropDragging=false,_ledgerCropLastX=0,_ledgerCropLastY=0,_ledgerCropLastDist=0;
+
+function _ledgerCurrentIcon(){
+  if(_ledgerIconMode==='custom'&&_ledgerCroppedIcon)return _ledgerCroppedIcon;
+  if(_ledgerIconMode==='custom'&&_ledgerCustomIcon)return _ledgerCustomIcon;
+  if(_ledgerIconMode==='image'&&_ledgerIconImage>=0&&_ledgerIconImage<CAT_IMAGE_ICONS.length)return CAT_IMAGE_ICONS[_ledgerIconImage].url;
+  return CAT_ICONS[Math.max(0,_ledgerIconEmoji)]||'🏠';
+}
+
+window.setIconMode_ledger=mode=>{
+  _ledgerIconMode=mode;
+  document.querySelectorAll('.ledger-mode-btn').forEach(b=>{const a=b.dataset.mode===mode;b.style.background=a?'rgba(108,99,255,0.8)':'transparent';b.style.color=a?'#fff':'var(--dim)';});
+  ['Emoji','Image','Custom'].forEach(n=>{const el=document.getElementById('ledger'+n+'Grid');if(el)el.style.display=n.toLowerCase()===mode?(n==='Image'?'grid':n==='Custom'?'block':'flex'):'none';});
+  if(mode==='Custom')requestAnimationFrame(()=>{_attachIconCropListeners('ledger',()=>({img:_ledgerCropImg,zoom:_ledgerCropZoom,offX:_ledgerCropOffX,offY:_ledgerCropOffY,dragging:_ledgerCropDragging,lastX:_ledgerCropLastX,lastY:_ledgerCropLastY,lastDist:_ledgerCropLastDist}),s=>{if(s.img!==undefined)_ledgerCropImg=s.img;if(s.zoom!==undefined)_ledgerCropZoom=s.zoom;if(s.offX!==undefined)_ledgerCropOffX=s.offX;if(s.offY!==undefined)_ledgerCropOffY=s.offY;if(s.dragging!==undefined)_ledgerCropDragging=s.dragging;if(s.lastX!==undefined)_ledgerCropLastX=s.lastX;if(s.lastY!==undefined)_ledgerCropLastY=s.lastY;if(s.lastDist!==undefined)_ledgerCropLastDist=s.lastDist;});_drawIconCrop('ledger',document.getElementById('ledgerCropCanvas'),_ledgerCropImg,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);});
+};
+window.pickIconEmoji_ledger=i=>{_ledgerIconEmoji=i;_ledgerIconImage=-1;document.querySelectorAll('.ledger-ic-btn').forEach(b=>b.style.borderColor='transparent');const btn=document.querySelectorAll('.ledger-ic-btn')[i];if(btn)btn.style.borderColor='var(--accent)';};
+window.pickIconImage_ledger=i=>{_ledgerIconImage=i;_ledgerIconEmoji=-1;document.querySelectorAll('.ledger-img-btn').forEach(b=>{b.style.borderColor='transparent';b.style.background='rgba(255,255,255,0.04)';});const btn=document.querySelectorAll('.ledger-img-btn')[i];if(btn){btn.style.borderColor='var(--accent)';btn.style.background='rgba(108,99,255,0.15)';}};
+window.handleIconFileUpload_ledger=e=>{
+  const file=e.target.files?.[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    _ledgerCustomIcon=ev.target.result;_ledgerCroppedIcon=null;_ledgerCropZoom=1;_ledgerCropOffX=0;_ledgerCropOffY=0;
+    const img=new Image();img.onload=()=>{_ledgerCropImg=img;const s=200/Math.min(img.naturalWidth,img.naturalHeight);_ledgerCropZoom=Math.max(1,s);_ledgerCropOffX=(200-img.naturalWidth*_ledgerCropZoom)/2;_ledgerCropOffY=(200-img.naturalHeight*_ledgerCropZoom)/2;const r=_clampIconCrop(img,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);_ledgerCropOffX=r.offX;_ledgerCropOffY=r.offY;
+    // Re-render the modal
+    document.getElementById('ledgerCustomGrid').innerHTML=_buildIconPickerHTML('ledger',_ledgerIconMode,_ledgerIconEmoji,_ledgerIconImage,_ledgerCustomIcon,_ledgerCroppedIcon,_ledgerCropZoom).match(/id="ledgerCustomGrid"[^>]*>([\s\S]*?)<\/div>/)?.[1]||'';
+    requestAnimationFrame(()=>{_attachIconCropListeners('ledger',()=>({img:_ledgerCropImg,zoom:_ledgerCropZoom,offX:_ledgerCropOffX,offY:_ledgerCropOffY,dragging:_ledgerCropDragging,lastX:_ledgerCropLastX,lastY:_ledgerCropLastY,lastDist:_ledgerCropLastDist}),s2=>{if(s2.img!==undefined)_ledgerCropImg=s2.img;if(s2.zoom!==undefined)_ledgerCropZoom=s2.zoom;if(s2.offX!==undefined)_ledgerCropOffX=s2.offX;if(s2.offY!==undefined)_ledgerCropOffY=s2.offY;if(s2.dragging!==undefined)_ledgerCropDragging=s2.dragging;if(s2.lastX!==undefined)_ledgerCropLastX=s2.lastX;if(s2.lastY!==undefined)_ledgerCropLastY=s2.lastY;if(s2.lastDist!==undefined)_ledgerCropLastDist=s2.lastDist;});_drawIconCrop('ledger',document.getElementById('ledgerCropCanvas'),_ledgerCropImg,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);});};img.src=ev.target.result;
+  };reader.readAsDataURL(file);
+};
+window.updateIconCropZoom_ledger=val=>{_ledgerCropZoom=parseFloat(val);const r=_clampIconCrop(_ledgerCropImg,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);_ledgerCropOffX=r.offX;_ledgerCropOffY=r.offY;_drawIconCrop('ledger',document.getElementById('ledgerCropCanvas'),_ledgerCropImg,_ledgerCropZoom,_ledgerCropOffX,_ledgerCropOffY);};
+window.confirmIconCrop_ledger=()=>{
+  const off=document.createElement('canvas');off.width=200;off.height=200;
+  const ctx=off.getContext('2d');if(_ledgerCropImg)ctx.drawImage(_ledgerCropImg,_ledgerCropOffX,_ledgerCropOffY,_ledgerCropImg.naturalWidth*_ledgerCropZoom,_ledgerCropImg.naturalHeight*_ledgerCropZoom);
+  _ledgerCroppedIcon=off.toDataURL('image/png');
+  const hint=document.querySelector('#ledgerCustomGrid p');if(hint){hint.style.color='var(--green)';hint.textContent='✓ Cropped & ready';}
+};
+window.clearIconCustom_ledger=()=>{_ledgerCustomIcon=null;_ledgerCroppedIcon=null;_ledgerCropImg=null;_ledgerCropZoom=1;
+  // refresh custom grid
+  const grid=document.getElementById('ledgerCustomGrid');
+  if(grid)grid.innerHTML=`<label for="ledgerFileInput" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px 16px;border-radius:16px;border:2px dashed rgba(108,99,255,0.4);background:rgba(108,99,255,0.05);cursor:pointer"><span style="font-size:36px">📁</span><p style="font-size:14px;font-weight:600;color:var(--accent)">Tap to upload icon</p><p style="font-size:11px;color:var(--dim)">SVG, PNG or JPG · Any size</p></label><input id="ledgerFileInput" type="file" accept="image/svg+xml,image/png,image/jpeg,image/webp" style="display:none" onchange="handleIconFileUpload_ledger(event)">`;
+};
 
 let selAssetType=0;
 function renderAssetForm(){
