@@ -240,15 +240,14 @@
   .asset-balance{font-family:var(--font-num);font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 4px}
   /* ── Summary card carousel ── */
   .summary-carousel-wrap{margin:14px 20px 0;position:relative}
-  .summary-carousel-track{display:flex;gap:0;overflow:hidden;border-radius:22px}
-  .summary-carousel-slide{flex:0 0 100%;min-width:0}
+  .summary-carousel-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0}
+  .summary-carousel-track::-webkit-scrollbar{display:none}
+  .summary-carousel-slide{flex:0 0 100%;scroll-snap-align:start;min-width:0}
   .carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
   .carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all 0.25s;cursor:pointer}
   .carousel-dot.active{background:var(--accent);width:18px;border-radius:3px}
   /* Asset overview card (matches .card .balance-card style) */
   .asset-overview-card{background:var(--bg3);border:1px solid rgba(78,205,196,0.25);border-radius:22px;box-shadow:0 0 40px rgba(78,205,196,0.06),0 8px 32px rgba(0,0,0,0.12);padding:20px;height:100%}
-  /* Recurring cards */
-  .recur-card{display:flex;align-items:center;gap:13px;padding:14px 16px;border-radius:15px;margin-bottom:8px}
   .recur-freq-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(78,205,196,0.15);color:var(--accent2);letter-spacing:0.05em}
   /* Profile edit picker */
   .av-pick-btn{width:42px;height:42px;border-radius:12px;font-size:21px;background:rgba(255,255,255,0.06);border:2px solid transparent;transition:all 0.15s;cursor:pointer}
@@ -5921,56 +5920,35 @@ window.setColorMode=async mode=>{
 window.goAppearance=()=>{S.view='appearance';render();};
 window.goSearch=()=>{S.searchQuery='';S.view='search';render();};
 
-// ── Summary Card Carousel ──
+// ── Summary Card Carousel — dot sync via scroll events ──
+// We use CSS scroll-snap for the swipe; this just keeps dots in sync.
+window.summaryCarouselGo=function(idx){
+  const track=document.getElementById('summaryCarouselTrack');
+  if(!track)return;
+  const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
+  track.scrollTo({left:idx*slideW,behavior:'smooth'});
+};
+
+function _attachCarouselDots(){
+  const track=document.getElementById('summaryCarouselTrack');
+  const dots=document.getElementById('summaryCarouselDots');
+  if(!track||!dots)return;
+  // Update dots on scroll
+  track.addEventListener('scroll',function(){
+    const idx=Math.round(track.scrollLeft/(track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth));
+    dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
+  },{passive:true});
+}
+
+// Watch #mainPage for DOM changes and re-attach carousel listeners
 (function(){
-  let _carIdx=0;
-  let _carTouchX=0;
-  let _carDragging=false;
-
-  function _updateCarousel(idx,track,dots){
-    if(!track)return;
-    track.style.transform=`translateX(${-idx*100}%)`;
-    track.style.transition='transform 0.32s cubic-bezier(0.4,0,0.2,1)';
-    if(dots){
-      dots.querySelectorAll('.carousel-dot').forEach((d,i)=>{
-        d.classList.toggle('active',i===idx);
-      });
-    }
-    _carIdx=idx;
+  const mo=new MutationObserver(()=>{ _attachCarouselDots(); });
+  function tryObserve(){
+    const pg=document.getElementById('mainPage');
+    if(pg){mo.observe(pg,{childList:true,subtree:false});_attachCarouselDots();}
+    else setTimeout(tryObserve,200);
   }
-
-  window.summaryCarouselGo=function(idx){
-    const track=document.getElementById('summaryCarouselTrack');
-    const dots=document.getElementById('summaryCarouselDots');
-    _updateCarousel(idx,track,dots);
-  };
-
-  // Attach touch/mouse swipe listeners after each render
-  const _origRenderPage=window.renderPage;
-  window.renderPage=function(){
-    _origRenderPage&&_origRenderPage.apply(this,arguments);
-    _carIdx=0; // reset to slide 1 on re-render
-    requestAnimationFrame(()=>{
-      const wrap=document.getElementById('summaryCarouselWrap');
-      const track=document.getElementById('summaryCarouselTrack');
-      if(!wrap||!track)return;
-      // Ensure no initial transform
-      track.style.transform='translateX(0)';
-      track.style.transition='none';
-
-      // Touch events
-      wrap.ontouchstart=e=>{_carTouchX=e.touches[0].clientX;_carDragging=true;};
-      wrap.ontouchmove=e=>{if(!_carDragging)return;e.stopPropagation();};
-      wrap.ontouchend=e=>{
-        if(!_carDragging)return;_carDragging=false;
-        const dx=e.changedTouches[0].clientX-_carTouchX;
-        const slides=track.querySelectorAll('.summary-carousel-slide');
-        const max=slides.length-1;
-        if(dx<-40&&_carIdx<max)_updateCarousel(_carIdx+1,track,document.getElementById('summaryCarouselDots'));
-        else if(dx>40&&_carIdx>0)_updateCarousel(_carIdx-1,track,document.getElementById('summaryCarouselDots'));
-      };
-    });
-  };
+  tryObserve();
 })();
 window.setSplitsTab=tab=>{S.splitsTab=tab;renderPage();};
 window.setSplitsHistFilter=f=>{S.splitsHistFilter=f;renderPage();};
