@@ -1381,7 +1381,6 @@ function renderHome(){
       <!-- HEADER -->
       <div style="padding:52px 20px 0;display:flex;justify-content:space-between;align-items:flex-start">
         <div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:2px">${new Date().toLocaleDateString('en-MY',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</p>
           <p style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Today</p>
         </div>
         <div style="display:flex;gap:8px;align-items:center">
@@ -1393,7 +1392,6 @@ function renderHome(){
           </div>
           <button onclick="goSearch()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">🔍</button>
         <button onclick="goNotifications()" style="position:relative;background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">${unreadCount()>0?`<span style="position:absolute;top:4px;right:4px;background:var(--red);border-radius:999px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 2px">${unreadCount()>9?'9+':unreadCount()}</span>`:''}🔔</button>
-        <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">⚙️</button>
         </div>
       </div>
 
@@ -1710,10 +1708,9 @@ function renderHome(){
 
   return`<div class="fade-in" style="padding-bottom:calc(80px + env(safe-area-inset-bottom))">
 
-    <!-- TOP HEADER: date + ledger name -->
+    <!-- TOP HEADER: ledger name -->
     <div style="padding:52px 20px 0;display:flex;justify-content:space-between;align-items:flex-start">
       <div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:2px">${new Date().toLocaleDateString('en-MY',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</p>
         <p style="font-size:22px;font-weight:700;letter-spacing:-0.02em">Today</p>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
@@ -1725,7 +1722,6 @@ function renderHome(){
         </div>
         <button onclick="goSearch()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">🔍</button>
         <button onclick="goNotifications()" style="position:relative;background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">${unreadCount()>0?`<span style="position:absolute;top:4px;right:4px;background:var(--red);border-radius:999px;min-width:14px;height:14px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;color:#fff;padding:0 2px">${unreadCount()>9?'9+':unreadCount()}</span>`:''}🔔</button>
-        <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 10px;font-size:16px">⚙️</button>
       </div>
     </div>
 
