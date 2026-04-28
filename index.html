@@ -178,7 +178,7 @@
   .nav-island{display:flex;align-items:center;gap:6px;background:rgba(22,22,36,0.85);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.10);border-radius:999px;padding:8px 12px;box-shadow:0 8px 32px rgba(0,0,0,0.45),0 2px 8px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.08);pointer-events:all}
   .nav-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;color:var(--dim);font-size:10px;font-weight:600;padding:6px 14px;border-radius:999px;transition:all 0.2s;border:none;cursor:pointer}
   .nav-btn.active{background:rgba(108,99,255,0.18);color:var(--accent)}
-  .nav-btn .nav-icon{font-size:20px;line-height:1}
+  .nav-btn .nav-icon{display:flex;align-items:center;justify-content:center;line-height:1}
   .fab{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));font-size:26px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 20px rgba(108,99,255,0.5),0 2px 8px rgba(0,0,0,0.3);color:#fff;border:none;cursor:pointer;pointer-events:all;transition:transform 0.15s,box-shadow 0.15s;flex-shrink:0}
   .fab:active{transform:scale(0.93);box-shadow:0 3px 12px rgba(108,99,255,0.4)}
   .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:100;display:flex;align-items:flex-end;justify-content:center}
@@ -1211,16 +1211,18 @@ function render(){_saveScroll();try{renderPage();}catch(e){showErr('render: '+e.
 function renderNav(){
   const nav=document.getElementById('bottomNav');if(!nav)return;
   const{view}=S;
-  const unread=unreadCount();
+  const homeIcon=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>`;
+  const settingIcon=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`;
+  const plusIcon=`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
   nav.innerHTML=`
     <div class="nav-island">
       <button class="nav-btn ${view==='home'?'active':''}" onclick="goHome('transactions')">
-        <span class="nav-icon">🏠</span>
+        <span class="nav-icon">${homeIcon}</span>
         <span>Today</span>
       </button>
-      <button class="fab" onclick="goAdd()">+</button>
+      <button class="fab" onclick="goAdd()">${plusIcon}</button>
       <button class="nav-btn ${view==='settings'?'active':''}" onclick="goSettings()">
-        <span class="nav-icon">⚙️</span>
+        <span class="nav-icon">${settingIcon}</span>
         <span>Setting</span>
       </button>
     </div>`;
