@@ -1426,19 +1426,14 @@ function renderHome(){
         <button onclick="goSearch()" style="margin-left:8px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid var(--border);font-size:16px">🔍</button>
       </div>
 
-      <!-- HERO SPEND CARD -->
-      <div style="margin:0 20px 0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(108,99,255,0.35)">
-        <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
-        <div style="position:absolute;bottom:-20px;right:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06)"></div>
-        <p style="font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">My Spend Today</p>
-        <p style="font-family:var(--font-num);font-size:38px;font-weight:700;letter-spacing:-0.03em;color:#fff;margin-bottom:14px">${fmt(spentToday)}</p>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <div style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:6px">
-            <span style="font-size:10px;color:rgba(255,255,255,0.8);font-weight:500">My Balance</span>
-            <span style="font-family:var(--font-num);font-size:13px;font-weight:700;color:#fff">RM ${Math.abs(myBalance).toFixed(2)}</span>
-          </div>
-          <div style="display:flex;gap:6px">
-            <button onclick="goSearch()" style="width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;font-size:15px;display:flex;align-items:center;justify-content:center">🔍</button>
+      <!-- SPENT TODAY (old style) -->
+      <div style="padding:8px 20px 0">
+        <p style="font-size:12px;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px">My Spend Today</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <p style="font-family:var(--font-num);font-size:42px;font-weight:700;letter-spacing:-0.03em;line-height:1">${fmt(spentToday)}</p>
+          <div style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:999px;padding:7px 16px;display:flex;align-items:center;gap:6px;flex-shrink:0">
+            <span style="font-size:11px;color:var(--muted);font-weight:500">My Balance</span>
+            <span style="font-family:var(--font-num);font-size:13px;font-weight:700;color:var(--accent2)">RM ${Math.abs(myBalance).toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -1449,145 +1444,134 @@ function renderHome(){
 
           <!-- SLIDE 1: Monthly Summary -->
           <div class="summary-carousel-slide">
-            <div class="card balance-card slide-up" style="padding:20px">
+            <div style="background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(108,99,255,0.35);color:#fff">
+              <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
+              <div style="position:absolute;bottom:-20px;right:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <p style="font-size:15px;font-weight:700">${new Date().toLocaleDateString('en-MY',{month:'long'})} · My Finance</p>
+            <p style="font-size:15px;font-weight:700;color:#fff">${new Date().toLocaleDateString('en-MY',{month:'long'})} · My Finance</p>
             <div style="display:flex;gap:8px;align-items:center">
-              <button onclick="goCalendar()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📅</button>
-              <button onclick="goStats()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📊</button>
+              <button onclick="goCalendar()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📅</button>
+              <button onclick="goStats()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📊</button>
             </div>
           </div>
 
           <!-- Expense / Income -->
           <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:14px">
             <div>
-              <p style="font-size:11px;color:var(--muted);margin-bottom:3px">My Expense</p>
-              <p style="font-family:var(--font-num);font-size:28px;font-weight:700">RM ${myExp.toFixed(2)}</p>
+              <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">My Expense</p>
+              <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:#fff">RM ${myExp.toFixed(2)}</p>
             </div>
             <div style="text-align:right">
-              <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Income</p>
-              <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:var(--accent)">RM ${myInc.toFixed(2)}</p>
+              <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">Income</p>
+              <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:rgba(255,255,255,0.95)">RM ${myInc.toFixed(2)}</p>
             </div>
           </div>
 
           <!-- Split vs Solo mini breakdown -->
           <div style="display:flex;gap:8px;margin-bottom:14px">
-            <div style="flex:1;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.18);border-radius:12px;padding:10px 12px">
-              <p style="font-size:10px;color:var(--dim);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Shared</p>
-              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:var(--accent)">RM ${mySplitExp.toFixed(2)}</p>
-              <p style="font-size:10px;color:var(--dim);margin-top:2px">÷ split portion</p>
+            <div style="flex:1;background:rgba(255,255,255,0.15);border-radius:12px;padding:10px 12px">
+              <p style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Shared</p>
+              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:#fff">RM ${mySplitExp.toFixed(2)}</p>
+              <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px">÷ split portion</p>
             </div>
-            <div style="flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:12px;padding:10px 12px">
-              <p style="font-size:10px;color:var(--dim);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Solo</p>
-              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:var(--text)">RM ${mySoloExp.toFixed(2)}</p>
-              <p style="font-size:10px;color:var(--dim);margin-top:2px">personal only</p>
+            <div style="flex:1;background:rgba(255,255,255,0.10);border-radius:12px;padding:10px 12px">
+              <p style="font-size:10px;color:rgba(255,255,255,0.7);margin-bottom:4px;letter-spacing:0.06em;text-transform:uppercase">Solo</p>
+              <p style="font-family:var(--font-num);font-size:15px;font-weight:700;color:#fff">RM ${mySoloExp.toFixed(2)}</p>
+              <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:2px">personal only</p>
             </div>
           </div>
 
-          <div style="height:1px;background:var(--border);margin-bottom:14px"></div>
+          <div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:14px"></div>
 
           <!-- Budget progress bar (All Ledgers) -->
           ${allTotalBudget>0?`
           <div style="margin-bottom:14px">
-            <div class="budget-bar-track" style="height:7px;margin-bottom:7px">
-              <div class="budget-bar-fill" style="width:${allBudgetUsedPct}%;background:${allBudgetBarColor}"></div>
+            <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.2);margin-bottom:7px;overflow:hidden">
+              <div style="height:100%;border-radius:999px;width:${allBudgetUsedPct}%;background:${allBudgetBarColor==='var(--red)'?'#ff6b6b':allBudgetBarColor==='var(--yellow)'?'#ffd93d':'rgba(255,255,255,0.9)'}"></div>
             </div>
             ${S.dailyStyle==='c'?`
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-              <span style="font-size:12px;color:var(--muted)">Remaining Budget</span>
-              <span style="font-family:var(--font-num);font-size:12px;color:${allRemaining<0?'var(--red)':'var(--accent)'}">RM ${Math.abs(allRemaining).toFixed(2)}</span>
+              <span style="font-size:12px;color:rgba(255,255,255,0.7)">Remaining Budget</span>
+              <span style="font-family:var(--font-num);font-size:12px;color:#fff;font-weight:600">RM ${Math.abs(allRemaining).toFixed(2)}</span>
             </div>
             ${allDailySafe>0?`
-            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2);border-radius:12px;padding:9px 14px">
-              <div style="display:flex;align-items:center;gap:7px">
-                <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
-                <span style="font-size:12px;color:var(--green);font-weight:600">Daily Safe Spend</span>
-              </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.12);border-radius:12px;padding:9px 14px">
+              <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600">Daily Safe Spend</span>
               <div style="display:flex;align-items:center;gap:6px">
-                <span style="font-size:10px;color:var(--dim)">${daysLeftTv}d left</span>
-                <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${allDailySafe<20?'var(--red)':allDailySafe<50?'var(--yellow)':'var(--green)'}">RM ${allDailySafe.toFixed(2)}</span>
+                <span style="font-size:10px;color:rgba(255,255,255,0.6)">${daysLeftTv}d left</span>
+                <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:#fff">RM ${allDailySafe.toFixed(2)}</span>
               </div>
-            </div>`:allRemaining<=0?`<p style="font-size:11px;color:var(--red);text-align:center">Over budget</p>`:``}
+            </div>`:allRemaining<=0?`<p style="font-size:11px;color:rgba(255,100,100,0.9);text-align:center">Over budget</p>`:``}
             `:`
             <div style="display:flex;justify-content:space-between;align-items:center">
-              <span style="font-size:12px;color:var(--muted)">Remaining <strong style="color:var(--text)">${Math.round(Math.abs(allRemaining))}</strong> / ${Math.round(allTotalBudget)}</span>
+              <span style="font-size:12px;color:rgba(255,255,255,0.7)">Remaining <strong style="color:#fff">${Math.round(Math.abs(allRemaining))}</strong> / ${Math.round(allTotalBudget)}</span>
               ${allDailySafe>0
-                ?`<span style="font-size:12px;color:var(--muted)">Daily Safe Spend: <strong style="color:${allDailySafe<20?'var(--red)':allDailySafe<50?'var(--yellow)':'var(--green)'}">${Math.round(allDailySafe)}</strong></span>`
-                :allRemaining<=0?`<span style="font-size:12px;color:var(--red);font-weight:600">Over budget</span>`:``
+                ?`<span style="font-size:12px;color:rgba(255,255,255,0.7)">Daily Safe: <strong style="color:#fff">${Math.round(allDailySafe)}</strong></span>`
+                :allRemaining<=0?`<span style="font-size:12px;color:rgba(255,100,100,0.9);font-weight:600">Over budget</span>`:``
               }
             </div>`}
           </div>
-          <div style="height:1px;background:var(--border);margin-bottom:14px"></div>`
-          :`${allTotalBudget===0?`<div style="margin-bottom:14px;text-align:center"><button onclick="goBudget()" style="background:rgba(108,99,255,0.12);border:1px solid rgba(108,99,255,0.25);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--accent)">+ Set All Ledgers Budget</button></div>`:'<div style="height:1px;background:var(--border);margin-bottom:14px"></div>'}`}
+          <div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:14px"></div>`
+          :`${allTotalBudget===0?`<div style="margin-bottom:14px;text-align:center"><button onclick="goBudget()" style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.25);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:#fff">+ Set All Ledgers Budget</button></div>`:'<div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:14px"></div>'}`}
 
           <!-- vs last month -->
           ${vsLastMonth!==null?`<div style="margin-bottom:14px;text-align:center">
-            <span style="display:inline-block;background:rgba(255,255,255,0.06);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted)">
-              vs last month: <strong style="color:${vsLastMonth<=0?'var(--green)':'var(--red)'}">${vsLastMonth>0?'+':''}${vsLastMonth.toFixed(1)}% ${vsLastMonth<=0?'decrease':'increase'}</strong>
+            <span style="display:inline-block;background:rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,0.8)">
+              vs last month: <strong style="color:${vsLastMonth<=0?'#a8ffda':'#ffb3b3'}">${vsLastMonth>0?'+':''}${vsLastMonth.toFixed(1)}% ${vsLastMonth<=0?'decrease':'increase'}</strong>
             </span>
           </div>`:''}
 
           <!-- Per ledger breakdown -->
           ${ledgerRows?`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-            <p style="font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0.04em;text-transform:uppercase">My Spend by Ledger</p>
-            <div style="background:rgba(108,99,255,0.15);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--accent)">${Object.keys(S.ledgers).length} ledgers</div>
-          </div>${ledgerRows}`:'<p style="font-size:13px;color:var(--dim);text-align:center;padding:8px 0">No expenses this month</p>'}
-            </div><!-- end .card -->
+            <p style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.04em;text-transform:uppercase">My Spend by Ledger</p>
+            <div style="background:rgba(255,255,255,0.18);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;color:#fff">${Object.keys(S.ledgers).length} ledgers</div>
+          </div>${ledgerRows.replace(/color:var\(--text\)/g,'color:#fff').replace(/color:var\(--muted\)/g,'color:rgba(255,255,255,0.7)').replace(/color:var\(--dim\)/g,'color:rgba(255,255,255,0.5)').replace(/color:var\(--accent\)/g,'color:#fff').replace(/background:rgba\(255,255,255,0\.04\)/g,'background:rgba(255,255,255,0.12)').replace(/border:1px solid var\(--border\)/g,'border:1px solid rgba(255,255,255,0.15)')}`:'<p style="font-size:13px;color:rgba(255,255,255,0.6);text-align:center;padding:8px 0">No expenses this month</p>'}
+            </div><!-- end gradient card -->
           </div><!-- end slide 1 -->
 
           <!-- SLIDE 2: Asset Accounts (Total View) -->
           <div class="summary-carousel-slide">
-            <div class="asset-overview-card">
+            <div style="background:linear-gradient(135deg,#1a6b5a 0%,#4ECDC4 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(78,205,196,0.35);color:#fff">
+              <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
+              <div style="position:absolute;bottom:-20px;left:30px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
               ${(()=>{
-                const assetArr=Object.values(S.ledgers||{}).flatMap(l=>Object.entries(l.assets||{}).map(([id,a])=>({id,...a,_ledger:l.name})));
-                const uniqueAssets=Object.entries(
-                  Object.values(S.ledgers||{}).reduce((acc,l)=>{
-                    Object.entries(l.assets||{}).forEach(([id,a])=>{acc[id]={...a,id};});
-                    return acc;
-                  },{})
-                ).map(([,a])=>a);
-                // Use assets from active ledger
                 const activeAssets=Object.entries(S.assets||{}).map(([id,a])=>({id,...a}));
                 const tot=totalAssets();
                 if(!activeAssets.length){
-                  return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:180px;text-align:center;gap:10px">
+                  return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;text-align:center;gap:10px">
                     <span style="font-size:36px">🏦</span>
-                    <p style="font-size:14px;font-weight:700;color:var(--text)">No Asset Accounts</p>
-                    <p style="font-size:12px;color:var(--muted);line-height:1.5">Switch to a ledger to manage asset accounts</p>
-                    <button onclick="openLedgerPicker()" style="margin-top:6px;padding:8px 18px;border-radius:20px;background:rgba(78,205,196,0.15);border:1px solid rgba(78,205,196,0.3);color:var(--accent2);font-size:13px;font-weight:600">Select Ledger</button>
+                    <p style="font-size:14px;font-weight:700;color:#fff">No Asset Accounts</p>
+                    <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5">Switch to a ledger to manage asset accounts</p>
+                    <button onclick="openLedgerPicker()" style="margin-top:6px;padding:8px 18px;border-radius:20px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:13px;font-weight:600">Select Ledger</button>
                   </div>`;
                 }
-                const rows=activeAssets.map(a=>{
+                const rows=activeAssets.slice(0,4).map(a=>{
                   const t=getAssetType(a.type);
                   const bal=parseFloat(a.balance)||0;
                   const isCredit=a.type==='credit';
                   const dispIcon=a.customIcon?renderCatIcon(a.customIcon,16,true):(a.iconEmoji?`<span style="font-size:16px">${a.iconEmoji}</span>`:`<span style="font-size:16px">${t.icon}</span>`);
-                  const balColor=isCredit&&bal>0?'var(--red)':bal<0?'var(--red)':'var(--text)';
-                  return`<div onclick="goAssets()" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer">
-                    <div style="width:34px;height:34px;border-radius:10px;background:${t.color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">${dispIcon}</div>
+                  const balColor=isCredit&&bal>0?'#ffb3b3':bal<0?'#ffb3b3':'#fff';
+                  return`<div onclick="goAssets()" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15);cursor:pointer">
+                    <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">${dispIcon}</div>
                     <div style="flex:1;min-width:0">
-                      <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p>
-                      <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.label}</p>
+                      <p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p>
+                      <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">${t.label}</p>
                     </div>
                     <p style="font-family:var(--font-num);font-size:13px;font-weight:700;color:${balColor};flex-shrink:0">${isCredit&&bal>0?'-':''}${fmt(Math.abs(bal),a.currency||S.ledgerCurrency)}</p>
                   </div>`;
                 }).join('');
-                const netColor=tot>=0?'var(--accent2)':'var(--red)';
                 return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-                  <p style="font-size:15px;font-weight:700">Asset Accounts</p>
-                  <button onclick="goAssets()" style="width:34px;height:34px;border-radius:10px;background:rgba(78,205,196,0.12);border:1px solid rgba(78,205,196,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">🏦</button>
+                  <p style="font-size:15px;font-weight:700;color:#fff">Asset Accounts</p>
+                  <button onclick="goAssets()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">🏦</button>
                 </div>
-                <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">
-                  <div>
-                    <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Net Worth</p>
-                    <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:${netColor}">${fmt(Math.abs(tot))}</p>
-                  </div>
-                  <span style="font-size:11px;color:var(--dim)">${activeAssets.length} account${activeAssets.length!==1?'s':''}</span>
+                <div style="margin-bottom:14px">
+                  <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">Net Worth</p>
+                  <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:#fff">${fmt(Math.abs(tot))}</p>
                 </div>
                 <div>${rows}</div>
-                <button onclick="goAssets()" style="margin-top:12px;width:100%;padding:9px;border-radius:12px;background:rgba(78,205,196,0.10);border:1px solid rgba(78,205,196,0.2);color:var(--accent2);font-size:12px;font-weight:600">Manage Accounts →</button>`;
+                <button onclick="goAssets()" style="margin-top:14px;width:100%;padding:9px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600">Manage Accounts →</button>`;
               })()}
-            </div><!-- end .asset-overview-card -->
+            </div><!-- end teal gradient card -->
           </div><!-- end slide 2 -->
 
         </div><!-- end track -->
@@ -1773,16 +1757,14 @@ function renderHome(){
       <button onclick="goSearch()" style="width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.07);border:1px solid var(--border);font-size:16px;display:flex;align-items:center;justify-content:center">🔍</button>
     </div>
 
-    <!-- HERO SPEND CARD -->
-    <div style="margin:0 20px 0;background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(108,99,255,0.35)">
-      <div style="position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.08)"></div>
-      <div style="position:absolute;bottom:-20px;right:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06)"></div>
-      <p style="font-size:11px;color:rgba(255,255,255,0.7);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Spent Today</p>
-      <p style="font-family:var(--font-num);font-size:38px;font-weight:700;letter-spacing:-0.03em;color:#fff;margin-bottom:14px">${fmt(spentToday)}</p>
-      <div style="display:flex;align-items:center;justify-content:space-between">
-        <div style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border-radius:999px;padding:6px 14px;display:flex;align-items:center;gap:6px" onclick="goInvite()">
-          <span style="font-size:10px;color:rgba(255,255,255,0.8);font-weight:500">Total Balance</span>
-          <span style="font-family:var(--font-num);font-size:13px;font-weight:700;color:#fff">${fmt(Math.abs(all.bal))}</span>
+    <!-- SPENT TODAY (old style) -->
+    <div style="padding:8px 20px 0">
+      <p style="font-size:12px;color:var(--muted);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:4px">Spent Today</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <p style="font-family:var(--font-num);font-size:42px;font-weight:700;letter-spacing:-0.03em;line-height:1">${fmt(spentToday)}</p>
+        <div style="background:rgba(255,255,255,0.07);border:1px solid var(--border);border-radius:999px;padding:7px 16px;display:flex;align-items:center;gap:6px;flex-shrink:0;cursor:pointer" onclick="goInvite()">
+          <span style="font-size:11px;color:var(--muted);font-weight:500">Total Balance</span>
+          <span style="font-family:var(--font-num);font-size:13px;font-weight:700;color:var(--accent2)">${fmt(Math.abs(all.bal))}</span>
         </div>
       </div>
     </div>
@@ -1796,77 +1778,76 @@ function renderHome(){
 
         <!-- SLIDE 1: Monthly Summary -->
         <div class="summary-carousel-slide">
-          <div class="card balance-card slide-up" style="padding:20px">
+          <div style="background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(108,99,255,0.35);color:#fff">
+            <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
+            <div style="position:absolute;bottom:-20px;right:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
 
       <!-- Card header: month + calendar/stats icons -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <p style="font-size:15px;font-weight:700">${new Date().toLocaleDateString('en-MY',{month:'long'})} Expenses</p>
+        <p style="font-size:15px;font-weight:700;color:#fff">${new Date().toLocaleDateString('en-MY',{month:'long'})} Expenses</p>
         <div style="display:flex;gap:8px;align-items:center">
-          <button onclick="goCalendar()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📅</button>
-          <button onclick="goStats()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📊</button>
+          <button onclick="goCalendar()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📅</button>
+          <button onclick="goStats()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📊</button>
         </div>
       </div>
 
       <!-- Expense + Income row -->
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
         <div>
-          <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Expense${isFiltered?` <span style="font-size:10px;opacity:0.6">(your share)</span>`:''}</p>
-          <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:var(--text)">${fmt(displayExp)}</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">Expense${isFiltered?` <span style="font-size:10px;opacity:0.6">(your share)</span>`:''}</p>
+          <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:#fff">${fmt(displayExp)}</p>
         </div>
         <div style="text-align:right">
-          <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Income</p>
-          <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:var(--accent)">${fmt(displayInc)}</p>
+          <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">Income</p>
+          <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:rgba(255,255,255,0.95)">${fmt(displayInc)}</p>
         </div>
       </div>
 
       <!-- Budget progress bar -->
       ${totalBudget>0?`
       <div style="margin-bottom:14px">
-        <div class="budget-bar-track" style="height:7px;margin-bottom:7px">
-          <div class="budget-bar-fill" style="width:${budgetUsedPct}%;background:${budgetBarColor}"></div>
+        <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.2);margin-bottom:7px;overflow:hidden">
+          <div style="height:100%;border-radius:999px;width:${budgetUsedPct}%;background:${budgetBarColor==='var(--red)'?'#ff6b6b':budgetBarColor==='var(--yellow)'?'#ffd93d':'rgba(255,255,255,0.9)'}"></div>
         </div>
         ${S.dailyStyle==='c'?`
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <span style="font-size:12px;color:var(--muted)">Remaining Budget</span>
-          <span style="font-family:var(--font-num);font-size:12px;color:${remaining<0?'var(--red)':'var(--accent)'}">${fmt(Math.abs(remaining))}</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.7)">Remaining Budget</span>
+          <span style="font-family:var(--font-num);font-size:12px;color:rgba(255,255,255,0.95);font-weight:600">${fmt(Math.abs(remaining))}</span>
         </div>
         ${dailySafeSpend>0?`
-        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(105,210,160,0.1);border:1px solid rgba(105,210,160,0.2);border-radius:12px;padding:9px 14px">
-          <div style="display:flex;align-items:center;gap:7px">
-            <div style="width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0"></div>
-            <span style="font-size:12px;color:var(--green);font-weight:600">Daily Safe Spend</span>
-          </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,0.12);border-radius:12px;padding:9px 14px">
+          <span style="font-size:12px;color:rgba(255,255,255,0.85);font-weight:600">Daily Safe Spend</span>
           <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:10px;color:var(--dim)">${daysLeft}d left</span>
-            <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${dailySafeSpend<20?'var(--red)':dailySafeSpend<50?'var(--yellow)':'var(--green)'}">${fmt(dailySafeSpend)}</span>
+            <span style="font-size:10px;color:rgba(255,255,255,0.6)">${daysLeft}d left</span>
+            <span style="font-family:var(--font-num);font-size:14px;font-weight:700;color:#fff">${fmt(dailySafeSpend)}</span>
           </div>
-        </div>`:remaining<=0?`<p style="font-size:11px;color:var(--red);text-align:center">Over budget</p>`:``}
+        </div>`:remaining<=0?`<p style="font-size:11px;color:rgba(255,100,100,0.9);text-align:center">Over budget</p>`:``}
         `:`
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12px;color:var(--muted)">Remaining <strong style="color:var(--text)">${Math.round(Math.abs(remaining))}</strong> / ${Math.round(totalBudget)}</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.7)">Remaining <strong style="color:#fff">${Math.round(Math.abs(remaining))}</strong> / ${Math.round(totalBudget)}</span>
           ${dailySafeSpend>0
-            ?`<span style="font-size:12px;color:var(--muted)">Daily Safe Spend: <strong style="color:${dailySafeSpend<20?'var(--red)':dailySafeSpend<50?'var(--yellow)':'var(--green)'}">${Math.round(dailySafeSpend)}</strong></span>`
-            :remaining<=0?`<span style="font-size:12px;color:var(--red);font-weight:600">Over budget</span>`:``
+            ?`<span style="font-size:12px;color:rgba(255,255,255,0.7)">Daily Safe: <strong style="color:#fff">${Math.round(dailySafeSpend)}</strong></span>`
+            :remaining<=0?`<span style="font-size:12px;color:rgba(255,100,100,0.9);font-weight:600">Over budget</span>`:``
           }
         </div>`}
-      </div>`:`<div style="height:1px;background:var(--border);margin-bottom:14px"></div>`}
+      </div>`:`<div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:14px"></div>`}
 
       <!-- Member Spending breakdown -->
       ${memberSpend.length>0||sharedTotal>0?`
       <div onclick="toggleMemberSpending()" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${S.memberSpendingCollapsed?'0':'10px'};cursor:pointer;user-select:none">
-        <p style="font-size:12px;color:var(--muted);font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Member Spending</p>
-        <span style="font-size:16px;color:var(--dim);transition:transform 0.2s;display:inline-block;transform:rotate(${S.memberSpendingCollapsed?'0deg':'180deg'})">⌃</span>
+        <p style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Member Spending</p>
+        <span style="font-size:16px;color:rgba(255,255,255,0.5);display:inline-block;transform:rotate(${S.memberSpendingCollapsed?'0deg':'180deg'})">⌃</span>
       </div>
       ${S.memberSpendingCollapsed?'':`
-      ${sharedTotal>0?`<div onclick="goTxByShared()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.18);margin-bottom:8px;cursor:pointer">
-        <div style="width:36px;height:36px;border-radius:50%;background:rgba(108,99,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
+      ${sharedTotal>0?`<div onclick="goTxByShared()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.12);margin-bottom:8px;cursor:pointer">
+        <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
         <div style="flex:1">
-          <p style="font-size:14px;font-weight:600;color:var(--accent)">Shared</p>
-          <p style="font-size:10px;color:var(--dim);margin-top:1px">Split across members</p>
+          <p style="font-size:14px;font-weight:600;color:#fff">Shared</p>
+          <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">Split across members</p>
         </div>
-        <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:var(--accent)">${fmt(sharedTotal)}</p>
-        <span style="font-size:12px;color:var(--muted);min-width:36px;text-align:right">(${totalMemberSpend>0?Math.round(sharedTotal/mth.exp*100):0}%)</span>
-        <span style="color:var(--dim);font-size:16px;margin-left:2px">›</span>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:#fff">${fmt(sharedTotal)}</p>
+        <span style="font-size:12px;color:rgba(255,255,255,0.6);min-width:36px;text-align:right">(${totalMemberSpend>0?Math.round(sharedTotal/mth.exp*100):0}%)</span>
+        <span style="color:rgba(255,255,255,0.5);font-size:16px;margin-left:2px">›</span>
       </div>`:''}
       ${memberSpend.map(m=>{
         const pct=mth.exp>0?Math.round(m.spent/mth.exp*100):0;
@@ -1882,74 +1863,71 @@ function renderHome(){
           return s;
         },0);
         const soloShare=m.spent-splitShare;
-        return`<div onclick="goTxByMember('${m.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.04);margin-bottom:8px;cursor:pointer;active:opacity:0.7">
-          <div style="width:36px;height:36px;border-radius:50%;background:${m.color||'#6C63FF'}22;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${m.avatar}</div>
+        return`<div onclick="goTxByMember('${m.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.10);margin-bottom:8px;cursor:pointer">
+          <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${m.avatar}</div>
           <div style="flex:1;min-width:0">
-            <p style="font-size:14px;font-weight:600">${m.displayName}${m.guest?'<span class="guest-badge">G</span>':''}</p>
-            ${splitShare>0?`<p style="font-size:10px;color:var(--accent);margin-top:1px">÷ ${fmt(splitShare)} split${soloShare>0?` + ${fmt(soloShare)} solo`:''}</p>`:''}
+            <p style="font-size:14px;font-weight:600;color:#fff">${m.displayName}${m.guest?'<span class="guest-badge">G</span>':''}</p>
+            ${splitShare>0?`<p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">÷ ${fmt(splitShare)} split${soloShare>0?` + ${fmt(soloShare)} solo`:''}</p>`:''}
           </div>
-          <p style="font-family:var(--font-num);font-size:14px;font-weight:600">${fmt(m.spent)}</p>
-          <span style="font-size:12px;color:var(--muted);min-width:36px;text-align:right">(${pct}%)</span>
-          <span style="color:var(--dim);font-size:16px;margin-left:2px">›</span>
+          <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:#fff">${fmt(m.spent)}</p>
+          <span style="font-size:12px;color:rgba(255,255,255,0.6);min-width:36px;text-align:right">(${pct}%)</span>
+          <span style="color:rgba(255,255,255,0.5);font-size:16px;margin-left:2px">›</span>
         </div>`;
       }).join('')}`}`:``}
 
       <!-- vs last month chip -->
       ${vsLastMonth!==null?`
       <div style="margin-top:4px;text-align:center">
-        <span style="display:inline-block;background:rgba(255,255,255,0.06);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted)">
-          Compared to last month:
-          <strong style="color:${vsLastMonth<=0?'var(--green)':'var(--red)'}">${vsLastMonth>0?'+':''}${vsLastMonth.toFixed(1)}% ${vsLastMonth<=0?'decrease':'increase'}</strong>
+        <span style="display:inline-block;background:rgba(255,255,255,0.12);border-radius:20px;padding:6px 14px;font-size:12px;color:rgba(255,255,255,0.8)">
+          vs last month: <strong style="color:${vsLastMonth<=0?'#a8ffda':'#ffb3b3'}">${vsLastMonth>0?'+':''}${vsLastMonth.toFixed(1)}% ${vsLastMonth<=0?'decrease':'increase'}</strong>
         </span>
       </div>`:``}
-          </div><!-- end .card -->
+          </div><!-- end gradient card -->
         </div><!-- end slide 1 -->
 
         <!-- SLIDE 2: Asset Accounts -->
         <div class="summary-carousel-slide">
-          <div class="asset-overview-card">
+          <div style="background:linear-gradient(135deg,#1a6b5a 0%,#4ECDC4 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(78,205,196,0.35);color:#fff">
+            <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
+            <div style="position:absolute;bottom:-20px;left:30px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
             ${(()=>{
               const assetArr=Object.entries(S.assets||{}).map(([id,a])=>({id,...a}));
               const tot=totalAssets();
               if(!assetArr.length){
-                return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:180px;text-align:center;gap:10px">
+                return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:180px;text-align:center;gap:10px">
                   <span style="font-size:36px">🏦</span>
-                  <p style="font-size:14px;font-weight:700;color:var(--text)">No Asset Accounts</p>
-                  <p style="font-size:12px;color:var(--muted);line-height:1.5">Track your bank, e-wallet &amp; cash balances</p>
-                  <button onclick="goAssets()" style="margin-top:6px;padding:8px 18px;border-radius:20px;background:rgba(78,205,196,0.15);border:1px solid rgba(78,205,196,0.3);color:var(--accent2);font-size:13px;font-weight:600">+ Add Account</button>
+                  <p style="font-size:14px;font-weight:700;color:#fff">No Asset Accounts</p>
+                  <p style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5">Track your bank, e-wallet &amp; cash balances</p>
+                  <button onclick="goAssets()" style="margin-top:6px;padding:8px 18px;border-radius:20px;background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);color:#fff;font-size:13px;font-weight:600">+ Add Account</button>
                 </div>`;
               }
-              const rows=assetArr.map(a=>{
+              const rows=assetArr.slice(0,4).map(a=>{
                 const t=getAssetType(a.type);
                 const bal=parseFloat(a.balance)||0;
                 const isCredit=a.type==='credit';
                 const dispIcon=a.customIcon?renderCatIcon(a.customIcon,16,true):(a.iconEmoji?`<span style="font-size:16px">${a.iconEmoji}</span>`:`<span style="font-size:16px">${t.icon}</span>`);
-                const balColor=isCredit&&bal>0?'var(--red)':bal<0?'var(--red)':'var(--text)';
-                return`<div onclick="goAssets()" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer">
-                  <div style="width:34px;height:34px;border-radius:10px;background:${t.color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0">${dispIcon}</div>
+                const balColor=isCredit&&bal>0?'#ffb3b3':bal<0?'#ffb3b3':'#fff';
+                return`<div onclick="goAssets()" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15);cursor:pointer">
+                  <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">${dispIcon}</div>
                   <div style="flex:1;min-width:0">
-                    <p style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p>
-                    <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.label}</p>
+                    <p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p>
+                    <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">${t.label}</p>
                   </div>
                   <p style="font-family:var(--font-num);font-size:13px;font-weight:700;color:${balColor};flex-shrink:0">${isCredit&&bal>0?'-':''}${fmt(Math.abs(bal),a.currency||S.ledgerCurrency)}</p>
                 </div>`;
               }).join('');
-              const netColor=tot>=0?'var(--accent2)':'var(--red)';
               return`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-                <p style="font-size:15px;font-weight:700">Asset Accounts</p>
-                <button onclick="goAssets()" style="width:34px;height:34px;border-radius:10px;background:rgba(78,205,196,0.12);border:1px solid rgba(78,205,196,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">🏦</button>
+                <p style="font-size:15px;font-weight:700;color:#fff">Asset Accounts</p>
+                <button onclick="goAssets()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">🏦</button>
               </div>
-              <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:14px">
-                <div>
-                  <p style="font-size:11px;color:var(--muted);margin-bottom:3px">Net Worth</p>
-                  <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:${netColor}">${fmt(Math.abs(tot))}</p>
-                </div>
-                <span style="font-size:11px;color:var(--dim)">${assetArr.length} account${assetArr.length!==1?'s':''}</span>
+              <div style="margin-bottom:14px">
+                <p style="font-size:11px;color:rgba(255,255,255,0.7);margin-bottom:3px">Net Worth</p>
+                <p style="font-family:var(--font-num);font-size:28px;font-weight:700;color:#fff">${fmt(Math.abs(tot))}</p>
               </div>
               <div>${rows}</div>
-              <button onclick="goAssets()" style="margin-top:12px;width:100%;padding:9px;border-radius:12px;background:rgba(78,205,196,0.10);border:1px solid rgba(78,205,196,0.2);color:var(--accent2);font-size:12px;font-weight:600">Manage Accounts →</button>`;
+              <button onclick="goAssets()" style="margin-top:14px;width:100%;padding:9px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600">Manage Accounts →</button>`;
             })()}
-          </div><!-- end .asset-overview-card -->
+          </div><!-- end teal gradient card -->
         </div><!-- end slide 2 -->
 
       </div><!-- end track -->
