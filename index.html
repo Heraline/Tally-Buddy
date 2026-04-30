@@ -336,6 +336,57 @@ if(!window.__FIREBASE_CONFIG__){throw new Error('Firebase config missing — see
 const app=initializeApp(window.__FIREBASE_CONFIG__);
 const auth=getAuth(app),db=getDatabase(app);
 
+// ── TIMEZONES ──
+const TIMEZONES=[
+  {tz:'Asia/Kuala_Lumpur',  label:'🇲🇾 Malaysia (MYT, UTC+8)'},
+  {tz:'Asia/Singapore',     label:'🇸🇬 Singapore (SGT, UTC+8)'},
+  {tz:'Asia/Jakarta',       label:'🇮🇩 Indonesia West (WIB, UTC+7)'},
+  {tz:'Asia/Makassar',      label:'🇮🇩 Indonesia Central (WITA, UTC+8)'},
+  {tz:'Asia/Jayapura',      label:'🇮🇩 Indonesia East (WIT, UTC+9)'},
+  {tz:'Asia/Bangkok',       label:'🇹🇭 Thailand (ICT, UTC+7)'},
+  {tz:'Asia/Manila',        label:'🇵🇭 Philippines (PST, UTC+8)'},
+  {tz:'Asia/Ho_Chi_Minh',   label:'🇻🇳 Vietnam (ICT, UTC+7)'},
+  {tz:'Asia/Yangon',        label:'🇲🇲 Myanmar (MMT, UTC+6:30)'},
+  {tz:'Asia/Dhaka',         label:'🇧🇩 Bangladesh (BST, UTC+6)'},
+  {tz:'Asia/Kolkata',       label:'🇮🇳 India (IST, UTC+5:30)'},
+  {tz:'Asia/Karachi',       label:'🇵🇰 Pakistan (PKT, UTC+5)'},
+  {tz:'Asia/Dubai',         label:'🇦🇪 UAE (GST, UTC+4)'},
+  {tz:'Asia/Riyadh',        label:'🇸🇦 Saudi Arabia (AST, UTC+3)'},
+  {tz:'Africa/Nairobi',     label:'🇰🇪 Kenya (EAT, UTC+3)'},
+  {tz:'Europe/Istanbul',    label:'🇹🇷 Turkey (TRT, UTC+3)'},
+  {tz:'Europe/Moscow',      label:'🇷🇺 Russia Moscow (MSK, UTC+3)'},
+  {tz:'Africa/Cairo',       label:'🇪🇬 Egypt (EET, UTC+2)'},
+  {tz:'Europe/Athens',      label:'🇬🇷 Greece (EET, UTC+2)'},
+  {tz:'Europe/Berlin',      label:'🇩🇪 Germany (CET, UTC+1/2)'},
+  {tz:'Europe/Paris',       label:'🇫🇷 France (CET, UTC+1/2)'},
+  {tz:'Europe/London',      label:'🇬🇧 UK (GMT/BST, UTC+0/1)'},
+  {tz:'Atlantic/Reykjavik', label:'🇮🇸 Iceland (GMT, UTC+0)'},
+  {tz:'America/Sao_Paulo',  label:'🇧🇷 Brazil (BRT, UTC-3)'},
+  {tz:'America/New_York',   label:'🇺🇸 US Eastern (ET, UTC-5/-4)'},
+  {tz:'America/Chicago',    label:'🇺🇸 US Central (CT, UTC-6/-5)'},
+  {tz:'America/Denver',     label:'🇺🇸 US Mountain (MT, UTC-7/-6)'},
+  {tz:'America/Los_Angeles',label:'🇺🇸 US Pacific (PT, UTC-8/-7)'},
+  {tz:'America/Anchorage',  label:'🇺🇸 US Alaska (AKT, UTC-9/-8)'},
+  {tz:'Pacific/Honolulu',   label:'🇺🇸 Hawaii (HST, UTC-10)'},
+  {tz:'Pacific/Auckland',   label:'🇳🇿 New Zealand (NZST, UTC+12/13)'},
+  {tz:'Australia/Sydney',   label:'🇦🇺 Australia East (AEST, UTC+10/11)'},
+  {tz:'Australia/Darwin',   label:'🇦🇺 Australia Central (ACST, UTC+9:30)'},
+  {tz:'Australia/Perth',    label:'🇦🇺 Australia West (AWST, UTC+8)'},
+  {tz:'Asia/Tokyo',         label:'🇯🇵 Japan (JST, UTC+9)'},
+  {tz:'Asia/Seoul',         label:'🇰🇷 South Korea (KST, UTC+9)'},
+  {tz:'Asia/Shanghai',      label:'🇨🇳 China (CST, UTC+8)'},
+  {tz:'Asia/Hong_Kong',     label:'🇭🇰 Hong Kong (HKT, UTC+8)'},
+  {tz:'Asia/Taipei',        label:'🇹🇼 Taiwan (CST, UTC+8)'},
+];
+function tzOptions(selected){
+  const dev=Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const sel=selected||dev;
+  // Put device tz first if not already in list
+  const inList=TIMEZONES.find(t=>t.tz===dev);
+  const extra=inList?[]:[{tz:dev,label:'📍 Device ('+dev+')'}];
+  return[...extra,...TIMEZONES].map(t=>`<option value="${t.tz}" ${t.tz===sel?'selected':''}>${t.label}</option>`).join('');
+}
+
 // ── CURRENCIES ──
 const CURRENCIES={
   MYR:{symbol:'RM', name:'Malaysian Ringgit',  flag:'🇲🇾', rateToMYR:1},
@@ -451,6 +502,8 @@ const S={
   user:null,profile:null,
   ledgers:{},activeLedgerId:null,
   txs:{},members:{},cats:{},budgets:{},ledgerCurrency:'MYR',
+  ledgerTimezone:Intl.DateTimeFormat().resolvedOptions().timeZone, // canonical tz for storage
+  displayTimezone:null, // personal view tz override (null = use ledgerTimezone)
   assets:{},recurring:{},settlements:{},
   view:'home',tab:'transactions',filterMember:'all',
   budgetMonth:localYm(),
@@ -492,9 +545,49 @@ const S={
 };
 
 // ── UTILS ──
-function td(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function localYm(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
-function tt(){const n=new Date();return n.getHours().toString().padStart(2,'0')+':'+n.getMinutes().toString().padStart(2,'0');}
+// ── TIMEZONE HELPERS ──
+// Returns a plain Date whose y/m/d/h/m/s matches the *local clock* in the given IANA tz
+function nowInTz(tz){
+  try{
+    const parts=new Intl.DateTimeFormat('en-CA',{timeZone:tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date());
+    const p={};parts.forEach(({type,value})=>{p[type]=value;});
+    const h=p.hour==='24'?'00':p.hour;
+    return new Date(`${p.year}-${p.month}-${p.day}T${h}:${p.minute}:${p.second}`);
+  }catch(e){return new Date();}
+}
+// Get UTC offset in minutes for a tz at a given Date
+function getUtcOffset(tz,date){
+  try{
+    const fmt=t=>new Intl.DateTimeFormat('en-CA',{timeZone:t,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(date);
+    return(new Date(fmt(tz))-new Date(fmt('UTC')))/60000;
+  }catch(e){return 0;}
+}
+function lTz(){return S.ledgerTimezone||Intl.DateTimeFormat().resolvedOptions().timeZone;}
+function dTz(){return S.displayTimezone||lTz();}
+// Today YYYY-MM-DD in ledger tz (canonical — used for storing & budget month logic)
+function td(){const d=nowInTz(lTz());return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// Current month YYYY-MM in ledger tz
+function localYm(){const d=nowInTz(lTz());return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');}
+// Current time HH:MM in ledger tz
+function tt(){const d=nowInTz(lTz());return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+// Convert a stored ledger-tz date+time to the user's display tz for showing
+// Returns {date:'YYYY-MM-DD', time:'HH:MM', shifted:bool}
+function toDisplayTz(dateStr,timeStr){
+  try{
+    const tz=lTz(),dtz=dTz();
+    if(!dateStr)return{date:'',time:'',shifted:false};
+    if(tz===dtz)return{date:dateStr,time:timeStr||'',shifted:false};
+    const [h,m]=(timeStr||'00:00').split(':').map(Number);
+    const base=new Date(dateStr+'T'+String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':00');
+    const diff=getUtcOffset(dtz,base)-getUtcOffset(tz,base);
+    const shifted=new Date(base.getTime()+diff*60000);
+    return{
+      date:shifted.getFullYear()+'-'+String(shifted.getMonth()+1).padStart(2,'0')+'-'+String(shifted.getDate()).padStart(2,'0'),
+      time:String(shifted.getHours()).padStart(2,'0')+':'+String(shifted.getMinutes()).padStart(2,'0'),
+      shifted:diff!==0
+    };
+  }catch(e){return{date:dateStr,time:timeStr||'',shifted:false};}
+}
 function getCats(){return Object.keys(S.cats).length?S.cats:DEFAULT_CATS;}
 // Subcategory value can be a plain string (legacy) or {label, icon}
 function getSubcatLabel(v){return v&&typeof v==='object'?v.label||'':v||'';}
@@ -606,7 +699,13 @@ function unreadCount(){
 function getCur(){return CURRENCIES[S.ledgerCurrency]||CURRENCIES.MYR;}
 function fmt(n,cur){const c=cur?CURRENCIES[cur]:getCur();return(c?c.symbol:'RM')+' '+Number(n).toFixed(2);}
 function genCode(n=6){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:n},()=>c[~~(Math.random()*c.length)]).join('');}
-function dlabel(str){const now=new Date();now.setHours(0,0,0,0);const d=new Date(str+'T00:00:00');const diff=Math.round((now-d)/86400000);if(diff===0)return'Today';if(diff===1)return'Yesterday';return d.toLocaleDateString('en-MY',{weekday:'short',month:'short',day:'numeric'});}
+function dlabel(str){const now=nowInTz(dTz());now.setHours(0,0,0,0);const d=new Date(str+'T00:00:00');const diff=Math.round((now-d)/86400000);if(diff===0)return'Today';if(diff===1)return'Yesterday';return d.toLocaleDateString('en-MY',{weekday:'short',month:'short',day:'numeric'});}
+// Returns display-tz-shifted date & time strings + a tz badge if shifted
+function txDisp(t){
+  const r=toDisplayTz(t.date,t.time);
+  const badge=r.shifted?`<span style="font-size:9px;background:rgba(108,99,255,0.2);color:var(--accent);border-radius:4px;padding:1px 4px;margin-left:3px" title="Shown in your timezone">${dTz().split('/').pop().replace('_',' ')}</span>`:'';
+  return{date:r.date,time:r.time,badge};
+}
 function txArr(){return Object.entries(S.txs||{}).map(([k,v])=>({...v,_k:k})).sort((a,b)=>b.date.localeCompare(a.date)||(b.ts||0)-(a.ts||0));}
 // ── TOTAL VIEW: aggregate all ledger transactions ──
 function totalTxArr(){
@@ -834,10 +933,10 @@ onAuthStateChanged(auth,async user=>{
 });
 
 // ── LEDGER OPS ──
-async function mkLedger(name,icon,currency='MYR'){
+async function mkLedger(name,icon,currency='MYR',timezone=Intl.DateTimeFormat().resolvedOptions().timeZone){
   const lid=push(ref(db,'ledgers')).key;
   const up={};
-  up[`ledgers/${lid}`]={id:lid,name,icon,inviteCode:genCode(6),owner:S.user.uid,createdAt:Date.now(),members:{[S.user.uid]:true},currency};
+  up[`ledgers/${lid}`]={id:lid,name,icon,inviteCode:genCode(6),owner:S.user.uid,createdAt:Date.now(),members:{[S.user.uid]:true},currency,timezone};
   up[`userLedgers/${S.user.uid}/${lid}`]={name,icon,role:'owner'};
   up[`ledgerMembers/${lid}/${S.user.uid}`]={displayName:S.profile.displayName,avatar:S.profile.avatar,color:S.profile.color,role:'owner',joinedAt:Date.now()};
   await update(ref(db),up);return lid;
@@ -853,6 +952,11 @@ async function switchLedger(lid){
   listen('ledgers/'+lid+'/budgets/'+S.budgetMonth,s=>{S.budgets=s.exists()?s.val():{};safeRender();},'budget');
   listen('users/'+S.user.uid+'/budgets/'+S.budgetMonth,s=>{S.allBudgets=s.exists()?s.val():{};safeRender();},'allbudget');
   listen('ledgers/'+lid+'/currency',s=>{S.ledgerCurrency=s.exists()?s.val():'MYR';safeRender();});
+  listen('ledgers/'+lid+'/timezone',s=>{S.ledgerTimezone=s.exists()?s.val():Intl.DateTimeFormat().resolvedOptions().timeZone;safeRender();});
+  // Per-user display tz override for this ledger
+  const rDtz=ref(db,'users/'+S.user.uid+'/tzOverride/'+lid);
+  const fnDtz=s=>{S.displayTimezone=s.exists()?s.val():null;safeRender();};
+  onValue(rDtz,fnDtz);S.listeners.push({r:rDtz,fn:fnDtz,tag:'displayTz'});
   listen('ledgers/'+lid+'/assets',s=>{S.assets=s.exists()?s.val():{};safeRender();});
   listen('ledgers/'+lid+'/assetTransfers',s=>{S.assetTransfers=s.exists()?s.val():{};safeRender();});
   listen('ledgers/'+lid+'/recurring',s=>{S.recurring=s.exists()?s.val():{};safeRender();});
@@ -1129,6 +1233,9 @@ function renderLedgerPicker(){
         <div style="margin-bottom:12px"><p class="label" style="margin-bottom:8px">Name</p><input id="nlName" type="text" placeholder="e.g. Family, Bali Trip..." class="fw-input"></div>
         <div style="margin-bottom:12px"><p class="label" style="margin-bottom:8px">Currency</p>
           <select id="nlCur" class="currency-selector">${Object.entries(CURRENCIES).map(([k,c])=>`<option value="${k}" ${k==='MYR'?'selected':''}>${c.flag} ${k} — ${c.name}</option>`).join('')}</select></div>
+        <div style="margin-bottom:16px"><p class="label" style="margin-bottom:8px">Ledger Timezone</p>
+          <p style="font-size:11px;color:var(--muted);margin-bottom:8px">All dates & budgets for this ledger will use this timezone — consistent for all members.</p>
+          <select id="nlTz" class="currency-selector">${tzOptions()}</select></div>
         <div style="margin-bottom:16px"><p class="label" style="margin-bottom:10px">Icon</p>
           <div style="display:flex;gap:8px;flex-wrap:wrap">${LEDGER_ICONS.map((ic,i)=>`<button onclick="pickIcon(${i})" id="ic${i}" style="width:42px;height:42px;border-radius:11px;font-size:20px;background:rgba(255,255,255,0.06);border:2px solid ${i===0?'var(--accent)':'transparent'};transition:all 0.15s">${ic}</button>`).join('')}</div></div>
         <button class="btn-primary" style="padding:14px" onclick="doCreateLedger()">Create Ledger</button>
@@ -1145,9 +1252,9 @@ function renderLedgerPicker(){
 }
 window.pickIcon=i=>{selIcon=i;document.querySelectorAll('[id^="ic"]').forEach(b=>b.style.borderColor='transparent');const b=document.getElementById('ic'+i);if(b)b.style.borderColor='var(--accent)';};
 window.doCreateLedger=async()=>{
-  const name=document.getElementById('nlName')?.value.trim(),msg=document.getElementById('clMsg'),cur=document.getElementById('nlCur')?.value||'MYR';
+  const name=document.getElementById('nlName')?.value.trim(),msg=document.getElementById('clMsg'),cur=document.getElementById('nlCur')?.value||'MYR',tz=document.getElementById('nlTz')?.value||Intl.DateTimeFormat().resolvedOptions().timeZone;
   if(!name){if(msg){msg.style.color='var(--red)';msg.textContent='Enter a name.';}return;}
-  try{const id=await mkLedger(name,LEDGER_ICONS[selIcon],cur);S.ledgers[id]={name,icon:LEDGER_ICONS[selIcon],role:'owner'};
+  try{const id=await mkLedger(name,LEDGER_ICONS[selIcon],cur,tz);S.ledgers[id]={name,icon:LEDGER_ICONS[selIcon],role:'owner'};
     if(msg){msg.style.color='var(--green)';msg.textContent='✓ Ledger created!';}
     await switchLedger(id);setTimeout(()=>{closeLedgerPicker();showApp();toast('✓ '+name+' created');},700);
   }catch(e){if(msg){msg.style.color='var(--red)';msg.textContent='Error: '+e.message;}}
@@ -2201,7 +2308,7 @@ function renderStats(){
           <div style="width:32px;height:32px;border-radius:9px;background:${cat.color}22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${renderCatIcon(cat.icon,22,true)}</div>
           <div style="flex:1;min-width:0">
             <p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description}</p>
-            <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.date}${t.time?' · '+t.time:''} · ÷${splitCount} split${isPayer?' · paid by you':''}</p>
+            <p style="font-size:10px;color:var(--dim);margin-top:1px">${(d=>d.date+(d.time?' · '+d.time:'')+d.badge)(txDisp(t))} · ÷${splitCount} split${isPayer?' · paid by you':''}</p>
           </div>
           <div style="text-align:right;flex-shrink:0">
             <p style="font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--red)">-${_fmt(share)}</p>
@@ -2218,7 +2325,7 @@ function renderStats(){
           <div style="width:32px;height:32px;border-radius:9px;background:${cat.color}22;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">${renderCatIcon(cat.icon,22,true)}</div>
           <div style="flex:1;min-width:0">
             <p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.description}</p>
-            <p style="font-size:10px;color:var(--dim);margin-top:1px">${t.date}${t.time?' · '+t.time:''}</p>
+            <p style="font-size:10px;color:var(--dim);margin-top:1px">${(d=>d.date+(d.time?' · '+d.time:'')+d.badge)(txDisp(t))}</p>
           </div>
           <p style="font-family:var(--font-num);font-size:13px;font-weight:600;color:var(--red)">-${_fmt(t.amount)}</p>
         </div>`;
@@ -2907,7 +3014,7 @@ function renderSplitsPage(){
       <div style="width:38px;height:38px;border-radius:12px;background:rgba(108,99,255,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${renderCatIcon(cat.icon,22,true)}</div>
       <div style="flex:1;min-width:0">
         <p style="font-size:13px;font-weight:600">${t.description}</p>
-        <p style="font-size:11px;color:var(--dim);margin-top:2px">${payer.displayName} paid · ${t.date||''}${t.time?' · '+t.time:''}</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:2px">${payer.displayName} paid · ${(d=>d.date+(d.time?' · '+d.time:'')+d.badge)(txDisp(t))}</p>
         ${splitNames?`<p style="font-size:11px;color:var(--muted);margin-top:2px">÷ with ${splitNames}</p>`:''}
         ${isTotal?'<div style="margin-top:4px">'+ledgerTag+'</div>':''}
       </div>
@@ -4199,7 +4306,7 @@ function renderModal(){
           <p style="font-size:22px;font-family:var(--font-num);color:${t.type==='income'?'var(--green)':'var(--red)'};font-weight:700">${t.type==='income'?'+':'-'}${fmt(t.amount,S.ledgerCurrency)}</p>
           ${t.origAmount&&t.currency&&t.currency!==S.ledgerCurrency?`<p style="font-size:13px;color:var(--muted);font-family:var(--font-num);margin-top:2px">${t.type==='income'?'+':'-'}${fmt(t.origAmount,t.currency)}</p>`:''}
           <p style="font-size:15px;font-weight:600;margin-top:4px">${t.description}</p>
-          <p style="font-size:12px;color:var(--muted);margin-top:2px">${renderCatIcon(cat.icon,16)} ${cat.label}${subcatLabel?' · '+subcatLabel:''} · ${t.date}${t.time?' · '+t.time:''}</p>
+          <p style="font-size:12px;color:var(--muted);margin-top:2px">${renderCatIcon(cat.icon,16)} ${cat.label}${subcatLabel?' · '+subcatLabel:''} · ${(d=>d.date+(d.time?' · '+d.time:'')+d.badge)(txDisp(t))}</p>
         </div>
         <button onclick="editTx('${t._k}')" style="background:rgba(108,99,255,0.15);color:var(--accent);border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;flex-shrink:0;margin-left:12px">✏️ Edit</button>
       </div>
@@ -5606,6 +5713,31 @@ function renderSettings(){
       </div>
     </div>
 
+    <!-- LEDGER TIMEZONE (owner only) -->
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">Ledger Timezone</p>
+      <div class="surface" style="padding:14px 16px;border-radius:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Controls which timezone is used for dates, budgets &amp; month boundaries — shared by all members.</p>
+        ${isOwner
+          ? `<select onchange="changeLedgerTimezone(this.value)" class="currency-selector">${tzOptions(S.ledgerTimezone)}</select>`
+          : `<p style="font-size:13px;font-weight:600">${TIMEZONES.find(t=>t.tz===S.ledgerTimezone)?.label||S.ledgerTimezone||'Device timezone'}</p><p style="font-size:11px;color:var(--dim);margin-top:4px">Only the ledger owner can change this.</p>`
+        }
+      </div>
+    </div>
+
+    <!-- PERSONAL DISPLAY TIMEZONE -->
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">My Display Timezone</p>
+      <div class="surface" style="padding:14px 16px;border-radius:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Dates &amp; times will be shown to <strong>you</strong> in this timezone. Stored data is always in ledger timezone.</p>
+        <select onchange="changeDisplayTimezone(this.value)" class="currency-selector">
+          <option value="" ${!S.displayTimezone?'selected':''}>Same as ledger (${S.ledgerTimezone||'default'})</option>
+          ${tzOptions(S.displayTimezone||'')}
+        </select>
+        ${S.displayTimezone&&S.displayTimezone!==S.ledgerTimezone?`<p style="font-size:11px;color:var(--accent);margin-top:8px">⏱ Dates shown to you are shifted from ledger time.</p>`:''}
+      </div>
+    </div>
+
     <!-- LEDGER MEMBERS (real app users + guests combined) -->
     <div class="settings-section">
       <p class="label" style="margin-bottom:12px">Ledger Members</p>
@@ -6579,6 +6711,25 @@ window.quickJoin   =async()=>{const code=document.getElementById('qjCode')?.valu
 
 window.saveBudget=async(key,val)=>{const amount=parseFloat(val)||0;const path='ledgers/'+S.activeLedgerId+'/budgets/'+S.budgetMonth+'/'+key;if(amount<=0){await remove(ref(db,path));}else{await set(ref(db,path),amount);}toast('✓ Budget saved');};
 window.changeCurrency=async val=>{await set(ref(db,'ledgers/'+S.activeLedgerId+'/currency'),val);S.ledgerCurrency=val;toast('✓ Currency updated');renderPage();};
+window.changeLedgerTimezone=async val=>{
+  await set(ref(db,'ledgers/'+S.activeLedgerId+'/timezone'),val);
+  S.ledgerTimezone=val;
+  toast('✓ Ledger timezone updated');
+  renderPage();
+};
+window.changeDisplayTimezone=async val=>{
+  const lid=S.activeLedgerId;
+  if(!val){
+    // Reset to ledger timezone
+    await set(ref(db,'users/'+S.user.uid+'/tzOverride/'+lid),null);
+    S.displayTimezone=null;
+  } else {
+    await set(ref(db,'users/'+S.user.uid+'/tzOverride/'+lid),val);
+    S.displayTimezone=val;
+  }
+  toast('✓ Display timezone updated');
+  renderPage();
+};
 
 // Category actions
 
