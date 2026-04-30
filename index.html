@@ -4138,11 +4138,22 @@ function renderAdd(){
       <input class="normal-input" type="text" placeholder="What was this for? (optional)" value="${f.description}" oninput="setFF('description',this.value)">
     </div></div>
     <div class="form-section"><div class="input-card surface">
-      <p class="label" style="margin-bottom:8px">Date & Time</p>
-      <div style="display:flex;gap:12px;align-items:center">
-        <input class="normal-input" type="date" value="${f.date}" oninput="setFF('date',this.value)" style="flex:1.4">
-        <input class="normal-input" type="time" value="${f.time||tt()}" oninput="setFF('time',this.value)" style="flex:1">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <p class="label">Date & Time</p>
+        <span style="font-size:10px;color:var(--accent);background:rgba(108,99,255,0.12);padding:2px 8px;border-radius:8px;font-weight:600" title="All transactions are stored in ledger timezone">🕐 ${(()=>{const tz=lTz();const found=TIMEZONES.find(t=>t.tz===tz);if(found)return found.label.split('(')[1]?.replace(')','').split(',')[0]||tz.split('/').pop().replace('_',' ');return tz.split('/').pop().replace('_',' ');})()}</span>
       </div>
+      <div style="display:flex;gap:12px;align-items:center">
+        <input class="normal-input" id="txDateInput" type="date" value="${f.date}" oninput="setFF('date',this.value);updateTzHint(this.value,document.getElementById('txTimeInput')?.value)" style="flex:1.4">
+        <input class="normal-input" id="txTimeInput" type="time" value="${f.time||tt()}" oninput="setFF('time',this.value);updateTzHint(document.getElementById('txDateInput')?.value||'${f.date}',this.value)" style="flex:1">
+      </div>
+      ${(()=>{
+        const tz=lTz(),dtz=dTz();
+        if(!dtz||tz===dtz)return'';
+        const r=toDisplayTz(f.date,f.time||tt());
+        if(!r.shifted)return'';
+        const localLabel=TIMEZONES.find(t=>t.tz===dtz)?.label.split('(')[1]?.replace(')','').split(',')[0]||dtz.split('/').pop().replace('_',' ');
+        return`<p id="tzHint" style="font-size:11px;color:var(--muted);margin-top:7px">🌍 Your local time: <strong style="color:var(--text)">${r.time}</strong> ${r.date!==f.date?'<span style="color:var(--dim)">('+r.date+')</span>':''} <span style="color:var(--dim)">${localLabel}</span></p>`;
+      })()}
     </div></div>
     ${f.type==='expense'?`<div class="form-section"><p class="label" style="margin-bottom:10px">Category</p><div class="chip-grid">${chips}</div>${subcatChips}</div>`:''}
     <div class="form-section"><p class="label" style="margin-bottom:10px">Paid by</p>
@@ -6506,6 +6517,17 @@ window.setFilter   =id=>{S.filterMember=id;render();};
 window.setTab      =t=>{S.tab=t;S.analyticsFilter={type:null,key:null};render();};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.coPayors=[];S.addForm.coPayorAmounts={};S.addForm.coPayorMode='equal';S.addForm.payerMode='equal';S.addForm.payerAmounts={};S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
 window.setFF       =(k,v)=>{if(S.addForm)S.addForm[k]=v;};
+window.updateTzHint=(date,time)=>{
+  const el=document.getElementById('tzHint');
+  if(!el)return; // no hint shown (same tz)
+  const tz=lTz(),dtz=dTz();
+  if(!dtz||tz===dtz){el.style.display='none';return;}
+  const r=toDisplayTz(date,time||tt());
+  if(!r.shifted){el.style.display='none';return;}
+  const localLabel=TIMEZONES.find(t=>t.tz===dtz)?.label.split('(')[1]?.replace(')','').split(',')[0]||dtz.split('/').pop().replace('_',' ');
+  el.style.display='';
+  el.innerHTML=`🌍 Your local time: <strong style="color:var(--text)">${r.time}</strong> ${r.date!==date?'<span style="color:var(--dim)">('+r.date+')</span>':''} <span style="color:var(--dim)">${localLabel}</span>`;
+};
 window.updateConversionDisplay=(val)=>{
   if(!S.addForm)return;
   const el=document.getElementById('convDisplay');
