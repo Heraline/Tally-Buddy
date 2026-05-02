@@ -6274,7 +6274,7 @@ window.summaryCarouselGo=function(idx){
   const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
   track.scrollTo({left:idx*slideW,behavior:'smooth'});
   // Also immediately update page state and sections
-  if(idx!==S.homePage){
+  if(idx!==S.homePage&&S.user&&S.view==='home'){
     S.homePage=idx;
     setTimeout(()=>{
       const sec=document.getElementById('homePageSections');
@@ -6301,6 +6301,9 @@ function _attachCarouselDots(){
   }
   _syncCarouselHeight(track);
   dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===S.homePage));
+  // Guard: only attach scroll listener once per track element
+  if(track._carouselListenerAttached)return;
+  track._carouselListenerAttached=true;
   let _scrollTimer=null;
   track.addEventListener('scroll',function(){
     const idx=Math.round(track.scrollLeft/(track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth));
@@ -6308,6 +6311,8 @@ function _attachCarouselDots(){
     _syncCarouselHeight(track);
     clearTimeout(_scrollTimer);
     _scrollTimer=setTimeout(()=>{
+      // Guard: only update if user is logged in and on home view
+      if(!S.user||S.view!=='home')return;
       if(idx!==S.homePage){
         S.homePage=idx;
         const sec=document.getElementById('homePageSections');
@@ -6328,7 +6333,7 @@ function _attachCarouselDots(){
   tryObserve();
 })();
 window.setSplitsTab=tab=>{S.splitsTab=tab;renderPage();};
-window.setTab2=t=>{S.tab2=t;const sec=document.getElementById('homePageSections');if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}};
+window.setTab2=t=>{if(!S.user||S.view!=='home')return;S.tab2=t;const sec=document.getElementById('homePageSections');if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}};
 function _attachHomePageSectionListeners(){
   // Re-attach any listeners that live inside #homePageSections if needed (currently none beyond inline onclick)
 }
@@ -6677,7 +6682,7 @@ window.goAssetForm =()=>{S.editAssetId=null;selAssetType=0;_assetIconMode='emoji
 window.goRecurForm =()=>{S.editRecurId=null;selRecurFreq=2;S.view='recurForm';render();};
 window.setFilter   =id=>{S.filterMember=id;render();};
 
-window.setTab      =t=>{S.tab=t;S.analyticsFilter={type:null,key:null};const sec=document.getElementById('homePageSections');if(sec&&S.view==='home'&&S.homePage===0){sec.innerHTML=renderHomePage0Sections();}else{render();}};
+window.setTab      =t=>{if(!S.user)return;S.tab=t;S.analyticsFilter={type:null,key:null};const sec=document.getElementById('homePageSections');if(sec&&S.view==='home'&&S.homePage===0){sec.innerHTML=renderHomePage0Sections();}else{render();}};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.coPayors=[];S.addForm.coPayorAmounts={};S.addForm.coPayorMode='equal';S.addForm.payerMode='equal';S.addForm.payerAmounts={};S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
 window.setFF       =(k,v)=>{if(S.addForm)S.addForm[k]=v;};
 window.updateTzHint=(date,time)=>{
