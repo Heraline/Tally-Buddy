@@ -517,6 +517,8 @@ const S={
   statsMonth:(()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})(),
   statsTab:'overview', // overview | budget | members | trend
   statsMember:'all',
+  homePage:0,          // 0=Spending, 1=Wallet
+  tab2:'transactions', // tab for page 2 (Wallet)
   addForm:null,
   editTxKey:null,
   splitModal:null,settleModal:null,
@@ -1370,6 +1372,175 @@ function renderPage(){
 }
 
 // ── HOME ──
+// ── HOME PAGE SECTIONS (middle + bottom, switches with carousel) ──
+function renderHomePageSections(){
+  if(S.totalView) return renderHomePageSectionsTotalView();
+  return S.homePage===0 ? renderHomePage0Sections() : renderHomePage1Sections();
+}
+
+// ─── PAGE 0 SECTIONS: Spending & Transactions ───
+function renderHomePage0Sections(){
+  const fil=filtered();
+  const mth=monthlyTotals();
+  const tc=S.tab==='transactions'?renderTxs(fil):renderAnalytics(fil,mth.exp);
+
+  // Splits quick buttons
+  const dbs=debts();
+  const pendingCount=dbs.length;
+  const allSArr=Object.values(S.settlements||{});
+  const unreviewedCount=allSArr.filter(s=>!s.reviewed).length;
+  const splitsHtml=`<div style="display:flex;gap:10px;margin:14px 20px 0">
+    <button onclick="goSplits()" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid ${pendingCount>0?'rgba(255,107,107,0.3)':'var(--border)'};cursor:pointer;text-align:left">
+      <div style="width:34px;height:34px;border-radius:10px;background:${pendingCount>0?'rgba(255,107,107,0.15)':'rgba(105,210,160,0.12)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${pendingCount>0?'⏳':'✅'}</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:12px;font-weight:700;color:${pendingCount>0?'var(--red)':'var(--green)'}">${pendingCount>0?`${pendingCount} Pending`:'All Settled!'}</p>
+        <p style="font-size:10px;color:var(--dim);margin-top:1px">${pendingCount>0?'Tap to settle':'No outstanding amounts'}</p>
+      </div>
+      <span style="color:var(--dim);font-size:16px">›</span>
+    </button>
+    <button onclick="goSplits(true)" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;text-align:left">
+      <div style="position:relative;width:34px;height:34px;border-radius:10px;background:rgba(105,210,160,0.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📋${unreviewedCount>0?`<span style="position:absolute;top:-4px;right:-4px;background:var(--yellow);color:#000;font-size:9px;font-weight:700;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px">${unreviewedCount}</span>`:''}</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:12px;font-weight:700;color:${unreviewedCount>0?'var(--yellow)':'var(--text)'}"> ${unreviewedCount>0?unreviewedCount+' To Review':'All Reviewed'}</p>
+        <p style="font-size:10px;color:var(--dim);margin-top:1px">Settlement history</p>
+      </div>
+      <span style="color:var(--dim);font-size:16px">›</span>
+    </button>
+  </div>`;
+
+  return`${splitsHtml}
+  <div class="tab-bar">
+    <button class="tab-btn ${S.tab==='transactions'?'active':''}" onclick="setTab('transactions')">Transactions</button>
+    <button class="tab-btn ${S.tab==='analytics'?'active':''}" onclick="setTab('analytics')">Category Analytics</button>
+  </div>
+  ${tc}`;
+}
+
+// ─── PAGE 1 SECTIONS: Wallet & Member Analytics ───
+function renderHomePage1Sections(){
+  const cats=getCats();
+  const fil=filtered();
+  const tab2=S.tab2||'transactions';
+
+  // Asset quick actions row
+  const assetArr=Object.entries(S.assets||{}).map(([id,a])=>({id,...a}));
+  const assetQuickHtml=`<div style="display:flex;gap:10px;margin:14px 20px 0">
+    <button onclick="goAssets()" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(78,205,196,0.08);border:1px solid rgba(78,205,196,0.2);cursor:pointer;text-align:left">
+      <div style="width:34px;height:34px;border-radius:10px;background:rgba(78,205,196,0.15);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🏦</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:12px;font-weight:700;color:#4ECDC4">${assetArr.length} Account${assetArr.length!==1?'s':''}</p>
+        <p style="font-size:10px;color:var(--dim);margin-top:1px">Manage balances</p>
+      </div>
+      <span style="color:var(--dim);font-size:16px">›</span>
+    </button>
+    <button onclick="goTxByShared()" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;text-align:left">
+      <div style="width:34px;height:34px;border-radius:10px;background:rgba(108,99,255,0.12);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">👥</div>
+      <div style="flex:1;min-width:0">
+        <p style="font-size:12px;font-weight:700;color:var(--accent)">Shared Txs</p>
+        <p style="font-size:10px;color:var(--dim);margin-top:1px">All split transactions</p>
+      </div>
+      <span style="color:var(--dim);font-size:16px">›</span>
+    </button>
+  </div>`;
+
+  // Tab 2 content
+  let tab2Content='';
+  if(tab2==='transactions'){
+    // All transactions including asset-related, no member filter
+    const allTxs=txArr();
+    const recent=allTxs.slice(0,20);
+    const txRows=recent.length?recent.map(t=>{
+      const cat=cats[t.category]||DEFAULT_CATS.other;
+      const mem=getMem(t.member);
+      const disp=txDisp(t);
+      return`<div class="tx-row surface" style="cursor:pointer" onclick="openTxModal('${t._k}')">
+        <div class="tx-icon" style="background:${cat.color}22">${renderCatIcon(cat.icon,22,true)}</div>
+        <div class="tx-info">
+          <p class="tx-desc">${t.description||cat.label}</p>
+          <div class="tx-meta">
+            <span class="tag" style="background:${(mem.color||'#999')}22;color:${mem.color||'#999'}">${mem.avatar} ${mem.displayName}</span>
+            ${t.assetId&&S.assets?.[t.assetId]?`<span class="tag" style="background:rgba(78,205,196,0.12);color:#4ECDC4">🏦 ${S.assets[t.assetId].name}</span>`:''}
+            ${disp.time?`<span class="tag" style="background:rgba(255,255,255,0.05);color:var(--dim)">${disp.date!==t.date?disp.date+' ':''} ${disp.time}</span>`:''}
+          </div>
+        </div>
+        <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</p>
+      </div>`;
+    }).join(''):`<div class="empty">No transactions yet.</div>`;
+    const hasMore=allTxs.length>20;
+    tab2Content=`${txRows}${hasMore?`<div style="padding:0 22px 8px"><button onclick="goTxByShared()" style="width:100%;padding:13px;border-radius:14px;background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.25);color:var(--accent);font-size:13px;font-weight:600">View all transactions →</button></div>`:''}`;
+  } else {
+    // Analytics — member balances + per member paid
+    const dbs=debts();
+    const dRows=dbs.length?dbs.map(d=>{const f=getMem(d.from),t=getMem(d.to);
+      return`<div class="debt-row surface" style="display:flex;align-items:center;gap:12px;padding:12px 15px;border-radius:14px;margin-bottom:8px">
+        <span style="font-size:20px">${f.avatar}</span>
+        <span style="font-size:13px;color:var(--muted);flex:1">${f.displayName} owes ${t.displayName}</span>
+        <span style="font-family:var(--font-num);font-size:14px;color:var(--yellow);font-weight:600">${fmt(d.amount)}</span>
+        <button onclick="openSettleModal('${d.from}','${d.to}',${d.amount.toFixed(2)})" style="padding:6px 12px;border-radius:10px;background:rgba(105,210,160,0.15);color:var(--green);font-size:12px;font-weight:700;border:1px solid rgba(105,210,160,0.3);flex-shrink:0">Settle</button>
+      </div>`;
+    }).join(''):`<p style="font-size:13px;color:var(--dim)">No balances owed. 🎉</p>`;
+
+    const mStats=Object.entries(S.members||{}).map(([id,m])=>({
+      id,...m,
+      spent:txArr().filter(t=>t.member===id&&t.type==='expense').reduce((s,t)=>s+t.amount,0),
+      earned:txArr().filter(t=>t.member===id&&t.type==='income').reduce((s,t)=>s+t.amount,0),
+      actualPaid:txArr().filter(t=>t.member===id&&t.type==='expense').reduce((s,t)=>s+t.amount,0)
+    })).filter(m=>m.spent>0||m.earned>0).sort((a,b)=>b.spent-a.spent);
+
+    const memberRows=mStats.map(m=>{
+      const dbs2=debts();
+      const owedToMe=dbs2.filter(d=>d.to===m.id).reduce((s,d)=>s+d.amount,0);
+      const iOwe=dbs2.filter(d=>d.from===m.id).reduce((s,d)=>s+d.amount,0);
+      const netOwed=owedToMe-iOwe;
+      return`<div class="settings-row surface" style="margin-bottom:8px;cursor:pointer" onclick="goTxByMember('${m.id}')">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">${m.avatar}</span>
+          <div>
+            <p style="font-size:13px;font-weight:600">${m.displayName}${m.guest?'<span class="guest-badge">GUEST</span>':''}</p>
+            <p style="font-size:11px;color:var(--dim)">Paid ${fmt(m.spent)}${m.earned>0?` · Received ${fmt(m.earned)}`:''}</p>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+          ${m.earned>0?`<p style="font-family:var(--font-num);font-size:12px;color:var(--green)">+${fmt(m.earned)}</p>`:''}
+          ${netOwed>0?`<p style="font-size:10px;color:var(--yellow)">owed +${fmt(netOwed)}</p>`:netOwed<0?`<p style="font-size:10px;color:var(--red)">owes ${fmt(Math.abs(netOwed))}</p>`:''}
+          <span style="color:var(--dim);font-size:18px">›</span>
+        </div>
+      </div>`;
+    }).join('')||`<p style="font-size:13px;color:var(--dim)">No data yet.</p>`;
+
+    const settleLog=Object.entries(S.settlements||{}).sort((a,b)=>(b[1].ts||0)-(a[1].ts||0)).slice(0,5).map(([sk,s])=>{
+      const f=getMem(s.from),t=getMem(s.to);
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;margin-bottom:6px;background:rgba(105,210,160,0.06);border:1px solid rgba(105,210,160,0.15)">
+        <span style="font-size:18px">${f.avatar}</span>
+        <div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:600">${f.displayName} → ${t.displayName}</p><p style="font-size:11px;color:var(--dim)">${s.note||'Settled'} · ${s.date||''}</p></div>
+        <span style="font-family:var(--font-num);font-size:13px;color:var(--green);font-weight:600">${fmt(s.amount)}</span>
+        <button onclick="deleteSettle('${sk}')" style="font-size:10px;padding:3px 8px;border-radius:7px;background:rgba(255,107,107,0.12);color:var(--red);font-weight:600;border:none">✕</button>
+      </div>`;
+    }).join('');
+
+    tab2Content=`<div class="analytics-section">
+      <p class="label" style="margin-bottom:12px">Split balances owed</p>${dRows}
+      ${settleLog?`<p class="label" style="margin-bottom:10px;margin-top:18px">Recent Settlements</p>${settleLog}`:''}
+    </div>
+    <div class="analytics-section" style="margin-top:8px">
+      <p class="label" style="margin-bottom:12px">Per member · actual paid</p>${memberRows}
+    </div>`;
+  }
+
+  return`${assetQuickHtml}
+  <div class="tab-bar">
+    <button class="tab-btn ${tab2==='transactions'?'active':''}" onclick="setTab2('transactions')">All Transactions</button>
+    <button class="tab-btn ${tab2==='analytics'?'active':''}" onclick="setTab2('analytics')">Member Analytics</button>
+  </div>
+  ${tab2Content}`;
+}
+
+// ─── TOTAL VIEW PAGE SECTIONS (unchanged) ───
+function renderHomePageSectionsTotalView(){
+  // totalView doesn't use the two-page split — keep as-is
+  return'';
+}
+
 function renderHome(){
   // Total view: aggregate across all ledgers (all amounts normalised to MYR)
   if(S.totalView){
@@ -1836,7 +2007,6 @@ function renderHome(){
   const spentToday=txArr().filter(t=>t.type==='expense'&&t.date===todayStr&&(!isFiltered||t.member===memFilter||(t.splitWith||[]).includes(memFilter))).reduce((s,t)=>s+t.amount,0);
 
   const monthName=new Date().toLocaleDateString('en-MY',{month:'long',year:'numeric'});
-  const tc=S.tab==='transactions'?renderTxs(fil):renderAnalytics(fil,mth.exp);
 
   const _greeting=(()=>{const h=new Date().getHours();return h<12?'Good morning':h<17?'Good afternoon':'Good evening';})();
   const _firstName=(S.user?.displayName||'').split(' ')[0]||'there';
@@ -2050,42 +2220,8 @@ function renderHome(){
       </div>
     </div><!-- end carousel wrap -->
 
-    <!-- SPLITS & BALANCES QUICK BUTTONS -->
-    ${(()=>{
-      const dbs=debts();
-      const pendingCount=dbs.length;
-      const allSArr=Object.values(S.settlements||{});
-      const settledCount=allSArr.length;
-      const unreviewedCount=allSArr.filter(s=>!s.reviewed).length;
-      return`<div style="display:flex;gap:10px;margin:14px 20px 0">
-        <button onclick="goSplits()" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid ${pendingCount>0?'rgba(255,107,107,0.3)':'var(--border)'};cursor:pointer;text-align:left">
-          <div style="width:34px;height:34px;border-radius:10px;background:${pendingCount>0?'rgba(255,107,107,0.15)':'rgba(105,210,160,0.12)'};display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${pendingCount>0?'⏳':'✅'}</div>
-          <div style="flex:1;min-width:0">
-            <p style="font-size:12px;font-weight:700;color:${pendingCount>0?'var(--red)':'var(--green)'}">${pendingCount>0?`${pendingCount} Pending`:'All Settled!'}</p>
-            <p style="font-size:10px;color:var(--dim);margin-top:1px">${pendingCount>0?'Tap to settle':'No outstanding amounts'}</p>
-          </div>
-          <span style="color:var(--dim);font-size:16px">›</span>
-        </button>
-        <button onclick="goSplits(true)" style="flex:1;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;text-align:left">
-          <div style="position:relative;width:34px;height:34px;border-radius:10px;background:rgba(105,210,160,0.1);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">
-            📋
-            ${unreviewedCount>0?'<span style="position:absolute;top:-4px;right:-4px;background:var(--yellow);color:#000;font-size:9px;font-weight:700;border-radius:999px;min-width:16px;height:16px;display:flex;align-items:center;justify-content:center;padding:0 3px">'+unreviewedCount+'</span>':''}
-          </div>
-          <div style="flex:1;min-width:0">
-            <p style="font-size:12px;font-weight:700;color:${unreviewedCount>0?'var(--yellow)':'var(--text)'}"> ${unreviewedCount>0?unreviewedCount+' To Review':'All Reviewed'}</p>
-            <p style="font-size:10px;color:var(--dim);margin-top:1px">Settlement history</p>
-          </div>
-          <span style="color:var(--dim);font-size:16px">›</span>
-        </button>
-      </div>`;
-    })()}
-
-    <!-- TABS -->
-    <div class="tab-bar">
-      <button class="tab-btn ${S.tab==='transactions'?'active':''}" onclick="setTab('transactions')">Transactions</button>
-      <button class="tab-btn ${S.tab==='analytics'?'active':''}" onclick="setTab('analytics')">Analytics</button>
-    </div>
-    ${tc}
+    <!-- PAGE SECTIONS (switches with carousel) -->
+    <div id="homePageSections">${S.homePage===0?renderHomePage0Sections():renderHomePage1Sections()}</div>
   </div>`;
 }
 
@@ -2763,183 +2899,93 @@ function renderCalendar(){
   // Day cells
   for(let d=1;d<=daysInMonth;d++)cells.push(d);
 
-  const DAY_LABELS=['S','M','T','W','T','F','S'];
+  const DAY_LABELS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
   // Selected day transactions
   const selDay=S.calendarDay;
   const selDayTxs=selDay?all.filter(t=>t.date===selDay).sort((a,b)=>(b.ts||0)-(a.ts||0)):[];
   const cats=getCats();
 
-  // Max daily expense for bar scaling
-  const maxDayExp=Math.max(1,...Object.values(daily).map(d=>d.exp));
+  return`<div class="fade-in" style="display:flex;flex-direction:column;height:100%">
 
-  // Budget progress for circular indicator
-  const calBudgets=S.budgets||{};
-  const calManualBudget=parseFloat(calBudgets._total)||0;
-  const calCatBudget=Object.entries(calBudgets).filter(([k])=>k!=='_total'&&!k.includes('__')).reduce((s,[,v])=>s+(parseFloat(v)||0),0);
-  const calTotalBudget=calManualBudget>0?calManualBudget:calCatBudget;
-  const calUsedPct=calTotalBudget>0?Math.min(100,(totalExp/calTotalBudget)*100):0;
-  const calRemainingPct=Math.max(0,100-calUsedPct);
-  const circleR=26;
-  const circleC=2*Math.PI*circleR;
-  const circleDash=((calRemainingPct/100)*circleC).toFixed(1);
-  const circleColor=calRemainingPct<20?'var(--red)':calRemainingPct<40?'var(--yellow)':'#6C63FF';
-
-  // Top-left date
-  const nowDate=nowInTz(lTz());
-  const topDateLine1=nowDate.toLocaleDateString('en-MY',{weekday:'long'});
-  const topDateLine2=nowDate.toLocaleDateString('en-MY',{day:'numeric',month:'long'});
-
-  return`<div class="fade-in" style="display:flex;flex-direction:column;min-height:100%;background:linear-gradient(160deg,#C8D8F0 0%,#D8E8F8 30%,#EAF0FA 60%,#F4F6FC 100%);padding-bottom:calc(90px + env(safe-area-inset-bottom))">
-
-    <!-- TOP BAR: date left + budget circle right -->
-    <div style="padding:52px 20px 0;display:flex;align-items:flex-start;justify-content:space-between">
-      <div>
-        <p style="font-size:12px;color:rgba(30,40,80,0.5);font-weight:500;margin-bottom:2px">${topDateLine1}</p>
-        <p style="font-size:26px;font-weight:800;letter-spacing:-0.03em;color:#1A2050;line-height:1.1">${topDateLine2}</p>
-        <p style="font-size:12px;color:rgba(30,40,80,0.4);margin-top:3px">${monthLabel}${S.totalView?' · My Finance':''}</p>
+    <!-- HEADER -->
+    <div style="padding:52px 16px 0;display:flex;align-items:center;gap:8px">
+      <button onclick="goHome()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:none;color:var(--text);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">←</button>
+      <button id="calPrevBtn" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.07);border:none;color:var(--text);font-size:18px;cursor:pointer;flex-shrink:0">‹</button>
+      <div style="flex:1;text-align:center">
+        <p style="font-size:17px;font-weight:700;letter-spacing:-0.01em">${monthLabel}${S.totalView?' · My Finance':''} <span style="color:var(--dim);font-size:14px">▾</span></p>
       </div>
-      <!-- Circular budget progress -->
-      <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-        <div style="position:relative;width:64px;height:64px">
-          <svg width="64" height="64" style="transform:rotate(-90deg)">
-            <circle cx="32" cy="32" r="${circleR}" fill="none" stroke="rgba(30,40,80,0.1)" stroke-width="5"/>
-            ${calTotalBudget>0
-              ?`<circle cx="32" cy="32" r="${circleR}" fill="none" stroke="${circleColor}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${circleDash} ${circleC.toFixed(1)}"/>`
-              :`<circle cx="32" cy="32" r="${circleR}" fill="none" stroke="rgba(30,40,80,0.12)" stroke-width="5" stroke-dasharray="4 6"/>`
-            }
-          </svg>
-          <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
-            ${calTotalBudget>0
-              ?`<p style="font-size:13px;font-weight:800;color:#1A2050;line-height:1">${Math.round(calRemainingPct)}%</p>
-                <p style="font-size:8px;color:rgba(30,40,80,0.45);margin-top:1px">left</p>`
-              :`<p style="font-size:16px">💰</p>`
-            }
-          </div>
-        </div>
-        <p style="font-size:9px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:rgba(30,40,80,0.4)">Budget</p>
+      <button id="calNextBtn" style="width:34px;height:34px;border-radius:10px;background:${isCurrentMonth?'rgba(255,255,255,0.03)':'rgba(255,255,255,0.07)'};border:none;color:${isCurrentMonth?'var(--dim)':'var(--text)'};font-size:18px;cursor:pointer;flex-shrink:0" ${isCurrentMonth?'disabled':''}>›</button>
+    </div>
+
+    <!-- SUMMARY ROW -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;margin:12px 16px 0;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:14px;overflow:hidden">
+      <div style="padding:10px 14px;border-right:1px solid var(--border);border-bottom:1px solid var(--border)">
+        <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Income</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:#4A9EFF">${fmt(totalInc)}</p>
+      </div>
+      <div style="padding:10px 14px;border-bottom:1px solid var(--border)">
+        <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Expense</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:var(--red)">${fmt(totalExp)}</p>
+      </div>
+      <div style="padding:10px 14px;border-right:1px solid var(--border)">
+        <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Carry-over</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:var(--text)">${fmt(Math.abs(carryOver))}</p>
+      </div>
+      <div style="padding:10px 14px">
+        <p style="font-size:10px;color:var(--muted);margin-bottom:2px">Balance</p>
+        <p style="font-family:var(--font-num);font-size:14px;font-weight:700;color:${balance+carryOver>=0?'#4A9EFF':'var(--red)'}"> ${fmt(Math.abs(balance+carryOver))}</p>
       </div>
     </div>
 
-    <!-- MONTH NAV -->
-    <div style="display:flex;align-items:center;justify-content:center;gap:14px;padding:16px 20px 0">
-      <button id="calPrevBtn" style="width:30px;height:30px;border-radius:10px;background:rgba(30,40,80,0.08);border:none;color:#1A2050;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">‹</button>
-      <p style="font-size:13px;font-weight:700;color:rgba(30,40,80,0.6);letter-spacing:0.01em">${monthLabel}</p>
-      <button id="calNextBtn" style="width:30px;height:30px;border-radius:10px;background:${isCurrentMonth?'rgba(30,40,80,0.03)':'rgba(30,40,80,0.08)'};border:none;color:${isCurrentMonth?'rgba(30,40,80,0.2)':'#1A2050'};font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center" ${isCurrentMonth?'disabled':''}>›</button>
+    <!-- DAY LABELS -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:10px 16px 0;gap:0">
+      ${DAY_LABELS.map((d,i)=>`<div style="text-align:center;font-size:11px;font-weight:700;color:${i===0?'var(--red)':i===6?'#4A9EFF':'var(--muted)'};padding:4px 0">${d}</div>`).join('')}
     </div>
 
-    <!-- SUMMARY CARD -->
-    <div style="margin:14px 16px 0;background:#fff;border-radius:24px;box-shadow:0 8px 32px rgba(30,50,120,0.10),0 2px 8px rgba(30,50,120,0.06);padding:20px 22px">
-      <p style="font-size:10px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:rgba(30,40,80,0.4);margin-bottom:14px">${monthLabel} Overview</p>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-        <div>
-          <p style="font-size:10px;color:rgba(30,40,80,0.45);margin-bottom:4px">Income</p>
-          <p style="font-family:var(--font-num);font-size:17px;font-weight:700;color:#3B82F6">${fmt(totalInc)}</p>
-        </div>
-        <div>
-          <p style="font-size:10px;color:rgba(30,40,80,0.45);margin-bottom:4px">Expense</p>
-          <p style="font-family:var(--font-num);font-size:17px;font-weight:700;color:#EF4444">${fmt(totalExp)}</p>
-        </div>
-        <div>
-          <p style="font-size:10px;color:rgba(30,40,80,0.45);margin-bottom:4px">Carry-over</p>
-          <p style="font-family:var(--font-num);font-size:17px;font-weight:700;color:#1A2050">${fmt(Math.abs(carryOver))}</p>
-        </div>
-        <div>
-          <p style="font-size:10px;color:rgba(30,40,80,0.45);margin-bottom:4px">Balance</p>
-          <p style="font-family:var(--font-num);font-size:17px;font-weight:700;color:${balance+carryOver>=0?'#3B82F6':'#EF4444'}">${fmt(Math.abs(balance+carryOver))}</p>
-        </div>
-      </div>
-      ${calTotalBudget>0?`
-      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(30,40,80,0.07)">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <p style="font-size:10px;color:rgba(30,40,80,0.45)">Budget used</p>
-          <p style="font-size:10px;font-weight:700;color:${calUsedPct>80?'#EF4444':calUsedPct>60?'#F59E0B':'#6C63FF'}">${calUsedPct.toFixed(0)}% of ${fmt(calTotalBudget)}</p>
-        </div>
-        <div style="height:5px;background:rgba(30,40,80,0.08);border-radius:3px;overflow:hidden">
-          <div style="height:100%;width:${calUsedPct}%;background:${calUsedPct>80?'#EF4444':calUsedPct>60?'#F59E0B':'#6C63FF'};border-radius:3px"></div>
-        </div>
-      </div>`:''}
-    </div>
-
-    <!-- CALENDAR SECTION LABEL -->
-    <div style="padding:20px 20px 8px;display:flex;align-items:center;justify-content:space-between">
-      <p style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:rgba(30,40,80,0.4)">This month</p>
-      ${selDay?`<button onclick="selectCalDay(null)" style="font-size:11px;color:#6C63FF;background:none;border:none;cursor:pointer;font-weight:600">Clear ×</button>`:''} 
-    </div>
-
-    <!-- CALENDAR CARD -->
-    <div style="margin:0 16px;background:#fff;border-radius:22px;box-shadow:0 8px 32px rgba(30,50,120,0.10),0 2px 8px rgba(30,50,120,0.06);overflow:hidden">
-
-      <!-- DAY LABELS -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:14px 10px 4px">
-        ${DAY_LABELS.map((d,i)=>`<div style="text-align:center;font-size:11px;font-weight:700;letter-spacing:0.05em;color:${i===0?'rgba(239,68,68,0.7)':i===6?'rgba(59,130,246,0.7)':'rgba(30,40,80,0.35)'};">${d}</div>`).join('')}
-      </div>
-
-      <!-- GRID -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:0 10px 12px;gap:2px">
-        ${cells.map((d,i)=>{
-          if(!d)return`<div></div>`;
-          const dateStr=`${yr}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-          const dd=daily[dateStr]||{inc:0,exp:0};
-          const isToday=dateStr===todayStr;
-          const isSel=dateStr===selDay;
-          const col=(i%7);
-          const isSun=col===0,isSat=col===6;
-          const future=dateStr>todayStr;
-          const barW=dd.exp>0?Math.max(4,Math.round((dd.exp/maxDayExp)*20)):0;
-          return`<div onclick="selectCalDay('${dateStr}')" style="position:relative;display:flex;flex-direction:column;align-items:center;padding:6px 2px 5px;border-radius:12px;cursor:pointer;transition:all 0.15s;background:${isSel?'#6C63FF':isToday?'rgba(108,99,255,0.12)':'transparent'}">
-            <span style="font-size:13px;font-weight:${isToday||isSel?'800':'500'};color:${isSel?'#fff':isToday?'#6C63FF':future?'rgba(30,40,80,0.2)':isSun?'rgba(239,68,68,0.75)':isSat?'rgba(59,130,246,0.75)':'#1A2050'};line-height:1.3">${d}</span>
-            <div style="height:7px;display:flex;align-items:center;justify-content:center;margin-top:2px">
-              ${dd.exp>0?`<div style="width:${barW}px;height:3px;border-radius:2px;min-width:4px;background:${isSel?'rgba(255,255,255,0.7)':'#EF4444'}"></div>`:dd.inc>0?`<div style="width:6px;height:3px;border-radius:2px;background:${isSel?'rgba(255,255,255,0.5)':'#3B82F6'}"></div>`:''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
+    <!-- CALENDAR GRID -->
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);padding:0 16px;gap:0;flex:1">
+      ${cells.map((d,i)=>{
+        if(!d)return`<div style="border:0.5px solid rgba(255,255,255,0.05);min-height:62px"></div>`;
+        const dateStr=`${yr}-${String(mo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+        const dd=daily[dateStr]||{inc:0,exp:0};
+        const isToday=dateStr===todayStr;
+        const isSel=dateStr===selDay;
+        const col=(i%7);
+        const dayColor=col===0?'var(--red)':col===6?'#4A9EFF':'var(--text)';
+        const future=dateStr>todayStr;
+        return`<div onclick="selectCalDay('${dateStr}')" style="border:0.5px solid rgba(255,255,255,0.05);min-height:62px;padding:5px 4px;cursor:pointer;background:${isSel?'rgba(108,99,255,0.25)':isToday?'rgba(108,99,255,0.15)':'transparent'};position:relative;transition:background 0.15s">
+          <p style="font-size:12px;font-weight:${isToday?'700':'500'};color:${isToday?'var(--accent)':future?'var(--dim)':dayColor};text-align:center;line-height:1.2">${d}</p>
+          ${dd.inc>0?`<p style="font-size:9px;color:#4A9EFF;text-align:center;margin-top:2px;font-family:var(--font-num);line-height:1.2">${shortFmt(dd.inc)}</p>`:''}
+          ${dd.exp>0?`<p style="font-size:9px;color:var(--red);text-align:center;margin-top:1px;font-family:var(--font-num);line-height:1.2">${shortFmt(dd.exp)}</p>`:''}
+          ${isToday?`<div style="position:absolute;top:3px;right:3px;width:5px;height:5px;border-radius:50%;background:var(--accent)"></div>`:''}
+        </div>`;
+      }).join('')}
     </div>
 
     <!-- SELECTED DAY PANEL -->
     ${selDay?`
-    <div style="margin:14px 16px 0;animation:slideUp 0.2s ease">
-      <div style="background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(30,50,120,0.10),0 2px 8px rgba(30,50,120,0.06);padding:16px 18px;margin-bottom:10px">
-        <p style="font-size:11px;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;color:#6C63FF;margin-bottom:2px">${new Date(selDay+'T00:00:00').toLocaleDateString('en-MY',{weekday:'long'})}</p>
-        <div style="display:flex;align-items:center;justify-content:space-between">
-          <p style="font-size:20px;font-weight:800;letter-spacing:-0.02em;color:#1A2050">${new Date(selDay+'T00:00:00').toLocaleDateString('en-MY',{day:'numeric',month:'long'})}</p>
-          <div style="display:flex;gap:10px;align-items:center">
-            ${(daily[selDay]?.exp||0)>0?`<p style="font-size:13px;font-weight:700;color:#EF4444">−${fmt(daily[selDay].exp)}</p>`:''}
-            ${(daily[selDay]?.inc||0)>0?`<p style="font-size:13px;font-weight:700;color:#3B82F6">+${fmt(daily[selDay].inc)}</p>`:''}
-            <button onclick="selectCalDay(null)" style="width:28px;height:28px;border-radius:8px;background:rgba(30,40,80,0.06);border:none;color:rgba(30,40,80,0.4);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center">×</button>
-          </div>
-        </div>
+    <div style="margin:0 16px 8px;border-top:1px solid var(--border);padding-top:12px;max-height:240px;overflow-y:auto">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <p style="font-size:13px;font-weight:700">${new Date(selDay+'T00:00:00').toLocaleDateString('en-MY',{weekday:'long',day:'numeric',month:'long'})}</p>
+        <button onclick="selectCalDay(null)" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0 4px">×</button>
       </div>
       ${selDayTxs.length===0
-        ?`<div style="text-align:center;padding:24px 0;color:rgba(30,40,80,0.35)">
-            <p style="font-size:24px;margin-bottom:6px">🗓</p>
-            <p style="font-size:13px;font-weight:500">No transactions this day</p>
-          </div>`
+        ?`<p style="font-size:13px;color:var(--dim);text-align:center;padding:12px 0">No transactions</p>`
         :selDayTxs.map(t=>{
           const cat=cats[t.category]||DEFAULT_CATS.other;
           const mem=getMem(t.member);
-          const disp=txDisp(t);
-          return`<div onclick="openTxModal('${t._k}')" style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:16px;box-shadow:0 2px 12px rgba(30,50,120,0.07);padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:box-shadow 0.15s" onmouseenter="this.style.boxShadow='0 4px 20px rgba(30,50,120,0.13)'" onmouseleave="this.style.boxShadow='0 2px 12px rgba(30,50,120,0.07)'">
-            <div style="width:42px;height:42px;border-radius:13px;background:${cat.color}18;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:20px">${renderCatIcon(cat.icon,22,true)}</div>
-            <div style="flex:1;min-width:0">
-              <p style="font-size:13px;font-weight:600;color:#1A2050;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${t.description||cat.label}</p>
-              <div style="display:flex;align-items:center;gap:5px;margin-top:3px">
-                <span style="font-size:10px;font-weight:600;background:${(mem.color||'#999')}18;color:${mem.color||'#6C63FF'};padding:2px 7px;border-radius:5px">${mem.avatar} ${mem.displayName}</span>
-                ${disp.time?`<span style="font-size:10px;color:rgba(30,40,80,0.35)">${disp.time}</span>`:''}
-              </div>
+          return`<div class="tx-row surface" onclick="openTxModal('${t._k}')" style="margin-bottom:6px">
+            <div class="tx-icon" style="background:${cat.color}22;width:36px;height:36px;border-radius:11px">${renderCatIcon(cat.icon,22,true)}</div>
+            <div class="tx-info">
+              <p class="tx-desc" style="font-size:13px">${t.description}</p>
+              <span class="tag" style="background:${(mem.color||'#999')}33;color:${mem.color||'#999'};font-size:10px">${mem.avatar} ${mem.displayName}</span>
             </div>
-            <div style="text-align:right;flex-shrink:0">
-              <p style="font-size:14px;font-weight:700;color:${t.type==='income'?'#3B82F6':'#1A2050'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</p>
-              <p style="font-size:10px;color:rgba(30,40,80,0.35);margin-top:1px">${cat.label}</p>
-            </div>
+            <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}; font-size:14px">${t.type==='income'?'+':'-'}${fmt(t.amount)}</p>
           </div>`;
         }).join('')}
-    </div>`:''} 
-
-    <style>
-      @keyframes slideUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-    </style>
+    </div>`
+    :`<div style="height:8px"></div>`}
   </div>`;
 }
 
@@ -6227,6 +6273,14 @@ window.summaryCarouselGo=function(idx){
   if(!track)return;
   const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
   track.scrollTo({left:idx*slideW,behavior:'smooth'});
+  // Also immediately update page state and sections
+  if(idx!==S.homePage){
+    S.homePage=idx;
+    setTimeout(()=>{
+      const sec=document.getElementById('homePageSections');
+      if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}
+    },150);
+  }
 };
 
 function _syncCarouselHeight(track){
@@ -6240,11 +6294,26 @@ function _attachCarouselDots(){
   const track=document.getElementById('summaryCarouselTrack');
   const dots=document.getElementById('summaryCarouselDots');
   if(!track||!dots)return;
+  // Restore to correct page without animation on initial render
+  if(S.homePage>0){
+    const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
+    track.scrollLeft=S.homePage*slideW;
+  }
   _syncCarouselHeight(track);
+  dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===S.homePage));
+  let _scrollTimer=null;
   track.addEventListener('scroll',function(){
     const idx=Math.round(track.scrollLeft/(track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth));
     dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
     _syncCarouselHeight(track);
+    clearTimeout(_scrollTimer);
+    _scrollTimer=setTimeout(()=>{
+      if(idx!==S.homePage){
+        S.homePage=idx;
+        const sec=document.getElementById('homePageSections');
+        if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}
+      }
+    },120);
   },{passive:true});
 }
 
@@ -6259,6 +6328,10 @@ function _attachCarouselDots(){
   tryObserve();
 })();
 window.setSplitsTab=tab=>{S.splitsTab=tab;renderPage();};
+window.setTab2=t=>{S.tab2=t;const sec=document.getElementById('homePageSections');if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}};
+function _attachHomePageSectionListeners(){
+  // Re-attach any listeners that live inside #homePageSections if needed (currently none beyond inline onclick)
+}
 window.setSplitsHistFilter=f=>{S.splitsHistFilter=f;renderPage();};
 let _searchTimer=null;
 window.doSearch=(val,clear)=>{
@@ -6604,7 +6677,7 @@ window.goAssetForm =()=>{S.editAssetId=null;selAssetType=0;_assetIconMode='emoji
 window.goRecurForm =()=>{S.editRecurId=null;selRecurFreq=2;S.view='recurForm';render();};
 window.setFilter   =id=>{S.filterMember=id;render();};
 
-window.setTab      =t=>{S.tab=t;S.analyticsFilter={type:null,key:null};render();};
+window.setTab      =t=>{S.tab=t;S.analyticsFilter={type:null,key:null};const sec=document.getElementById('homePageSections');if(sec&&S.view==='home'&&S.homePage===0){sec.innerHTML=renderHomePage0Sections();}else{render();}};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.coPayors=[];S.addForm.coPayorAmounts={};S.addForm.coPayorMode='equal';S.addForm.payerMode='equal';S.addForm.payerAmounts={};S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
 window.setFF       =(k,v)=>{if(S.addForm)S.addForm[k]=v;};
 window.updateTzHint=(date,time)=>{
