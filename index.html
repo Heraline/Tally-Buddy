@@ -249,14 +249,16 @@
   .asset-card::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:radial-gradient(circle,rgba(108,99,255,0.12),transparent 70%);pointer-events:none}
   .asset-type-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;letter-spacing:0.06em;text-transform:uppercase}
   .asset-balance{font-family:var(--font-num);font-size:26px;font-weight:700;letter-spacing:-0.02em;margin:8px 0 4px}
-  /* ── Summary card carousel ── */
-  .summary-carousel-wrap{margin:14px 20px 0;position:relative}
-  .summary-carousel-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;gap:0;align-items:start}
-  .summary-carousel-track::-webkit-scrollbar{display:none}
-  .summary-carousel-slide{flex:0 0 100%;scroll-snap-align:start;min-width:0}
-  .carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
+  /* ── Full-page swipe ── */
+  .home-pages-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;width:100%}
+  .home-pages-track::-webkit-scrollbar{display:none}
+  .home-page-slide{flex:0 0 100%;min-width:0;scroll-snap-align:start}
+  .carousel-dots{display:flex;justify-content:center;gap:6px;padding:10px 0 4px}
   .carousel-dot{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all 0.25s;cursor:pointer}
   .carousel-dot.active{background:var(--accent);width:18px;border-radius:3px}
+  /* Card styles still used inside each slide */
+  .summary-carousel-wrap{margin:14px 20px 0;position:relative}
+  .summary-carousel-slide{width:100%}
   /* Asset overview card (matches .card .balance-card style) */
   .asset-overview-card{background:var(--bg3);border:1px solid rgba(78,205,196,0.25);border-radius:22px;box-shadow:0 0 40px rgba(78,205,196,0.06),0 8px 32px rgba(0,0,0,0.12);padding:20px;height:100%}
   .recur-freq-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(78,205,196,0.15);color:var(--accent2);letter-spacing:0.05em}
@@ -2097,16 +2099,21 @@ function renderHome(){
     <!-- MEMBER FILTER PILLS -->
     <div class="member-scroll" style="padding:14px 20px 0">${pills}</div>
 
-    <!-- MAIN SUMMARY CARD CAROUSEL -->
-    <div class="summary-carousel-wrap" id="summaryCarouselWrap">
-      <div class="summary-carousel-track" id="summaryCarouselTrack">
+    <!-- PAGE TAB PILLS -->
+    <div style="display:flex;justify-content:center;gap:8px;padding:14px 20px 0">
+      <button class="home-tab-pill" onclick="summaryCarouselGo(0)" style="flex:1;padding:9px 0;border-radius:14px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;background:${S.homePage===0?'var(--accent)':'rgba(255,255,255,0.07)'};color:${S.homePage===0?'#fff':'var(--muted)'}">💸 Spending</button>
+      <button class="home-tab-pill" onclick="summaryCarouselGo(1)" style="flex:1;padding:9px 0;border-radius:14px;font-size:13px;font-weight:700;border:none;cursor:pointer;transition:all 0.2s;background:${S.homePage===1?'#4ECDC4':'rgba(255,255,255,0.07)'};color:${S.homePage===1?'#fff':'var(--muted)'}">🏦 Wallet</button>
+    </div>
 
-        <!-- SLIDE 1: Monthly Summary -->
-        <div class="summary-carousel-slide">
+    <!-- FULL-PAGE SWIPE TRACK -->
+    <div class="home-pages-track" id="summaryCarouselTrack">
+
+      <!-- PAGE 1: Spending -->
+      <div class="home-page-slide">
+        <div class="summary-carousel-wrap">
           <div style="background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(108,99,255,0.35);color:#fff">
             <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
             <div style="position:absolute;bottom:-20px;right:40px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
-
       <!-- Card header: month + calendar/stats icons -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
         <p style="font-size:15px;font-weight:700;color:#fff">${new Date().toLocaleDateString('en-MY',{month:'long'})} Expenses</p>
@@ -2115,7 +2122,6 @@ function renderHome(){
           <button onclick="goStats()" style="width:34px;height:34px;border-radius:10px;background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer">📊</button>
         </div>
       </div>
-
       <!-- Expense + Income row -->
       <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:12px">
         <div>
@@ -2127,7 +2133,6 @@ function renderHome(){
           <p style="font-family:var(--font-num);font-size:20px;font-weight:700;color:rgba(255,255,255,0.95)">${fmt(displayInc)}</p>
         </div>
       </div>
-
       <!-- Budget progress bar -->
       ${totalBudget>0?`
       <div style="margin-bottom:14px">
@@ -2156,20 +2161,16 @@ function renderHome(){
           }
         </div>`}
       </div>`:`<div style="height:1px;background:rgba(255,255,255,0.15);margin-bottom:14px"></div>`}
-
       <!-- Member Spending breakdown -->
       ${memberSpend.length>0||sharedTotal>0?`
       <div onclick="toggleMemberSpending()" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:${S.memberSpendingCollapsed?'0':'10px'};cursor:pointer;user-select:none">
         <p style="font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;letter-spacing:0.04em;text-transform:uppercase">Member Spending</p>
         <span style="font-size:16px;color:rgba(255,255,255,0.5);display:inline-block;transform:rotate(${S.memberSpendingCollapsed?'0deg':'180deg'})">⌃</span>
       </div>
-      ${S.memberSpendingCollapsed?'':`
-      ${sharedTotal>0?`<div onclick="goTxByShared()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.12);margin-bottom:8px;cursor:pointer">
+      ${S.memberSpendingCollapsed?'':
+      `${sharedTotal>0?`<div onclick="goTxByShared()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.12);margin-bottom:8px;cursor:pointer">
         <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
-        <div style="flex:1">
-          <p style="font-size:14px;font-weight:600;color:#fff">Shared</p>
-          <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">Split across members</p>
-        </div>
+        <div style="flex:1"><p style="font-size:14px;font-weight:600;color:#fff">Shared</p><p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">Split across members</p></div>
         <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:#fff">${fmt(sharedTotal)}</p>
         <span style="font-size:12px;color:rgba(255,255,255,0.6);min-width:36px;text-align:right">(${totalMemberSpend>0?Math.round(sharedTotal/mth.exp*100):0}%)</span>
         <span style="color:rgba(255,255,255,0.5);font-size:16px;margin-left:2px">›</span>
@@ -2177,29 +2178,19 @@ function renderHome(){
       ${memberSpend.map(m=>{
         const pct=mth.exp>0?Math.round(m.spent/mth.exp*100):0;
         const splitShare=nowTxs.filter(t=>isTrueSplit(t)).reduce((s,t)=>{
-          if(t.splitAmounts){
-            const myAmt=parseFloat(t.splitAmounts[m.id])||0;
-            return s+myAmt;
-          }
-          if(t.member===m.id||(t.splitWith||[]).includes(m.id)){
-            const all=[t.member,...(t.splitWith||[])];
-            return s+t.amount/all.length;
-          }
+          if(t.splitAmounts){const myAmt=parseFloat(t.splitAmounts[m.id])||0;return s+myAmt;}
+          if(t.member===m.id||(t.splitWith||[]).includes(m.id)){const all=[t.member,...(t.splitWith||[])];return s+t.amount/all.length;}
           return s;
         },0);
         const soloShare=m.spent-splitShare;
         return`<div onclick="goTxByMember('${m.id}')" style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:14px;background:rgba(255,255,255,0.10);margin-bottom:8px;cursor:pointer">
           <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">${m.avatar}</div>
-          <div style="flex:1;min-width:0">
-            <p style="font-size:14px;font-weight:600;color:#fff">${m.displayName}${m.guest?'<span class="guest-badge">G</span>':''}</p>
-            ${splitShare>0?`<p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">÷ ${fmt(splitShare)} split${soloShare>0?` + ${fmt(soloShare)} solo`:''}</p>`:''}
-          </div>
+          <div style="flex:1;min-width:0"><p style="font-size:14px;font-weight:600;color:#fff">${m.displayName}${m.guest?'<span class="guest-badge">G</span>':''}</p>${splitShare>0?`<p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">÷ ${fmt(splitShare)} split${soloShare>0?` + ${fmt(soloShare)} solo`:''}</p>`:''}</div>
           <p style="font-family:var(--font-num);font-size:14px;font-weight:600;color:#fff">${fmt(m.spent)}</p>
           <span style="font-size:12px;color:rgba(255,255,255,0.6);min-width:36px;text-align:right">(${pct}%)</span>
           <span style="color:rgba(255,255,255,0.5);font-size:16px;margin-left:2px">›</span>
         </div>`;
       }).join('')}`}`:``}
-
       <!-- vs last month chip -->
       ${vsLastMonth!==null?`
       <div style="margin-top:4px;text-align:center">
@@ -2207,11 +2198,15 @@ function renderHome(){
           vs last month: <strong style="color:${vsLastMonth<=0?'#a8ffda':'#ffb3b3'}">${vsLastMonth>0?'+':''}${vsLastMonth.toFixed(1)}% ${vsLastMonth<=0?'decrease':'increase'}</strong>
         </span>
       </div>`:``}
-          </div><!-- end gradient card -->
-        </div><!-- end slide 1 -->
+          </div>
+        </div>
+        <!-- Page 1 sections -->
+        <div>${renderHomePage0Sections()}</div>
+      </div><!-- end page 1 slide -->
 
-        <!-- SLIDE 2: Asset Accounts -->
-        <div class="summary-carousel-slide">
+      <!-- PAGE 2: Wallet -->
+      <div class="home-page-slide">
+        <div class="summary-carousel-wrap">
           <div style="background:linear-gradient(135deg,#1a6b5a 0%,#4ECDC4 100%);border-radius:24px;padding:22px 22px 20px;position:relative;overflow:hidden;box-shadow:0 12px 40px rgba(78,205,196,0.35);color:#fff">
             <div style="position:absolute;top:-30px;right:-30px;width:130px;height:130px;border-radius:50%;background:rgba(255,255,255,0.08);pointer-events:none"></div>
             <div style="position:absolute;bottom:-20px;left:30px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none"></div>
@@ -2234,10 +2229,7 @@ function renderHome(){
                 const balColor=isCredit&&bal>0?'#ffb3b3':bal<0?'#ffb3b3':'#fff';
                 return`<div onclick="goAssets()" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,0.15);cursor:pointer">
                   <div style="width:32px;height:32px;border-radius:10px;background:rgba(255,255,255,0.18);display:flex;align-items:center;justify-content:center;flex-shrink:0">${dispIcon}</div>
-                  <div style="flex:1;min-width:0">
-                    <p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p>
-                    <p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">${t.label}</p>
-                  </div>
+                  <div style="flex:1;min-width:0"><p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.name}</p><p style="font-size:10px;color:rgba(255,255,255,0.6);margin-top:1px">${t.label}</p></div>
                   <p style="font-family:var(--font-num);font-size:13px;font-weight:700;color:${balColor};flex-shrink:0">${isCredit&&bal>0?'-':''}${fmt(Math.abs(bal),a.currency||S.ledgerCurrency)}</p>
                 </div>`;
               }).join('');
@@ -2252,19 +2244,13 @@ function renderHome(){
               <div>${rows}</div>
               <button onclick="goAssets()" style="margin-top:14px;width:100%;padding:9px;border-radius:12px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:600">Manage Accounts →</button>`;
             })()}
-          </div><!-- end teal gradient card -->
-        </div><!-- end slide 2 -->
+          </div>
+        </div>
+        <!-- Page 2 sections -->
+        <div>${renderHomePage1Sections()}</div>
+      </div><!-- end page 2 slide -->
 
-      </div><!-- end track -->
-      <!-- Carousel dots -->
-      <div class="carousel-dots" id="summaryCarouselDots">
-        <div class="carousel-dot active" onclick="summaryCarouselGo(0)"></div>
-        <div class="carousel-dot" onclick="summaryCarouselGo(1)"></div>
-      </div>
-    </div><!-- end carousel wrap -->
-
-    <!-- PAGE SECTIONS (switches with carousel) -->
-    <div id="homePageSections">${S.homePage===0?renderHomePage0Sections():renderHomePage1Sections()}</div>
+    </div><!-- end pages track -->
   </div>`;
 }
 
@@ -6312,18 +6298,12 @@ window.goSearch=()=>{S.searchQuery='';S.view='search';render();};
 // ── Summary Card Carousel — dot sync via scroll events ──
 // We use CSS scroll-snap for the swipe; this just keeps dots in sync.
 window.summaryCarouselGo=function(idx){
+  if(!S.user||S.view!=='home')return;
   const track=document.getElementById('summaryCarouselTrack');
   if(!track)return;
-  const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
+  const slideW=track.querySelector('.home-page-slide')?.offsetWidth||track.offsetWidth;
   track.scrollTo({left:idx*slideW,behavior:'smooth'});
-  // Also immediately update page state and sections
-  if(idx!==S.homePage&&S.user&&S.view==='home'){
-    S.homePage=idx;
-    setTimeout(()=>{
-      const sec=document.getElementById('homePageSections');
-      if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}
-    },150);
-  }
+  S.homePage=idx;
 };
 
 function _syncCarouselHeight(track){
@@ -6335,33 +6315,31 @@ function _syncCarouselHeight(track){
 
 function _attachCarouselDots(){
   const track=document.getElementById('summaryCarouselTrack');
-  const dots=document.getElementById('summaryCarouselDots');
-  if(!track||!dots)return;
+  if(!track)return;
   // Restore to correct page without animation on initial render
   if(S.homePage>0){
-    const slideW=track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth;
-    track.scrollLeft=S.homePage*slideW;
+    requestAnimationFrame(()=>{
+      const slideW=track.querySelector('.home-page-slide')?.offsetWidth||track.offsetWidth;
+      if(slideW>0)track.scrollLeft=S.homePage*slideW;
+    });
   }
-  _syncCarouselHeight(track);
-  dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===S.homePage));
-  // Guard: only attach scroll listener once per track element
   if(track._carouselListenerAttached)return;
   track._carouselListenerAttached=true;
   let _scrollTimer=null;
   track.addEventListener('scroll',function(){
-    const idx=Math.round(track.scrollLeft/(track.querySelector('.summary-carousel-slide')?.offsetWidth||track.offsetWidth));
-    dots.querySelectorAll('.carousel-dot').forEach((d,i)=>d.classList.toggle('active',i===idx));
-    _syncCarouselHeight(track);
+    const slideW=track.querySelector('.home-page-slide')?.offsetWidth||track.offsetWidth;
+    const idx=slideW>0?Math.round(track.scrollLeft/slideW):0;
+    // Update tab pill styles live
+    const pills=document.querySelectorAll('.home-tab-pill');
+    pills.forEach((p,i)=>{
+      if(i===0){p.style.background=idx===0?'var(--accent)':'rgba(255,255,255,0.07)';p.style.color=idx===0?'#fff':'var(--muted)';}
+      else{p.style.background=idx===1?'#4ECDC4':'rgba(255,255,255,0.07)';p.style.color=idx===1?'#fff':'var(--muted)';}
+    });
     clearTimeout(_scrollTimer);
     _scrollTimer=setTimeout(()=>{
-      // Guard: only update if user is logged in and on home view
       if(!S.user||S.view!=='home')return;
-      if(idx!==S.homePage){
-        S.homePage=idx;
-        const sec=document.getElementById('homePageSections');
-        if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}
-      }
-    },120);
+      S.homePage=idx;
+    },150);
   },{passive:true});
 }
 
@@ -6376,7 +6354,7 @@ function _attachCarouselDots(){
   tryObserve();
 })();
 window.setSplitsTab=tab=>{S.splitsTab=tab;renderPage();};
-window.setTab2=t=>{if(!S.user||S.view!=='home')return;S.tab2=t;const sec=document.getElementById('homePageSections');if(sec){sec.innerHTML=renderHomePageSections();_attachHomePageSectionListeners();}};
+window.setTab2=t=>{if(!S.user||S.view!=='home')return;S.tab2=t;render();};
 function _attachHomePageSectionListeners(){
   // Re-attach any listeners that live inside #homePageSections if needed (currently none beyond inline onclick)
 }
@@ -6725,7 +6703,7 @@ window.goAssetForm =()=>{S.editAssetId=null;selAssetType=0;_assetIconMode='emoji
 window.goRecurForm =()=>{S.editRecurId=null;selRecurFreq=2;S.view='recurForm';render();};
 window.setFilter   =id=>{S.filterMember=id;render();};
 
-window.setTab      =t=>{if(!S.user)return;S.tab=t;S.analyticsFilter={type:null,key:null};const sec=document.getElementById('homePageSections');if(sec&&S.view==='home'&&S.homePage===0){sec.innerHTML=renderHomePage0Sections();}else{render();}};
+window.setTab      =t=>{if(!S.user)return;S.tab=t;S.analyticsFilter={type:null,key:null};render();};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.coPayors=[];S.addForm.coPayorAmounts={};S.addForm.coPayorMode='equal';S.addForm.payerMode='equal';S.addForm.payerAmounts={};S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
 window.setFF       =(k,v)=>{if(S.addForm)S.addForm[k]=v;};
 window.updateTzHint=(date,time)=>{
