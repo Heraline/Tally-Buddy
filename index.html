@@ -504,8 +504,9 @@ const S={
   user:null,profile:null,
   ledgers:{},activeLedgerId:null,
   txs:{},members:{},cats:{},budgets:{},ledgerCurrency:'MYR',
-  ledgerTimezone:Intl.DateTimeFormat().resolvedOptions().timeZone, // canonical tz for storage
-  displayTimezone:null, // personal view tz override (null = use ledgerTimezone)
+  ledgerTimezone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+  displayTimezone:null,
+  ledgerTags:[],       // custom tags for this ledger
   assets:{},recurring:{},settlements:{},
   view:'home',tab:'transactions',filterMember:'all',
   budgetMonth:(()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');})(),
@@ -883,7 +884,7 @@ function monthlyTotals(ym){
   const exp=m.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
   return{inc,exp,bal:inc-exp,month};
 }
-function blankForm(){return{type:'expense',amount:'',category:'food',subcat:'',description:'',member:'',coPayors:[],coPayorAmounts:{},coPayorMode:'equal',splitWith:[],splitMode:'equal',customSplits:{},payerMode:'equal',payerAmounts:{},date:td(),time:tt(),currency:S.ledgerCurrency,assetId:''};}
+function blankForm(){return{type:'expense',amount:'',category:'food',subcat:'',description:'',member:'',coPayors:[],coPayorAmounts:{},coPayorMode:'equal',splitWith:[],splitMode:'equal',customSplits:{},payerMode:'equal',payerAmounts:{},date:td(),time:tt(),currency:S.ledgerCurrency,assetId:'',tags:[]};}
 function toast(msg,col='var(--green)'){const el=document.createElement('div');el.className='toast';el.textContent=msg;el.style.color=col;document.body.appendChild(el);setTimeout(()=>el.remove(),2500);}
 function showLoad(){document.getElementById('loadingScreen').style.display='flex';}
 function hideLoad(){document.getElementById('loadingScreen').style.display='none';}
@@ -962,6 +963,7 @@ async function switchLedger(lid){
   const fnDtz=s=>{S.displayTimezone=s.exists()?s.val():null;safeRender();};
   onValue(rDtz,fnDtz);S.listeners.push({r:rDtz,fn:fnDtz,tag:'displayTz'});
   listen('ledgers/'+lid+'/assets',s=>{S.assets=s.exists()?s.val():{};safeRender();});
+  listen('ledgers/'+lid+'/tags',s=>{S.ledgerTags=s.exists()?s.val():[]; safeRender();});
   listen('ledgers/'+lid+'/assetTransfers',s=>{S.assetTransfers=s.exists()?s.val():{};safeRender();});
   listen('ledgers/'+lid+'/recurring',s=>{S.recurring=s.exists()?s.val():{};safeRender();});
   listen('ledgers/'+lid+'/settlements',s=>{S.settlements=s.exists()?s.val():{};safeRender();});
@@ -4093,6 +4095,53 @@ function attachTxByCategoryListeners(){
 // ══════════════════════════════════════════
 //  ADD / EDIT FORM
 // ══════════════════════════════════════════
+// ── TAG SECTION for Add/Edit form ──
+function buildTagSection(f){
+  const mList=allMembers();
+  // Default tags = member display names
+  const memberTags=mList.map(m=>m.displayName);
+  // Custom tags stored in ledger
+  const customTags=(S.ledgerTags||[]).filter(t=>!memberTags.includes(t));
+  const allTags=[...memberTags,...customTags];
+  const sel=f.tags||[];
+
+  const tagChips=allTags.map(tag=>{
+    const isSelected=sel.includes(tag);
+    const isMember=memberTags.includes(tag);
+    const mem=isMember?mList.find(m=>m.displayName===tag):null;
+    const bg=isSelected?(mem?mem.color||'var(--accent)':'var(--accent)'):'rgba(255,255,255,0.06)';
+    const border=isSelected?'transparent':(mem?'rgba(255,255,255,0.1)':'var(--border)');
+    return`<button onclick="togTag('${tag.replace(/'/g,"\\'")}');renderPage()" style="display:inline-flex;align-items:center;gap:5px;padding:6px 12px;border-radius:999px;font-size:12px;font-weight:600;border:1.5px solid ${border};background:${bg};color:${isSelected?'#fff':'var(--muted)'};transition:all 0.15s;cursor:pointer;flex-shrink:0">
+      ${isMember&&mem?`<span style="font-size:13px">${mem.avatar}</span>`:'🏷'}
+      ${tag}
+      ${isSelected?'<span style="opacity:0.7;font-size:10px">✓</span>':''}
+    </button>`;
+  }).join('');
+
+  return`<div id="tagSection" class="form-section"><div class="input-card surface">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <p class="label">Tags</p>
+      <span style="font-size:10px;color:var(--dim)">${sel.length>0?sel.length+' selected':'optional'}</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:${customTags.length||true?'14px':'0'}">
+      ${tagChips||'<p style="font-size:12px;color:var(--dim)">No members yet</p>'}
+    </div>
+    <!-- Add custom tag -->
+    <div style="display:flex;gap:8px;align-items:center">
+      <input id="newTagInput" type="text" placeholder="Add custom tag..." maxlength="24"
+        style="flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text);outline:none"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();addCustomTag();}">
+      <button onclick="addCustomTag()" style="padding:8px 14px;border-radius:10px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">+ Add</button>
+    </div>
+    ${customTags.length?`<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px">
+      ${customTags.map(t=>`<span style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--dim);background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:999px;padding:3px 8px">
+        🏷 ${t}
+        <button onclick="removeCustomTag('${t.replace(/'/g,"\\'")}');event.stopPropagation()" style="background:none;border:none;color:var(--dim);font-size:12px;cursor:pointer;padding:0;line-height:1;margin-left:2px">×</button>
+      </span>`).join('')}
+    </div>`:''}
+  </div></div>`;
+}
+
 function renderAdd(){
   const f=S.addForm;
   const isEdit=!!S.editTxKey;
@@ -4326,6 +4375,7 @@ function renderAdd(){
     </div>
     ${payerSection}
     ${splitSection}
+    ${buildTagSection(f)}
     ${buildAssetPicker(f)}
     <button class="btn-primary" onclick="submitForm()">${isEdit?'✓ Save Changes':'Save Entry ✓'}</button>
     ${isEdit?`<button onclick="deleteTxFromEdit()" style="margin-top:12px;width:100%;padding:14px;border-radius:14px;background:rgba(255,107,107,0.1);color:var(--red);font-size:14px;font-weight:600;border:1px solid rgba(255,107,107,0.2)">🗑 Delete Transaction</button>`:''}
@@ -6706,6 +6756,44 @@ window.setFilter   =id=>{S.filterMember=id;render();};
 window.setTab      =t=>{if(!S.user)return;S.tab=t;S.analyticsFilter={type:null,key:null};render();};
 window.setType     =type=>{S.addForm.type=type;S.addForm.splitWith=[];S.addForm.coPayors=[];S.addForm.coPayorAmounts={};S.addForm.coPayorMode='equal';S.addForm.payerMode='equal';S.addForm.payerAmounts={};S.addForm.splitMode='equal';S.addForm.customSplits={};S.addForm.subcat='';S.addForm.category=type==='income'?'income':'food';renderPage();};
 window.setFF       =(k,v)=>{if(S.addForm)S.addForm[k]=v;};
+window.togTag=tag=>{
+  if(!S.addForm)return;
+  const tags=S.addForm.tags||[];
+  const idx=tags.indexOf(tag);
+  if(idx===-1)tags.push(tag);else tags.splice(idx,1);
+  S.addForm.tags=[...tags];
+  // Re-render just the tag section
+  const el=document.getElementById('tagSection');
+  if(el){el.outerHTML=buildTagSection(S.addForm);}
+};
+window.addCustomTag=()=>{
+  const inp=document.getElementById('newTagInput');
+  if(!inp)return;
+  const val=inp.value.trim().replace(/[#,]/g,'');
+  if(!val)return;
+  // Add to ledger tags if not already there
+  const existing=S.ledgerTags||[];
+  if(!existing.includes(val)){
+    const updated=[...existing,val];
+    set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
+  }
+  // Auto-select it
+  if(S.addForm){
+    const tags=S.addForm.tags||[];
+    if(!tags.includes(val))tags.push(val);
+    S.addForm.tags=[...tags];
+  }
+  inp.value='';
+  renderPage();
+};
+window.removeCustomTag=async tag=>{
+  if(!confirm(`Remove tag "${tag}" from this ledger?`))return;
+  const updated=(S.ledgerTags||[]).filter(t=>t!==tag);
+  await set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
+  // Also remove from current form if selected
+  if(S.addForm){S.addForm.tags=(S.addForm.tags||[]).filter(t=>t!==tag);}
+  toast('Tag removed');
+};
 window.updateTzHint=(date,time)=>{
   const el=document.getElementById('tzHint');
   if(!el)return; // no hint shown (same tz)
@@ -6761,6 +6849,7 @@ window.editTx=key=>{
     payerMode:t.payerAmounts&&Object.keys(t.payerAmounts).length>1?'custom':'equal',
     payerAmounts:t.payerAmounts?{...t.payerAmounts}:{},
     date:t.date,time:t.time||tt(),currency:t.currency||S.ledgerCurrency,assetId:t.assetId||'',origAmount:t.origAmount||null,
+    tags:t.tags?[...t.tags]:[],
   };
   S.editTxKey=key;
   S.splitModal=null;
@@ -6839,6 +6928,7 @@ window.submitForm=async()=>{
     date:f.date||td(),
     time:f.time||tt(),
     assetId:f.assetId||null,
+    tags:(f.tags||[]).length?(f.tags):[],
     ts:Date.now(),addedBy:S.user.uid,
   };
   try{
