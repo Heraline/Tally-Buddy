@@ -544,6 +544,7 @@ const S={
   txFilterMember:null,
   txFilterCategory:null,
   searchQuery:'',
+  searchTag:null,     // active tag filter in search
   splitsTab:'pending',
   splitsHistFilter:'all',
   paymentMethods:[],
@@ -3055,67 +3056,130 @@ window.selectCalDay=day=>{S.calendarDay=(day===S.calendarDay||!day)?null:day;ren
 // ══════════════════════════════════════════
 function renderSearchPage(){
   const q=(S.searchQuery||'').toLowerCase().trim();
-  // In total view, search across ALL ledger transactions; otherwise just the active ledger
+  const activeTag=S.searchTag||null;
   const all=S.totalView?totalTxArr():txArr();
   const cats=getCats();
-  const results=q.length>=1?all.filter(t=>{
-    const desc=(t.description||'').toLowerCase();
-    const catLabel=(getCats()[t.category]?.label||'').toLowerCase();
-    const mem=getMem(t.member);
-    const memName=(mem.displayName||'').toLowerCase();
-    const amt=String(t.amount);
-    const ledgerName=(t._lname||'').toLowerCase(); // for total view
-    return desc.includes(q)||catLabel.includes(q)||memName.includes(q)||amt.includes(q)||ledgerName.includes(q);
-  }):[];
+
+  // Build all available tags from transactions + ledger tags
+  const mList=allMembers();
+  const memberNames=mList.map(m=>m.displayName);
+  const customTags=S.ledgerTags||[];
+  const txTagSet=new Set();
+  all.forEach(t=>(t.tags||[]).forEach(tag=>txTagSet.add(tag)));
+  // Show member tags that have actual transactions, plus all custom tags
+  const allTags=[...new Set([...memberNames,...customTags])].filter(t=>txTagSet.has(t)||customTags.includes(t));
+
+  const results=all.filter(t=>{
+    // Tag filter
+    if(activeTag&&!(t.tags||[]).includes(activeTag))return false;
+    // Text search
+    if(q.length>=1){
+      const desc=(t.description||'').toLowerCase();
+      const catLabel=(cats[t.category]?.label||'').toLowerCase();
+      const mem=getMem(t.member);
+      const memName=(mem.displayName||'').toLowerCase();
+      const amt=String(t.amount);
+      const ledgerName=(t._lname||'').toLowerCase();
+      const tagMatch=(t.tags||[]).some(tag=>tag.toLowerCase().includes(q));
+      if(!desc.includes(q)&&!catLabel.includes(q)&&!memName.includes(q)&&!amt.includes(q)&&!ledgerName.includes(q)&&!tagMatch)return false;
+    }
+    return q.length>=1||activeTag;
+  });
+
   const g={};results.forEach(t=>{if(!g[t.date])g[t.date]=[];g[t.date].push(t);});
+  const showResults=q.length>=1||activeTag;
+
   return`<div class="fade-in" style="padding-bottom:40px">
+
+    <!-- SEARCH BAR -->
     <div style="padding:52px 20px 0;display:flex;align-items:center;gap:12px">
       <button onclick="goHome()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 12px;font-size:16px;color:var(--text);cursor:pointer">←</button>
       <div style="flex:1;display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:14px;padding:10px 14px">
         <span style="font-size:16px;color:var(--dim)">🔍</span>
-        <input id="searchInput" type="text" value="${(S.searchQuery||'').replace(/"/g,'&quot;')}" placeholder="Search transactions..." autofocus
+        <input id="searchInput" type="text" value="${(S.searchQuery||'').replace(/"/g,'&quot;')}" placeholder="Search transactions, tags..." autofocus
           style="flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font-ui);font-size:16px"
           oninput="doSearch(this.value)">
-        ${q?`<button onclick="doSearch('',true)" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0">×</button>`:''}
+        ${q||activeTag?`<button onclick="doSearch('',true)" style="background:none;border:none;color:var(--dim);font-size:18px;cursor:pointer;padding:0">×</button>`:''}
       </div>
     </div>
+
+    <!-- TAG FILTER PILLS -->
+    ${allTags.length?`
+    <div style="padding:12px 20px 0;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none">
+      <div style="display:flex;gap:8px;width:max-content;padding-bottom:2px">
+        <button onclick="setSearchTag(null)" style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${!activeTag?'var(--accent)':'var(--border)'};background:${!activeTag?'rgba(108,99,255,0.15)':'rgba(255,255,255,0.04)'};color:${!activeTag?'var(--accent)':'var(--muted)'}">
+          All
+        </button>
+        ${allTags.map(tag=>{
+          const isActive=activeTag===tag;
+          const mem=mList.find(m=>m.displayName===tag);
+          const bg=isActive?(mem?mem.color+'33':'rgba(108,99,255,0.2)'):'rgba(255,255,255,0.04)';
+          const border=isActive?(mem?mem.color:'var(--accent)'):'var(--border)';
+          const color=isActive?(mem?mem.color:'var(--accent)'):'var(--muted)';
+          // Count transactions with this tag
+          const count=all.filter(t=>(t.tags||[]).includes(tag)).length;
+          return`<button onclick="setSearchTag('${tag.replace(/'/g,"\\'")}')" style="flex-shrink:0;display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:999px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${border};background:${bg};color:${color}">
+            ${mem?`<span style="font-size:13px">${mem.avatar}</span>`:'🏷'}
+            ${tag}
+            <span style="opacity:0.65;font-size:11px">${count}</span>
+          </button>`;
+        }).join('')}
+      </div>
+    </div>`:''}
+
+    <!-- RESULTS -->
     <div style="padding:12px 20px 0">
-      ${!q?`<p style="font-size:13px;color:var(--dim);text-align:center;padding:40px 0">Type to search across all transactions</p>`
-      :results.length===0?`<p style="font-size:13px;color:var(--dim);text-align:center;padding:40px 0">No results for "${S.searchQuery}"</p>`
-      :`<p style="font-size:12px;color:var(--dim);margin-bottom:14px">${results.length} result${results.length!==1?'s':''} for "${S.searchQuery}"</p>
-      ${Object.entries(g).map(([date,txs])=>{
-        const dayInc=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
-        const dayExp=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
-        const incPart=dayInc>0?`<span style="color:var(--green);font-weight:600">Income ${fmt(dayInc)}</span>`:'';
-        const expPart=dayExp>0?`<span style="color:var(--red);font-weight:600">Expense ${fmt(dayExp)}</span>`:'';
-        const sep=dayInc>0&&dayExp>0?`<span style="color:var(--dim)"> · </span>`:'';
-        return`<div style="margin-bottom:18px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-            <p class="tx-date-label" style="margin-bottom:0">${dlabel(date)}</p>
-            <p style="font-size:11px">${incPart}${sep}${expPart}</p>
-          </div>
-          <div class="tx-list">
-            ${txs.map(t=>{
-              const cat=cats[t.category]||DEFAULT_CATS.other;
-              const mem=getMem(t.member);
-              const hs=(t.splitWith?.length>0)||(Object.keys(t.splitAmounts||{}).length>1);
-              return`<div class="tx-row surface" onclick="openTxModal('${t._k}')">
-                <div class="tx-icon" style="background:${cat.color}22">${renderCatIcon(cat.icon,22,true)}</div>
-                <div class="tx-info">
-                  <p class="tx-desc">${t.description}</p>
-                  <div class="tx-meta">
-                    <span class="tag" style="background:${(mem.color||'#999')}33;color:${mem.color||'#999'}">${mem.avatar} ${mem.displayName}</span>
-                    ${hs?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">÷split</span>`:''}
-                    <span class="tag" style="background:rgba(255,255,255,0.05);color:var(--dim);font-size:10px">${cat.label}</span>
-                    ${t._lname?`<span class="tag" style="background:rgba(108,99,255,0.1);color:var(--accent);font-size:10px">${t._licon||''} ${t._lname}</span>`:''}
-                  </div>
-                </div>
-                <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</p>
-              </div>`;
-            }).join('')}
-          </div>
-        </div>`;
-      }).join('')}`}
+      ${!showResults
+        ?`<p style="font-size:13px;color:var(--dim);text-align:center;padding:40px 0">Type to search, or filter by tag above</p>`
+        :results.length===0
+          ?`<div style="text-align:center;padding:40px 0">
+              <p style="font-size:24px;margin-bottom:8px">🔍</p>
+              <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">No results</p>
+              <p style="font-size:12px;color:var(--dim)">${activeTag?`No transactions tagged "${activeTag}"${q?` matching "${S.searchQuery}"`:''}`:`No match for "${S.searchQuery}"`}</p>
+            </div>`
+          :`<p style="font-size:12px;color:var(--dim);margin-bottom:14px">
+              ${results.length} result${results.length!==1?'s':''}
+              ${activeTag?`<span style="background:rgba(108,99,255,0.15);color:var(--accent);border-radius:999px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:4px">🏷 ${activeTag}</span>`:''}
+              ${q?`<span style="color:var(--dim)"> · "${S.searchQuery}"</span>`:''}
+            </p>
+          ${Object.entries(g).sort(([a],[b])=>b.localeCompare(a)).map(([date,txs])=>{
+            const dayInc=txs.filter(t=>t.type==='income').reduce((s,t)=>s+t.amount,0);
+            const dayExp=txs.filter(t=>t.type==='expense').reduce((s,t)=>s+t.amount,0);
+            const incPart=dayInc>0?`<span style="color:var(--green);font-weight:600">Income ${fmt(dayInc)}</span>`:'';
+            const expPart=dayExp>0?`<span style="color:var(--red);font-weight:600">Expense ${fmt(dayExp)}</span>`:'';
+            const sep=dayInc>0&&dayExp>0?`<span style="color:var(--dim)"> · </span>`:'';
+            return`<div style="margin-bottom:18px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+                <p class="tx-date-label" style="margin-bottom:0">${dlabel(date)}</p>
+                <p style="font-size:11px">${incPart}${sep}${expPart}</p>
+              </div>
+              <div class="tx-list">
+                ${txs.map(t=>{
+                  const cat=cats[t.category]||DEFAULT_CATS.other;
+                  const mem=getMem(t.member);
+                  const hs=(t.splitWith?.length>0)||(Object.keys(t.splitAmounts||{}).length>1);
+                  const tTags=t.tags||[];
+                  return`<div class="tx-row surface" onclick="openTxModal('${t._k}')">
+                    <div class="tx-icon" style="background:${cat.color}22">${renderCatIcon(cat.icon,22,true)}</div>
+                    <div class="tx-info">
+                      <p class="tx-desc">${t.description}</p>
+                      <div class="tx-meta">
+                        <span class="tag" style="background:${(mem.color||'#999')}33;color:${mem.color||'#999'}">${mem.avatar} ${mem.displayName}</span>
+                        ${hs?`<span class="tag" style="background:rgba(108,99,255,0.15);color:var(--accent)">÷split</span>`:''}
+                        <span class="tag" style="background:rgba(255,255,255,0.05);color:var(--dim);font-size:10px">${cat.label}</span>
+                        ${t._lname?`<span class="tag" style="background:rgba(108,99,255,0.1);color:var(--accent);font-size:10px">${t._licon||''} ${t._lname}</span>`:''}
+                        ${tTags.map(tag=>{
+                          const tMem=mList.find(m=>m.displayName===tag);
+                          return`<span class="tag" style="background:${tMem?tMem.color+'22':'rgba(108,99,255,0.12)'};color:${tMem?tMem.color:'var(--accent)'};font-size:10px;cursor:pointer" onclick="event.stopPropagation();setSearchTag('${tag.replace(/'/g,"\\'")}')">🏷 ${tag}</span>`;
+                        }).join('')}
+                      </div>
+                    </div>
+                    <p class="tx-amount" style="color:${t.type==='income'?'var(--green)':'var(--text)'}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</p>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>`;
+          }).join('')}`}
     </div>
   </div>`;
 }
@@ -6343,8 +6407,9 @@ window.toggleMemberSpending=()=>{
   renderPage();
   requestAnimationFrame(()=>_syncCarouselHeight(document.getElementById('summaryCarouselTrack')));
 };
-window.goSearch=()=>{S.searchQuery='';S.view='search';render();};
+window.goSearch=()=>{S.searchQuery='';S.searchTag=null;S.view='search';render();};
 
+window.setSearchTag=tag=>{S.searchTag=tag;renderPage();setTimeout(()=>document.getElementById('searchInput')?.focus(),50)};
 // ── Summary Card Carousel — dot sync via scroll events ──
 // We use CSS scroll-snap for the swipe; this just keeps dots in sync.
 window.summaryCarouselGo=function(idx){
@@ -6411,7 +6476,7 @@ function _attachHomePageSectionListeners(){
 window.setSplitsHistFilter=f=>{S.splitsHistFilter=f;renderPage();};
 let _searchTimer=null;
 window.doSearch=(val,clear)=>{
-  if(clear){S.searchQuery='';renderPage();return;}
+  if(clear){S.searchQuery='';S.searchTag=null;renderPage();return;}
   S.searchQuery=val;
   // Update just the results section without destroying the input
   clearTimeout(_searchTimer);
