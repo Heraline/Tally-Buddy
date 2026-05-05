@@ -6028,6 +6028,54 @@ function renderSettings(){
       </div>
     </div>
 
+    <!-- TAG MANAGEMENT -->
+    <div class="settings-section">
+      <p class="label" style="margin-bottom:12px">Tag Management</p>
+      <div class="surface" style="padding:14px 16px;border-radius:14px">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Member tags are automatic. Manage your custom tags below.</p>
+        ${(()=>{
+          const mList=allMembers();
+          const memberNames=mList.map(m=>m.displayName);
+          const customTags=(S.ledgerTags||[]).filter(t=>!memberNames.includes(t));
+          const txAll=txArr();
+
+          // Member tags (read-only)
+          const memberTagRows=mList.map(m=>{
+            const count=txAll.filter(t=>(t.tags||[]).includes(m.displayName)).length;
+            return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+              <span style="font-size:18px">${m.avatar}</span>
+              <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${m.displayName}</span>
+              <span style="font-size:11px;color:var(--dim)">${count} tx${count!==1?'s':''}</span>
+              <span style="font-size:10px;background:rgba(255,255,255,0.06);color:var(--dim);padding:2px 8px;border-radius:6px">Auto</span>
+            </div>`;
+          }).join('');
+
+          // Custom tags (editable)
+          const customTagRows=customTags.length?customTags.map(tag=>{
+            const count=txAll.filter(t=>(t.tags||[]).includes(tag)).length;
+            const safeTag=tag.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+            return`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
+              <span style="font-size:16px">🏷</span>
+              <span id="tagLabel_${btoa(tag).replace(/[^a-zA-Z0-9]/g,'')}" style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${tag}</span>
+              <span style="font-size:11px;color:var(--dim);flex-shrink:0">${count} tx${count!==1?'s':''}</span>
+              <button onclick="startRenameTag('${safeTag}')" style="padding:5px 10px;border-radius:8px;background:rgba(108,99,255,0.12);color:var(--accent);font-size:11px;font-weight:700;border:1px solid rgba(108,99,255,0.25);cursor:pointer;flex-shrink:0">Rename</button>
+              <button onclick="deleteTag('${safeTag}')" style="padding:5px 10px;border-radius:8px;background:rgba(255,107,107,0.1);color:var(--red);font-size:11px;font-weight:700;border:1px solid rgba(255,107,107,0.2);cursor:pointer;flex-shrink:0">✕</button>
+            </div>`;
+          }).join(''):`<p style="font-size:12px;color:var(--dim);padding:8px 0">No custom tags yet. Add tags while recording transactions.</p>`;
+
+          return`${memberTagRows}
+          <div style="margin-top:4px">${customTagRows}</div>
+          <!-- Add new tag inline -->
+          <div style="display:flex;gap:8px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07)">
+            <input id="settingsNewTagInput" type="text" placeholder="New custom tag..." maxlength="24"
+              style="flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text);outline:none"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();addTagFromSettings();}">
+            <button onclick="addTagFromSettings()" style="padding:8px 14px;border-radius:10px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">+ Add</button>
+          </div>`;
+        })()}
+      </div>
+    </div>
+
     <!-- LEDGER MEMBERS (real app users + guests combined) -->
     <div class="settings-section">
       <p class="label" style="margin-bottom:12px">Ledger Members</p>
@@ -6855,9 +6903,56 @@ window.removeCustomTag=async tag=>{
   if(!confirm(`Remove tag "${tag}" from this ledger?`))return;
   const updated=(S.ledgerTags||[]).filter(t=>t!==tag);
   await set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
-  // Also remove from current form if selected
   if(S.addForm){S.addForm.tags=(S.addForm.tags||[]).filter(t=>t!==tag);}
   toast('Tag removed');
+};
+window.deleteTag=async tag=>{
+  if(!confirm(`Delete tag "${tag}"? It will be removed from all ${txArr().filter(t=>(t.tags||[]).includes(tag)).length} transaction(s).`))return;
+  // Remove from ledger tags list
+  const updated=(S.ledgerTags||[]).filter(t=>t!==tag);
+  await set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
+  // Remove from all transactions that have it
+  const txsWithTag=txArr().filter(t=>(t.tags||[]).includes(tag));
+  const ups={};
+  txsWithTag.forEach(t=>{
+    ups[`ledgerTransactions/${S.activeLedgerId}/${t._k}/tags`]=(t.tags||[]).filter(x=>x!==tag);
+  });
+  if(Object.keys(ups).length)await update(ref(db),ups);
+  toast(`Tag "${tag}" deleted`);
+};
+window.startRenameTag=tag=>{
+  const newName=prompt(`Rename tag "${tag}" to:`,tag);
+  if(!newName||!newName.trim()||newName.trim()===tag)return;
+  renameTag(tag,newName.trim().replace(/[#,]/g,''));
+};
+window.renameTag=async(oldTag,newTag)=>{
+  if(!newTag||newTag===oldTag)return;
+  // Check not duplicate
+  const allTags=[...allMembers().map(m=>m.displayName),...(S.ledgerTags||[])];
+  if(allTags.includes(newTag)){toast('A tag with that name already exists','var(--red)');return;}
+  // Update ledger tags list
+  const updated=(S.ledgerTags||[]).map(t=>t===oldTag?newTag:t);
+  await set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
+  // Update all transactions that have it
+  const txsWithTag=txArr().filter(t=>(t.tags||[]).includes(oldTag));
+  const ups={};
+  txsWithTag.forEach(t=>{
+    ups[`ledgerTransactions/${S.activeLedgerId}/${t._k}/tags`]=(t.tags||[]).map(x=>x===oldTag?newTag:x);
+  });
+  if(Object.keys(ups).length)await update(ref(db),ups);
+  toast(`Renamed to "${newTag}"`);
+};
+window.addTagFromSettings=async()=>{
+  const inp=document.getElementById('settingsNewTagInput');
+  if(!inp)return;
+  const val=inp.value.trim().replace(/[#,]/g,'');
+  if(!val){toast('Enter a tag name','var(--red)');return;}
+  const existing=[...allMembers().map(m=>m.displayName),...(S.ledgerTags||[])];
+  if(existing.includes(val)){toast('Tag already exists','var(--yellow)');return;}
+  const updated=[...(S.ledgerTags||[]),val];
+  await set(ref(db,'ledgers/'+S.activeLedgerId+'/tags'),updated);
+  inp.value='';
+  toast(`Tag "${val}" added`);
 };
 window.updateTzHint=(date,time)=>{
   const el=document.getElementById('tzHint');
