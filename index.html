@@ -1368,6 +1368,7 @@ function renderPage(){
     if(_v==='notifications'){pg.innerHTML=renderNotificationsPage();_restoreScroll(_v);return;}
     if(_v==='splits'){pg.innerHTML=renderSplitsPage();_restoreScroll(_v);return;}
     if(_v==='paymentMethods'){pg.innerHTML=renderPaymentMethodsPage();_restoreScroll(_v);return;}
+    if(_v==='tagManagement'){pg.innerHTML=renderTagManagementPage();_restoreScroll(_v);return;}
     if(_v==='txByShared'){pg.innerHTML=renderTxByShared();attachTxBySharedListeners();_restoreScroll(_v);return;}
     if(_v==='txByMember'){pg.innerHTML=renderTxByMember();attachTxByMemberListeners();_restoreScroll(_v);return;}
     if(_v==='txByCategory'){pg.innerHTML=renderTxByCategory();attachTxByCategoryListeners();_restoreScroll(_v);return;}
@@ -5648,6 +5649,85 @@ window.addGuest=async()=>{
 window.removeGuest=async id=>{if(!confirm('Remove this guest member?'))return;await remove(ref(db,`ledgerMembers/${S.activeLedgerId}/${id}`));toast('Guest removed');};
 
 // ── APPEARANCE ──
+function renderTagManagementPage(){
+  const mList=allMembers();
+  const memberNames=mList.map(m=>m.displayName);
+  const customTags=(S.ledgerTags||[]).filter(t=>!memberNames.includes(t));
+  const txAll=txArr();
+
+  const memberTagRows=mList.map(m=>{
+    const count=txAll.filter(t=>(t.tags||[]).includes(m.displayName)).length;
+    return`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div style="width:38px;height:38px;border-radius:12px;background:${m.color||'var(--accent)'}22;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">${m.avatar}</div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:600;color:var(--text)">${m.displayName}</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:2px">${count} transaction${count!==1?'s':''}</p>
+      </div>
+      <span style="font-size:10px;font-weight:700;background:rgba(255,255,255,0.06);color:var(--dim);padding:3px 10px;border-radius:6px;letter-spacing:0.04em">AUTO</span>
+    </div>`;
+  }).join('');
+
+  const customTagRows=customTags.length?customTags.map(tag=>{
+    const count=txAll.filter(t=>(t.tags||[]).includes(tag)).length;
+    const safeTag=tag.replace(/'/g,"\\'").replace(/"/g,'&quot;');
+    return`<div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)">
+      <div style="width:38px;height:38px;border-radius:12px;background:rgba(108,99,255,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">🏷</div>
+      <div style="flex:1">
+        <p style="font-size:14px;font-weight:600;color:var(--text)">${tag}</p>
+        <p style="font-size:11px;color:var(--dim);margin-top:2px">${count} transaction${count!==1?'s':''}</p>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button onclick="startRenameTag('${safeTag}')" style="padding:7px 13px;border-radius:10px;background:rgba(108,99,255,0.12);color:var(--accent);font-size:12px;font-weight:700;border:1px solid rgba(108,99,255,0.25);cursor:pointer">Rename</button>
+        <button onclick="deleteTag('${safeTag}')" style="padding:7px 13px;border-radius:10px;background:rgba(255,107,107,0.1);color:var(--red);font-size:12px;font-weight:700;border:1px solid rgba(255,107,107,0.2);cursor:pointer">✕</button>
+      </div>
+    </div>`;
+  }).join(''):`<div style="text-align:center;padding:28px 0">
+    <p style="font-size:24px;margin-bottom:8px">🏷</p>
+    <p style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px">No custom tags yet</p>
+    <p style="font-size:12px;color:var(--dim)">Add tags while recording transactions,<br>or create one below.</p>
+  </div>`;
+
+  return`<div class="fade-in settings-page" style="padding-bottom:40px">
+    <div style="padding:52px 20px 0;display:flex;align-items:center;gap:12px;margin-bottom:24px">
+      <button onclick="goSettings()" style="background:rgba(255,255,255,0.07);border:none;border-radius:12px;padding:8px 12px;font-size:16px;color:var(--text);cursor:pointer">←</button>
+      <div>
+        <p style="font-size:11px;color:var(--dim);margin-bottom:2px">Preference</p>
+        <p style="font-size:20px;font-weight:800;letter-spacing:-0.02em">Tag Management</p>
+      </div>
+    </div>
+
+    <!-- MEMBER TAGS -->
+    <div style="margin:0 20px 20px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Member Tags · Auto-generated</p>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:18px;padding:0 16px">
+        ${memberTagRows||'<p style="font-size:13px;color:var(--dim);padding:14px 0">No members yet.</p>'}
+      </div>
+      <p style="font-size:11px;color:var(--dim);margin-top:8px;padding:0 4px">These tags are linked to member names and cannot be edited here. To change them, rename the member.</p>
+    </div>
+
+    <!-- CUSTOM TAGS -->
+    <div style="margin:0 20px 20px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Custom Tags · ${customTags.length} tag${customTags.length!==1?'s':''}</p>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:18px;padding:0 16px">
+        ${customTagRows}
+      </div>
+    </div>
+
+    <!-- ADD NEW TAG -->
+    <div style="margin:0 20px">
+      <p style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">Add New Tag</p>
+      <div style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:18px;padding:16px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="settingsNewTagInput" type="text" placeholder="Tag name..." maxlength="24"
+            style="flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:12px;padding:10px 14px;font-size:14px;color:var(--text);outline:none;font-family:var(--font-ui)"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addTagFromSettings();}">
+          <button onclick="addTagFromSettings()" style="padding:10px 18px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-size:13px;font-weight:700;border:none;cursor:pointer;flex-shrink:0">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderAppearancePage(){
   const isDark=S.colorMode!=='light';
   const cur=S.uiStyle||'original';
@@ -6028,53 +6108,6 @@ function renderSettings(){
       </div>
     </div>
 
-    <!-- TAG MANAGEMENT -->
-    <div class="settings-section">
-      <p class="label" style="margin-bottom:12px">Tag Management</p>
-      <div class="surface" style="padding:14px 16px;border-radius:14px">
-        <p style="font-size:12px;color:var(--muted);margin-bottom:14px">Member tags are automatic. Manage your custom tags below.</p>
-        ${(()=>{
-          const mList=allMembers();
-          const memberNames=mList.map(m=>m.displayName);
-          const customTags=(S.ledgerTags||[]).filter(t=>!memberNames.includes(t));
-          const txAll=txArr();
-
-          // Member tags (read-only)
-          const memberTagRows=mList.map(m=>{
-            const count=txAll.filter(t=>(t.tags||[]).includes(m.displayName)).length;
-            return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:18px">${m.avatar}</span>
-              <span style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${m.displayName}</span>
-              <span style="font-size:11px;color:var(--dim)">${count} tx${count!==1?'s':''}</span>
-              <span style="font-size:10px;background:rgba(255,255,255,0.06);color:var(--dim);padding:2px 8px;border-radius:6px">Auto</span>
-            </div>`;
-          }).join('');
-
-          // Custom tags (editable)
-          const customTagRows=customTags.length?customTags.map(tag=>{
-            const count=txAll.filter(t=>(t.tags||[]).includes(tag)).length;
-            const safeTag=tag.replace(/'/g,"\\'").replace(/"/g,'&quot;');
-            return`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.05)">
-              <span style="font-size:16px">🏷</span>
-              <span id="tagLabel_${btoa(tag).replace(/[^a-zA-Z0-9]/g,'')}" style="flex:1;font-size:13px;font-weight:600;color:var(--text)">${tag}</span>
-              <span style="font-size:11px;color:var(--dim);flex-shrink:0">${count} tx${count!==1?'s':''}</span>
-              <button onclick="startRenameTag('${safeTag}')" style="padding:5px 10px;border-radius:8px;background:rgba(108,99,255,0.12);color:var(--accent);font-size:11px;font-weight:700;border:1px solid rgba(108,99,255,0.25);cursor:pointer;flex-shrink:0">Rename</button>
-              <button onclick="deleteTag('${safeTag}')" style="padding:5px 10px;border-radius:8px;background:rgba(255,107,107,0.1);color:var(--red);font-size:11px;font-weight:700;border:1px solid rgba(255,107,107,0.2);cursor:pointer;flex-shrink:0">✕</button>
-            </div>`;
-          }).join(''):`<p style="font-size:12px;color:var(--dim);padding:8px 0">No custom tags yet. Add tags while recording transactions.</p>`;
-
-          return`${memberTagRows}
-          <div style="margin-top:4px">${customTagRows}</div>
-          <!-- Add new tag inline -->
-          <div style="display:flex;gap:8px;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07)">
-            <input id="settingsNewTagInput" type="text" placeholder="New custom tag..." maxlength="24"
-              style="flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--text);outline:none"
-              onkeydown="if(event.key==='Enter'){event.preventDefault();addTagFromSettings();}">
-            <button onclick="addTagFromSettings()" style="padding:8px 14px;border-radius:10px;background:rgba(108,99,255,0.15);border:1px solid rgba(108,99,255,0.3);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0">+ Add</button>
-          </div>`;
-        })()}
-      </div>
-    </div>
 
     <!-- LEDGER MEMBERS (real app users + guests combined) -->
     <div class="settings-section">
@@ -6139,6 +6172,7 @@ function renderSettings(){
       <button onclick="goAppearance()" class="export-btn" style="margin-bottom:8px">🎨 Appearance</button>
       <button onclick="goPaymentMethods()" class="export-btn" style="margin-bottom:8px">💳 Payment Methods</button>
       <button onclick="goBudget()" class="export-btn" style="margin-bottom:8px">🗂️ Categories & Budget</button>
+      <button onclick="goTagManagement()" class="export-btn" style="margin-bottom:8px">🏷️ Tag Management</button>
       ${S.totalView?`<div style="background:rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.2);border-radius:14px;padding:14px 16px;margin-top:4px">
         <p style="font-size:13px;font-weight:600;margin-bottom:4px">🏦 Asset Accounts &amp; 🔄 Recurring Transactions</p>
         <p style="font-size:12px;color:var(--muted);line-height:1.6">These are per-ledger settings.<br>Select a specific ledger to manage them.</p>
@@ -6450,6 +6484,7 @@ window.setColorMode=async mode=>{
   renderPage();
 };
 window.goAppearance=()=>{S.view='appearance';render();};
+window.goTagManagement=()=>{S.view='tagManagement';render();};
 window.toggleMemberSpending=()=>{
   S.memberSpendingCollapsed=!S.memberSpendingCollapsed;
   renderPage();
