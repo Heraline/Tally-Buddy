@@ -545,7 +545,13 @@ function renderAiSettings() {
 
     <div class="panel">
       <h3>General</h3>
-      ${menuRow("btnOpenContextPicker", "adjustments-horizontal", "Viewing settings for", inLedger ? `${ledger.icon || "💼"} ${ledger.name || "Untitled ledger"}` : "🏠 Overview")}
+      <p class="muted" style="margin-bottom:8px">Viewing settings for</p>
+      <div class="chip-row" style="flex-wrap:nowrap;overflow-x:auto;margin-bottom:16px" id="settingsContextRow">
+        <button type="button" class="chip ${!inLedger ? "active" : ""}" data-context-lid="">🏠 Overview</button>
+        ${Object.entries(S.ledgers || {}).map(([lid, l]) => `
+          <button type="button" class="chip ${S.activeLedgerId === lid ? "active" : ""}" data-context-lid="${lid}">${l.icon || "💼"} ${l.name || "Untitled ledger"}</button>
+        `).join("")}
+      </div>
 
       ${menuRow("btnOpenLedgerSectionFromSettings", "wallet", "Ledger", inLedger ? `${ledger.name || "Current ledger"} — members, identity, switching` : "Switch, join, or create a ledger")}
       ${menuRow("btnOpenCurrencyFromSettings", "currency-dollar", "Currency", inLedger ? `${ledger.currency || "USD"} — this ledger's currency` : "Your personal overview currency")}
@@ -579,23 +585,6 @@ function renderAiSettings() {
       <h3>About</h3>
       ${soon("info-circle", "App intro")}
     </div>
-
-    ${S.settingsContextPickerOpen ? `
-      <div class="qa-modal-backdrop" id="settingsContextBackdrop">
-        <div class="qa-modal-card">
-          <div class="qa-modal-title">Viewing settings for</div>
-          <div class="qa-modal-list qa-modal-list-ledger">
-            <button type="button" class="qa-modal-row ${(S.settingsContextDraft ?? (S.activeLedgerId || "")) === "" ? "selected" : ""}" data-context-draft="">🏠 Overview</button>
-            ${Object.entries(S.ledgers || {}).map(([lid, l]) => `
-              <button type="button" class="qa-modal-row ${(S.settingsContextDraft ?? (S.activeLedgerId || "")) === lid ? "selected" : ""}" data-context-draft="${lid}">${l.icon || "💼"} ${l.name || "Untitled ledger"}</button>
-            `).join("")}
-          </div>
-          <div class="qa-modal-footer">
-            <button type="button" class="qa-modal-cancel" id="btnSettingsContextCancel">Cancel</button>
-            <button type="button" class="qa-modal-ok" id="btnSettingsContextOk">OK</button>
-          </div>
-        </div>
-      </div>` : ""}
   `;
 }
 

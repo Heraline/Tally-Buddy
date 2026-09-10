@@ -13,8 +13,6 @@ export const S = {
   debugPreviewRole: null, // Owner-only testing tool: "member" | "moderator" | "guest" | null
   view: "home",        // "home" | "ledgers" | "personalBudget" | "aiSettings"
   categoriesBackView: null, // where the shared Categories page's back button returns to: "quickAdd" | "settings"
-  settingsContextPickerOpen: false, // Settings' "Viewing settings for" popup picker
-  settingsContextDraft: undefined, // ledger id being highlighted in that picker before OK is tapped ("" = Overview)
   personalBudget: {},  // this month's personal target, from users/{uid}/personalBudget/{ym}
   personalCategoryBudgets: {}, // this month's per-category personal targets
   includedLedgers: {}, // { lid: true } — which ledgers count toward the personal overview

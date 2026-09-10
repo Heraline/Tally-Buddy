@@ -384,6 +384,8 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
 
 .hidden { display: none !important; }
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+#settingsContextRow { scrollbar-width: none; -ms-overflow-style: none; }
+#settingsContextRow::-webkit-scrollbar { display: none; }
 .chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--card-border); background: var(--card-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); box-shadow: var(--card-shadow); color: var(--card-text); font-size: 12px; font-weight: 600; cursor: pointer; }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .split-amounts { margin: 4px 0 10px; }
