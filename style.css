@@ -387,7 +387,8 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
 .context-pill-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; margin-bottom: 16px; scrollbar-width: none; -ms-overflow-style: none; }
 .context-pill-row::-webkit-scrollbar { display: none; }
 .context-pill {
-  flex: 0 0 auto; padding: 8px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; white-space: nowrap;
+  flex: 0 0 auto; width: 104px; padding: 8px 10px; border-radius: 999px; font-size: 12px; font-weight: 600;
+  text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   border: 0.5px solid var(--card-border); background: var(--card-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur);
   color: var(--card-text); cursor: pointer;
 }
