@@ -151,7 +151,6 @@ export function render() {
   document.body.classList.toggle("qa-active", S.view === "quickAdd" && !S.activeLedgerId);
   if (!S.user) return renderLogin();
   if (S.view === "aiSettings") return renderAiSettings();
-  if (S.view === "settingsContextPicker") return renderSettingsContextPickerPage();
   if (S.view === "settingsAppearance") return renderAppearancePage();
   if (S.view === "settingsStartup") return renderStartupPage();
   if (S.view === "settingsCurrency") return renderCurrencyPage();
@@ -517,33 +516,6 @@ function renderLedgerList() {
     </div>`;
 }
 
-// Small dedicated picker for General's "Viewing settings for" row — lists
-// Overview plus every ledger, with a checkmark on whichever is active.
-// Picking one switches context (same as switchLedger) and returns here.
-function renderSettingsContextPickerPage() {
-  const inLedger = !!S.activeLedgerId;
-  const ledgers = Object.entries(S.ledgers || {});
-
-  const row = (lid, icon, name, subtitle, selected) => `
-    <button type="button" data-context-lid="${lid}" class="panel card-button" style="text-align:left">
-      <div class="card-header-row">
-        <h3 style="margin:0">${icon} ${name}</h3>
-        ${selected ? sysIcon("check") : ""}
-      </div>
-      <p class="muted" style="margin:0">${subtitle}</p>
-    </button>`;
-
-  app.innerHTML = `
-    <div class="topbar">
-      <button id="btnBackFromContextPicker" class="link" aria-label="Back">&larr;</button>
-      <h2 style="margin:0">Viewing settings for</h2>
-      <span style="width:24px"></span>
-    </div>
-    ${row("", "🏠", "Overview", "Your personal overview, budget, and Pocket", !inLedger)}
-    ${ledgers.map(([lid, l]) => row(lid, l.icon || "💼", l.name || "Untitled ledger", l.role || "member", S.activeLedgerId === lid)).join("")}
-  `;
-}
-
 function renderAiSettings() {
   const inLedger = !!S.activeLedgerId;
   const ledger = S.activeLedgerDetail || {};
@@ -607,6 +579,23 @@ function renderAiSettings() {
       <h3>About</h3>
       ${soon("info-circle", "App intro")}
     </div>
+
+    ${S.settingsContextPickerOpen ? `
+      <div class="qa-modal-backdrop" id="settingsContextBackdrop">
+        <div class="qa-modal-card">
+          <div class="qa-modal-title">Viewing settings for</div>
+          <div class="qa-modal-list qa-modal-list-ledger">
+            <button type="button" class="qa-modal-row ${(S.settingsContextDraft ?? (S.activeLedgerId || "")) === "" ? "selected" : ""}" data-context-draft="">🏠 Overview</button>
+            ${Object.entries(S.ledgers || {}).map(([lid, l]) => `
+              <button type="button" class="qa-modal-row ${(S.settingsContextDraft ?? (S.activeLedgerId || "")) === lid ? "selected" : ""}" data-context-draft="${lid}">${l.icon || "💼"} ${l.name || "Untitled ledger"}</button>
+            `).join("")}
+          </div>
+          <div class="qa-modal-footer">
+            <button type="button" class="qa-modal-cancel" id="btnSettingsContextCancel">Cancel</button>
+            <button type="button" class="qa-modal-ok" id="btnSettingsContextOk">OK</button>
+          </div>
+        </div>
+      </div>` : ""}
   `;
 }
 

@@ -591,11 +591,22 @@ document.getElementById("app").addEventListener("click", async (e) => {
       await setPersonalBudget(S.personalBudget?.total || 0, homeCurrency);
       await refreshPersonalOverview(homeCurrency);
     }
-    if (id === "btnOpenContextPicker") { S.view = "settingsContextPicker"; render(); }
-    if (id === "btnBackFromContextPicker") { S.view = "aiSettings"; render(); }
-    const contextRow = e.target.closest?.("[data-context-lid]");
-    if (contextRow) {
-      const lid = contextRow.dataset.contextLid;
+    if (id === "btnOpenContextPicker") {
+      S.settingsContextDraft = S.activeLedgerId || "";
+      S.settingsContextPickerOpen = true;
+      render();
+    }
+    if (id === "btnSettingsContextCancel" || e.target.id === "settingsContextBackdrop") {
+      S.settingsContextPickerOpen = false;
+      render();
+    }
+    const contextDraftRow = e.target.closest?.("[data-context-draft]");
+    if (contextDraftRow) {
+      S.settingsContextDraft = contextDraftRow.dataset.contextDraft;
+      render();
+    }
+    if (id === "btnSettingsContextOk") {
+      const lid = S.settingsContextDraft;
       if (lid) {
         switchLedger(lid);
       } else {
@@ -604,7 +615,7 @@ document.getElementById("app").addEventListener("click", async (e) => {
         S.members = {};
         S.txs = {};
       }
-      S.view = "aiSettings";
+      S.settingsContextPickerOpen = false;
       render();
     }
     if (id === "btnOpenLedgerSectionFromSettings") {
