@@ -546,10 +546,10 @@ function renderAiSettings() {
     <div class="panel">
       <h3>General</h3>
       <p class="muted" style="margin-bottom:8px">Viewing settings for</p>
-      <div class="chip-row" style="flex-wrap:nowrap;overflow-x:auto;margin-bottom:16px" id="settingsContextRow">
-        <button type="button" class="chip ${!inLedger ? "active" : ""}" data-context-lid="">🏠 Overview</button>
+      <div class="context-pill-row" id="settingsContextRow">
+        <button type="button" class="context-pill ${!inLedger ? "active" : ""}" data-context-lid="">🏠 Overview</button>
         ${Object.entries(S.ledgers || {}).map(([lid, l]) => `
-          <button type="button" class="chip ${S.activeLedgerId === lid ? "active" : ""}" data-context-lid="${lid}">${l.icon || "💼"} ${l.name || "Untitled ledger"}</button>
+          <button type="button" class="context-pill ${S.activeLedgerId === lid ? "active" : ""}" data-context-lid="${lid}">${l.icon || "💼"} ${l.name || "Untitled ledger"}</button>
         `).join("")}
       </div>
 
