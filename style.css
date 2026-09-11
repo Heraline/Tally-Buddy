@@ -53,9 +53,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn-back {
   width: 36px; height: 36px; border-radius: 12px; padding: 0;
-  background: var(--card-bg); border: none;
-  backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur);
-  color: var(--card-text); display: flex; align-items: center; justify-content: center;
+  background: none; border: none;
+  color: var(--page-text); display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
 .btn-back .sys-icon, .btn-back .ti { font-size: 20px; }
