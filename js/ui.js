@@ -484,7 +484,7 @@ function renderLedgerList() {
   const ledgers = Object.entries(S.ledgers || {});
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgers" class="link">&larr; Home</button>
+      <button id="btnBackFromLedgers" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>Your ledgers</h2>
@@ -529,7 +529,7 @@ function renderAiSettings() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromSettings" class="link">&larr; Home</button>
+      <button id="btnBackFromSettings" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>Settings</h2>
@@ -595,9 +595,9 @@ function renderAppearancePage() {
   const themeBtn = (t) => `<button class="opt-btn ${prefs.theme === t.key ? "active" : ""}" data-set-theme="${t.key}">${t.label}</button>`;
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromAppearance" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromAppearance" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Appearance</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     <div class="panel">
       <p class="muted" style="margin-bottom:8px">Dark themes</p>
@@ -626,9 +626,9 @@ function renderStartupPage() {
   const prefs = S.uiPrefs || {};
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromStartup" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromStartup" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Start up</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     <div class="panel">
       <p class="muted" style="margin-bottom:8px">Home screen starts on</p>
@@ -649,9 +649,9 @@ function renderCurrencyPage() {
   const homeCurrency = pb.homeCurrency || "USD";
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromCurrency" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromCurrency" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Currency</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     <div class="panel">
       <p class="muted" style="margin-bottom:8px">Used for your personal Overview and budget total. Each ledger keeps its own currency separately.</p>
@@ -676,9 +676,9 @@ function renderLedgerSectionPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerSection" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromLedgerSection" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">${ledgerIcon(ledger.icon)} ${ledger.name || "Ledger"}</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
 
     <button type="button" id="btnManageLedgers" class="link" style="margin-bottom:12px">${sysIcon("switch-3")}Switch / manage all ledgers</button>
@@ -715,9 +715,9 @@ function renderAiReceiptScanPage() {
   const hasKey = !!getGeminiKey();
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromAiReceipt" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromAiReceipt" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">AI Receipt Scanning</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     <div class="panel">
       <p class="muted" style="margin-bottom:10px">Used for scanning receipt photos. Get a free key at <strong>aistudio.google.com/apikey</strong>. It's stored only in this browser — never sent anywhere except directly to Google when you scan a receipt.</p>
@@ -770,7 +770,7 @@ function renderLedgerDetail() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerManage" class="link">&larr; Back</button>
+      <button id="btnBackFromLedgerManage" class="btn-back" aria-label="Back to Back">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
 
@@ -829,9 +829,9 @@ function renderCategoriesPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnCategoriesBack" class="link" aria-label="Back">&larr;</button>
+      <button id="btnCategoriesBack" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Categories</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     ${previewWrap(renderCategoriesPanel(myMember, txs, ledger))}
   `;
@@ -847,9 +847,9 @@ function renderSettingsCategoriesAndBudgetPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromSettingsCategoriesAndBudget" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromSettingsCategoriesAndBudget" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Categories and Budget</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     ${previewWrap(`
       ${ledgerBudgetTargetPanelsHtml(ledger, myMember, txs)}
@@ -866,9 +866,9 @@ function renderLedgerCurrencyPage() {
   const canEdit = isOwner(myMember);
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerCurrency" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromLedgerCurrency" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Currency</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     ${previewWrap(`
       <div class="panel">
@@ -887,9 +887,9 @@ function renderTagsPage() {
   const txs = Object.entries(S.txs || {});
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromTags" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromTags" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Tags</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     ${previewWrap(renderTagsPanel(myMember, txs))}
   `;
@@ -900,9 +900,9 @@ function renderRecurringPage() {
   const myMember = effectiveLedgerMember();
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromRecurring" class="link" aria-label="Back">&larr;</button>
+      <button id="btnBackFromRecurring" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <h2 style="margin:0">Recurring</h2>
-      <span style="width:24px"></span>
+      <span style="width:36px"></span>
     </div>
     ${previewWrap(renderRecurringPanel(myMember, ledger))}
   `;
@@ -915,7 +915,7 @@ function renderLedgerWalletPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerWallet" class="link">&larr; Home</button>
+      <button id="btnBackFromLedgerWallet" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("building-bank")}${ledgerIcon(ledger.icon)} ${ledger.name || "Ledger"} Wallet</h2>
@@ -982,7 +982,7 @@ function renderLedgerBudgetPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerBudget" class="link">&larr; Home</button>
+      <button id="btnBackFromLedgerBudget" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("chart-bar")}${ledgerIcon(ledger.icon)} ${ledger.name || "Ledger"} Budget — ${ym}</h2>
@@ -1136,7 +1136,7 @@ function renderWalletPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromWallet" class="link">&larr; Home</button>
+      <button id="btnBackFromWallet" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("wallet")}Pocket</h2>
@@ -1422,7 +1422,7 @@ function renderQuickAddPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromQuickAdd" class="link" aria-label="Close">&larr;</button>
+      <button id="btnBackFromQuickAdd" class="btn-back" aria-label="Close">${sysIcon("chevron-left")}</button>
       <div class="qa-tabs">
         <button type="button" class="qa-tab ${qa.type === "expense" ? "active" : ""}" data-qa-type="expense">Spending</button>
         <button type="button" class="qa-tab ${qa.type === "income" ? "active" : ""}" data-qa-type="income">Receiving</button>
@@ -1567,7 +1567,7 @@ function renderHomeBookmarksPage() {
   const overview = S.homeBookmarksOverview;
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromHomeBookmarks" class="link">&larr; Home</button>
+      <button id="btnBackFromHomeBookmarks" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("star")}Bookmarked</h2>
@@ -1606,7 +1606,7 @@ function renderHomeSplitsPage() {
   const overview = S.homeSplitsOverview;
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromHomeSplits" class="link">&larr; Home</button>
+      <button id="btnBackFromHomeSplits" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("users-group")}Splits & Settle</h2>
@@ -1646,7 +1646,7 @@ function renderSplitsPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromSplits" class="link">&larr; ${ledger.name || "Ledger"}</button>
+      <button id="btnBackFromSplits" class="btn-back" aria-label="Back to ${ledger.name || "Ledger"}">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("users-group")}Splits & Settle</h2>
@@ -1691,7 +1691,7 @@ function renderBookmarkedPage() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromBookmarked" class="link">&larr; ${ledger.name || "Ledger"}</button>
+      <button id="btnBackFromBookmarked" class="btn-back" aria-label="Back to ${ledger.name || "Ledger"}">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("star")}Bookmarked</h2>
@@ -1723,7 +1723,7 @@ function renderPersonalBudget() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromBudget" class="link">&larr; Home</button>
+      <button id="btnBackFromBudget" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
     <h2>${sysIcon("chart-bar")}My Budget — ${ym}</h2>
