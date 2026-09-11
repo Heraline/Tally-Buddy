@@ -529,10 +529,12 @@ function renderAiSettings() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromSettings" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
+      <div style="display:flex;align-items:center;gap:10px">
+        <button id="btnBackFromSettings" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
+        <h2 style="margin:0">Settings</h2>
+      </div>
       <button id="btnLogout" class="link">Log out</button>
     </div>
-    <h2>Settings</h2>
 
     <div class="panel">
       <h3>Preference</h3>
@@ -770,7 +772,7 @@ function renderLedgerDetail() {
 
   app.innerHTML = `
     <div class="topbar">
-      <button id="btnBackFromLedgerManage" class="btn-back" aria-label="Back to Back">${sysIcon("chevron-left")}</button>
+      <button id="btnBackFromLedgerManage" class="btn-back" aria-label="Back">${sysIcon("chevron-left")}</button>
       <button id="btnLogout" class="link">Log out</button>
     </div>
 
