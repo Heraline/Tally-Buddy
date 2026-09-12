@@ -13,6 +13,7 @@ export const S = {
   debugPreviewRole: null, // Owner-only testing tool: "member" | "moderator" | "guest" | null
   view: "home",        // "home" | "ledgers" | "personalBudget" | "aiSettings"
   categoriesBackView: null, // where the shared Categories page's back button returns to: "quickAdd" | "settings"
+  returnTo: null, // generic "where Back should go" for pages reachable from more than one entry point (e.g. Pocket, Manage Ledgers, Personal Budget) — set right before navigating there from somewhere non-default like Settings
   personalBudget: {},  // this month's personal target, from users/{uid}/personalBudget/{ym}
   personalCategoryBudgets: {}, // this month's per-category personal targets
   includedLedgers: {}, // { lid: true } — which ledgers count toward the personal overview

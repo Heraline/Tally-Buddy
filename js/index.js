@@ -183,6 +183,7 @@ async function refreshQaCategoriesIfNeeded() {
 function goTo(view) {
   S.activeLedgerId = null;
   S.view = view;
+  S.returnTo = null;
   if (view === "home") refreshHomeOverview();
   render();
 }
@@ -207,7 +208,7 @@ document.getElementById("app").addEventListener("click", async (e) => {
     if (navBtn) goTo(navBtn.dataset.nav);
 
     if (e.target.closest?.("#btnHomeBudgetCard")) {
-      if (S.activeLedgerId) { S.view = "ledgerBudget"; render(); }
+      if (S.activeLedgerId) { S.returnTo = null; S.view = "ledgerBudget"; render(); }
       else goTo("personalBudget");
     }
     if (id === "btnHomeSplits") {
@@ -227,13 +228,22 @@ document.getElementById("app").addEventListener("click", async (e) => {
       render();
     }
     if (e.target.closest?.("#btnHomeWalletCard")) {
-      if (S.activeLedgerId) { S.view = "ledgerWallet"; render(); }
+      if (S.activeLedgerId) { S.returnTo = null; S.view = "ledgerWallet"; render(); }
       else { goTo("wallet"); processDueWalletRecurring().catch((err) => console.error("Wallet recurring processing failed:", err)); }
     }
-    if (id === "btnBackFromWallet") { S.view = null; render(); }
+    if (id === "btnBackFromWallet") {
+      if (S.returnTo) { S.view = S.returnTo; S.returnTo = null; }
+      else S.view = null;
+      render();
+    }
     if (id === "btnHomeSettings") { S.view = "aiSettings"; render(); }
     if (id === "btnBackFromSettings") { S.view = null; render(); }
-    if (id === "btnManageLedgers") goTo("ledgers");
+    if (id === "btnManageLedgers") {
+      S.returnTo = "aiSettings";
+      S.activeLedgerId = null;
+      S.view = "ledgers";
+      render();
+    }
     if (e.target.closest?.("#btnHomeQuickAdd")) {
       const lastLedgerId = S.activeLedgerId || S.quickAdd?.ledgerId;
       const stillValid = lastLedgerId && S.ledgers?.[lastLedgerId];
@@ -472,7 +482,10 @@ document.getElementById("app").addEventListener("click", async (e) => {
         render();
       }
     }
-    if (id === "btnBackFromLedgers") goTo("home");
+    if (id === "btnBackFromLedgers") {
+      if (S.returnTo) { const to = S.returnTo; S.returnTo = null; S.view = to; render(); }
+      else goTo("home");
+    }
     if (id === "btnWalletAddFunds") {
       const amount = val("walletAddAmount"), currency = val("walletAddCurrency"), note = val("walletAddNote");
       if (!amount || Number(amount) <= 0) return showError("walletAddError", "Enter a valid amount.");
@@ -565,7 +578,7 @@ document.getElementById("app").addEventListener("click", async (e) => {
     if (id === "btnOpenLedgerManage") { S.view = "ledgerManage"; render(); }
     if (id === "btnOpenCategoriesFromSettings") {
       if (S.activeLedgerId) { S.view = "settingsCategoriesAndBudget"; render(); }
-      else goTo("personalBudget");
+      else { S.returnTo = "aiSettings"; S.view = "personalBudget"; render(); }
     }
     if (id === "btnBackFromSettingsCategoriesAndBudget") { S.view = "aiSettings"; render(); }
     if (id === "btnOpenTagsFromSettings") { S.view = "tags"; render(); }
@@ -605,11 +618,13 @@ document.getElementById("app").addEventListener("click", async (e) => {
       render();
     }
     if (id === "btnOpenLedgerSectionFromSettings") {
-      S.view = S.activeLedgerId ? "ledgerSection" : "ledgers";
+      if (S.activeLedgerId) { S.view = "ledgerSection"; }
+      else { S.returnTo = "aiSettings"; S.view = "ledgers"; }
       render();
     }
     if (id === "btnBackFromLedgerSection") { S.view = "aiSettings"; render(); }
     if (id === "btnOpenPocketFromSettings") {
+      S.returnTo = "aiSettings";
       S.view = S.activeLedgerId ? "ledgerWallet" : "wallet";
       render();
     }
@@ -622,8 +637,15 @@ document.getElementById("app").addEventListener("click", async (e) => {
       render();
     }
     if (id === "btnBackFromLedgerBudget") { S.view = null; render(); }
-    if (id === "btnBackFromLedgerWallet") { S.view = null; render(); }
-    if (id === "btnBackFromBudget") goTo("home");
+    if (id === "btnBackFromLedgerWallet") {
+      if (S.returnTo) { S.view = S.returnTo; S.returnTo = null; }
+      else S.view = null;
+      render();
+    }
+    if (id === "btnBackFromBudget") {
+      if (S.returnTo) { const to = S.returnTo; S.returnTo = null; S.view = to; render(); }
+      else goTo("home");
+    }
     if (id === "btnHomeBookmarked") {
       if (S.activeLedgerId) { S.view = "bookmarked"; render(); return; }
       S.view = "homeBookmarks";
