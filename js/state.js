@@ -14,6 +14,10 @@ export const S = {
   view: "home",        // "home" | "ledgers" | "personalBudget" | "aiSettings"
   categoriesBackView: null, // where the shared Categories page's back button returns to: "quickAdd" | "settings"
   returnTo: null, // generic "where Back should go" for pages reachable from more than one entry point (e.g. Pocket, Manage Ledgers, Personal Budget) — set right before navigating there from somewhere non-default like Settings
+  ledgerModal: null, // Your ledgers list popup: null | "add" | "join" | "edit"
+  newLedgerIcon: "💼", // draft icon while the "Add ledger" popup is open
+  editLedgerId: null, // which ledger the "Edit ledger" popup is editing
+  editLedgerIcon: null, // draft icon while the "Edit ledger" popup is open (null = keep current)
   personalBudget: {},  // this month's personal target, from users/{uid}/personalBudget/{ym}
   personalCategoryBudgets: {}, // this month's per-category personal targets
   includedLedgers: {}, // { lid: true } — which ledgers count toward the personal overview

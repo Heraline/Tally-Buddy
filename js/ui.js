@@ -480,8 +480,13 @@ function renderRecentTransactionsSection() {
     ${remaining > 0 ? `<button id="btnToggleRecentTx" class="link">Show ${Math.min(5, remaining)} more transaction${Math.min(5, remaining) > 1 ? "s" : ""}</button>` : ""}`;
 }
 
+const LEDGER_ICON_CHOICES = ["💼", "🏠", "✈️", "🎓", "🎉", "🚗", "🏢", "👨‍👩‍👧", "🐾", "🎁", "💰", "🛍️"];
+
 function renderLedgerList() {
   const ledgers = Object.entries(S.ledgers || {});
+  const modal = S.ledgerModal; // null | "add" | "join" | "edit"
+  const editLedger = modal === "edit" ? (S.ledgers?.[S.editLedgerId] || {}) : null;
+
   app.innerHTML = `
     <div class="topbar">
       <button id="btnBackFromLedgers" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
@@ -496,24 +501,71 @@ function renderLedgerList() {
             <span>${l.name || "Untitled ledger"}</span>
             <span class="role">${l.role}</span>
           </button>
-          <label class="include-toggle">
+          <button type="button" class="ledger-edit-btn" data-edit-lid="${lid}" aria-label="Edit ${l.name || "ledger"}">${sysIcon("pencil")}</button>
+          <label class="toggle-switch" title="Include in my budget overview">
             <input type="checkbox" data-include-lid="${lid}" ${S.includedLedgers?.[lid] ? "checked" : ""} />
-            Include in my budget
+            <span class="track"></span>
           </label>
-        </div>`).join("") : `<p class="muted">No ledgers yet — create or join one below.</p>`}
+        </div>`).join("") : `<p class="muted">No ledgers yet — add or join one below.</p>`}
     </div>
-    <div class="panel">
-      <h3>Create a new ledger</h3>
-      <div id="createError" class="error"></div>
-      <input id="newLedgerName" placeholder="Ledger name (e.g. Family)" />
-      <button id="btnCreateLedger">Create</button>
+
+    <div class="btn-row" style="margin-top:16px">
+      <button type="button" id="btnOpenAddLedgerModal" class="secondary" style="flex:1">${sysIcon("plus")}Add ledger</button>
+      <button type="button" id="btnOpenJoinLedgerModal" class="secondary" style="flex:1">${sysIcon("link")}Join with code</button>
     </div>
-    <div class="panel">
-      <h3>Join with invite code</h3>
-      <div id="joinError" class="error"></div>
-      <input id="joinCode" placeholder="6-character code" />
-      <button id="btnJoinLedger">Join</button>
-    </div>`;
+
+    ${modal === "add" ? `
+      <div class="qa-modal-backdrop" id="ledgerModalBackdrop">
+        <div class="qa-modal-card">
+          <div class="qa-modal-title">Add ledger</div>
+          <div style="padding:0 18px 4px">
+            <div id="createError" class="error"></div>
+            <input id="newLedgerName" placeholder="Ledger name (e.g. Family)" />
+            <p class="muted" style="margin:8px 0 6px">Icon</p>
+            <div class="chip-row">
+              ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${S.newLedgerIcon === ic ? "active" : ""}" data-pick-new-icon="${ic}">${ic}</button>`).join("")}
+            </div>
+          </div>
+          <div class="qa-modal-footer">
+            <button type="button" class="qa-modal-cancel" id="btnCloseLedgerModal">Cancel</button>
+            <button type="button" class="qa-modal-ok" id="btnCreateLedger">Add</button>
+          </div>
+        </div>
+      </div>` : ""}
+
+    ${modal === "join" ? `
+      <div class="qa-modal-backdrop" id="ledgerModalBackdrop">
+        <div class="qa-modal-card">
+          <div class="qa-modal-title">Join with invite code</div>
+          <div style="padding:0 18px 4px">
+            <div id="joinError" class="error"></div>
+            <input id="joinCode" placeholder="6-character code" />
+          </div>
+          <div class="qa-modal-footer">
+            <button type="button" class="qa-modal-cancel" id="btnCloseLedgerModal">Cancel</button>
+            <button type="button" class="qa-modal-ok" id="btnJoinLedger">Join</button>
+          </div>
+        </div>
+      </div>` : ""}
+
+    ${modal === "edit" ? `
+      <div class="qa-modal-backdrop" id="ledgerModalBackdrop">
+        <div class="qa-modal-card">
+          <div class="qa-modal-title">Edit ledger</div>
+          <div style="padding:0 18px 4px">
+            <div id="editLedgerError" class="error"></div>
+            <input id="editLedgerName" placeholder="Ledger name" value="${editLedger?.name || ""}" />
+            <p class="muted" style="margin:8px 0 6px">Icon</p>
+            <div class="chip-row">
+              ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${(S.editLedgerIcon ?? editLedger?.icon) === ic ? "active" : ""}" data-pick-edit-icon="${ic}">${ic}</button>`).join("")}
+            </div>
+          </div>
+          <div class="qa-modal-footer">
+            <button type="button" class="qa-modal-cancel" id="btnCloseLedgerModal">Cancel</button>
+            <button type="button" class="qa-modal-ok" id="btnSaveLedgerEdit">Save</button>
+          </div>
+        </div>
+      </div>` : ""}`;
 }
 
 function renderAiSettings() {

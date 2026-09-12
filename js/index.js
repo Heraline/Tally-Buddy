@@ -689,16 +689,39 @@ document.getElementById("app").addEventListener("click", async (e) => {
     const iconStyleBtn = e.target.closest?.("[data-set-icon-style]");
     if (iconStyleBtn) await setThemePref("iconStyle", iconStyleBtn.dataset.setIconStyle);
 
+    if (id === "btnOpenAddLedgerModal") { S.ledgerModal = "add"; S.newLedgerIcon = "💼"; render(); }
+    if (id === "btnOpenJoinLedgerModal") { S.ledgerModal = "join"; render(); }
+    if (id === "btnCloseLedgerModal" || e.target.id === "ledgerModalBackdrop") { S.ledgerModal = null; render(); }
+    if (e.target.dataset.pickNewIcon) { S.newLedgerIcon = e.target.dataset.pickNewIcon; render(); }
+    if (e.target.dataset.pickEditIcon) { S.editLedgerIcon = e.target.dataset.pickEditIcon; render(); }
+    const editLedgerBtn = e.target.closest?.("[data-edit-lid]");
+    if (editLedgerBtn) {
+      S.editLedgerId = editLedgerBtn.dataset.editLid;
+      S.editLedgerIcon = null;
+      S.ledgerModal = "edit";
+      render();
+    }
+    if (id === "btnSaveLedgerEdit") {
+      const name = val("editLedgerName");
+      if (!name) return showError("editLedgerError", "Enter a name first.");
+      const icon = S.editLedgerIcon || S.ledgers?.[S.editLedgerId]?.icon || "💼";
+      await renameLedger(S.editLedgerId, name, icon);
+      S.ledgerModal = null;
+      render();
+    }
     if (id === "btnCreateLedger") {
       const name = val("newLedgerName");
       if (!name) return showError("createError", "Enter a name first.");
-      await createLedger(name);
-      document.getElementById("newLedgerName").value = "";
+      await createLedger(name, S.newLedgerIcon || "💼");
+      S.ledgerModal = null;
+      render();
     }
     if (id === "btnJoinLedger") {
       const code = val("joinCode");
       if (!code) return showError("joinError", "Enter an invite code.");
       await joinLedgerByCode(code);
+      S.ledgerModal = null;
+      render();
     }
     if (e.target.dataset.del) {
       const tx = S.txs[e.target.dataset.del];
