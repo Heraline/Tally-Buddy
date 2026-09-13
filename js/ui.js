@@ -524,7 +524,7 @@ function renderLedgerList() {
             <p class="muted" style="margin:8px 0 6px">Icon</p>
             <div class="icon-picker-grid">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${S.newLedgerIcon === ic ? "active" : ""}" data-pick-new-icon="${ic}">${ic}</button>`).join("")}
-              <button type="button" class="chip" disabled title="Upload your own icon — coming soon via Icon Library">${sysIcon("plus")}</button>
+              <button type="button" class="chip icon-picker-upload" disabled title="Upload your own icon — coming soon via Icon Library">${sysIcon("plus")}</button>
             </div>
           </div>
           <div class="qa-modal-footer">
@@ -559,7 +559,7 @@ function renderLedgerList() {
             <p class="muted" style="margin:8px 0 6px">Icon</p>
             <div class="icon-picker-grid">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${(S.editLedgerIcon ?? editLedger?.icon) === ic ? "active" : ""}" data-pick-edit-icon="${ic}">${ic}</button>`).join("")}
-              <button type="button" class="chip" disabled title="Upload your own icon — coming soon via Icon Library">${sysIcon("plus")}</button>
+              <button type="button" class="chip icon-picker-upload" disabled title="Upload your own icon — coming soon via Icon Library">${sysIcon("plus")}</button>
             </div>
           </div>
           <div class="qa-modal-footer">

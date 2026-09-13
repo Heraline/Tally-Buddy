@@ -57,7 +57,7 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
   color: var(--page-text); display: flex; align-items: center; justify-content: center;
   cursor: pointer;
 }
-.btn-back .sys-icon, .btn-back .ti { font-size: 20px; transform: translateX(-1px); }
+.btn-back .sys-icon, .btn-back .ti { font-size: 20px; transform: translateX(-1px); color: var(--page-text); margin-right: 0; vertical-align: 0; }
 body[data-icon="badge"] .icon-btn {
   background: var(--card-bg-flat); border-radius: 50%; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -419,6 +419,11 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
   width: 100%; aspect-ratio: 1; padding: 0; font-size: 20px; border-radius: 12px;
   display: flex; align-items: center; justify-content: center;
 }
+.icon-picker-upload {
+  background: none; border: 1.5px dashed var(--card-border); color: var(--card-muted);
+}
+.icon-picker-upload:disabled { opacity: 0.7; }
+.icon-picker-upload .sys-icon, .icon-picker-upload .ti { color: var(--card-muted); margin-right: 0; vertical-align: 0; }
 .split-amounts { margin: 4px 0 10px; }
 .split-amt-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; color: var(--card-text); }
 .split-amt-input { width: 90px; margin: 0; padding: 6px 8px; }
