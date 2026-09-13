@@ -490,7 +490,10 @@ function renderLedgerList() {
   app.innerHTML = `
     <div class="topbar">
       <button id="btnBackFromLedgers" class="btn-back" aria-label="Back to Home">${sysIcon("chevron-left")}</button>
-      <button id="btnLogout" class="link">Log out</button>
+      <div class="topbar-icons">
+        <button type="button" id="btnOpenAddLedgerModal" class="icon-btn" aria-label="Add ledger" title="Add ledger"><i class="ti ti-plus" aria-hidden="true"></i></button>
+        <button type="button" id="btnOpenJoinLedgerModal" class="icon-btn" aria-label="Join with code" title="Join with code"><i class="ti ti-link" aria-hidden="true"></i></button>
+      </div>
     </div>
     <h2>Your ledgers</h2>
     <div id="ledgerList" class="ledger-list">
@@ -506,12 +509,7 @@ function renderLedgerList() {
             <input type="checkbox" data-include-lid="${lid}" ${S.includedLedgers?.[lid] ? "checked" : ""} />
             <span class="track"></span>
           </label>
-        </div>`).join("") : `<p class="muted">No ledgers yet — add or join one below.</p>`}
-    </div>
-
-    <div class="btn-row" style="margin-top:16px">
-      <button type="button" id="btnOpenAddLedgerModal" class="secondary" style="flex:1">${sysIcon("plus")}Add ledger</button>
-      <button type="button" id="btnOpenJoinLedgerModal" class="secondary" style="flex:1">${sysIcon("link")}Join with code</button>
+        </div>`).join("") : `<p class="muted">No ledgers yet — tap + above to add one, or the link icon to join with a code.</p>`}
     </div>
 
     ${modal === "add" ? `
