@@ -236,10 +236,12 @@ function categoryOptionsHtml(selectedLabel) {
 
 function ledgerIcon(icon) {
   // Old app allowed custom uploaded icons (long image data), not just emoji.
+  // Both cases render inside the same fixed frame so list rows, headers,
+  // etc. look uniform regardless of which kind of icon a ledger has.
   if (icon && icon.startsWith("data:image")) {
-    return `<img src="${icon}" class="icon-img" alt="" />`;
+    return `<span class="ledger-icon-frame"><img src="${icon}" class="icon-img" alt="" /></span>`;
   }
-  return `<span class="icon">${icon || "💼"}</span>`;
+  return `<span class="ledger-icon-frame"><span class="icon">${icon || "💼"}</span></span>`;
 }
 
 // Same shape of numbers as the personal overview, but computed for just
@@ -520,7 +522,7 @@ function renderLedgerList() {
             <div id="createError" class="error"></div>
             <input id="newLedgerName" placeholder="Ledger name (e.g. Family)" />
             <p class="muted" style="margin:8px 0 6px">Icon</p>
-            <div class="icon-picker-grid">
+            <div class="chip-row">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${S.newLedgerIcon === ic ? "active" : ""}" data-pick-new-icon="${ic}">${ic}</button>`).join("")}
             </div>
           </div>
@@ -554,7 +556,7 @@ function renderLedgerList() {
             <div id="editLedgerError" class="error"></div>
             <input id="editLedgerName" placeholder="Ledger name" value="${editLedger?.name || ""}" />
             <p class="muted" style="margin:8px 0 6px">Icon</p>
-            <div class="icon-picker-grid">
+            <div class="chip-row">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${(S.editLedgerIcon ?? editLedger?.icon) === ic ? "active" : ""}" data-pick-edit-icon="${ic}">${ic}</button>`).join("")}
             </div>
           </div>
