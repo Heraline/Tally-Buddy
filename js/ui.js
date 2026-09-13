@@ -501,7 +501,7 @@ function renderLedgerList() {
         <div class="ledger-card-row">
           <button class="ledger-card" data-lid="${lid}">
             ${ledgerIcon(l.icon)}
-            <span>${l.name || "Untitled ledger"}</span>
+            <span class="ledger-name">${l.name || "Untitled ledger"}</span>
             <span class="role">${l.role}</span>
           </button>
           <button type="button" class="ledger-edit-btn" data-edit-lid="${lid}" aria-label="Edit ${l.name || "ledger"}">${sysIcon("pencil")}</button>
@@ -520,7 +520,7 @@ function renderLedgerList() {
             <div id="createError" class="error"></div>
             <input id="newLedgerName" placeholder="Ledger name (e.g. Family)" />
             <p class="muted" style="margin:8px 0 6px">Icon</p>
-            <div class="chip-row">
+            <div class="icon-picker-grid">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${S.newLedgerIcon === ic ? "active" : ""}" data-pick-new-icon="${ic}">${ic}</button>`).join("")}
             </div>
           </div>
@@ -554,7 +554,7 @@ function renderLedgerList() {
             <div id="editLedgerError" class="error"></div>
             <input id="editLedgerName" placeholder="Ledger name" value="${editLedger?.name || ""}" />
             <p class="muted" style="margin:8px 0 6px">Icon</p>
-            <div class="chip-row">
+            <div class="icon-picker-grid">
               ${LEDGER_ICON_CHOICES.map(ic => `<button type="button" class="chip ${(S.editLedgerIcon ?? editLedger?.icon) === ic ? "active" : ""}" data-pick-edit-icon="${ic}">${ic}</button>`).join("")}
             </div>
           </div>

@@ -71,9 +71,10 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
 .balance { font-size: 28px; font-weight: 800; margin-bottom: 16px; color: var(--card-text); }
 
 .ledger-list { display: flex; flex-direction: column; gap: 2px; }
-.ledger-card-row { display: flex; align-items: center; gap: 4px; border-radius: 14px; padding: 2px 6px; }
+.ledger-card-row { display: flex; align-items: center; gap: 4px; border-radius: 14px; padding: 2px 6px; height: 52px; }
 .ledger-card { display: flex; align-items: center; gap: 10px; background: transparent; padding: 10px 4px; text-align: left; color: var(--card-text); flex: 1; min-width: 0; }
-.ledger-card .role { margin-left: auto; font-size: 11px; color: var(--card-muted); }
+.ledger-card .ledger-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ledger-card .role { margin-left: 0; flex: none; font-size: 11px; color: var(--card-muted); }
 .ledger-edit-btn { flex: none; background: none; border: none; color: var(--card-muted); width: 32px; height: 32px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .ledger-edit-btn .ti { font-size: 16px; }
 .toggle-switch { position: relative; display: inline-block; width: 40px; height: 24px; flex: none; }
@@ -408,6 +409,11 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
 .context-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--card-border); background: var(--card-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); box-shadow: var(--card-shadow); color: var(--card-text); font-size: 12px; font-weight: 600; cursor: pointer; }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.icon-picker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+.icon-picker-grid .chip {
+  width: 100%; aspect-ratio: 1; padding: 0; font-size: 20px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
 .split-amounts { margin: 4px 0 10px; }
 .split-amt-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; color: var(--card-text); }
 .split-amt-input { width: 90px; margin: 0; padding: 6px 8px; }
