@@ -414,6 +414,11 @@ body[data-icon="badge"] .icon-btn:disabled { box-shadow: none; }
 .context-pill.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 .chip { padding: 6px 12px; border-radius: 999px; border: 1.5px solid var(--card-border); background: var(--card-bg); backdrop-filter: var(--card-blur); -webkit-backdrop-filter: var(--card-blur); box-shadow: var(--card-shadow); color: var(--card-text); font-size: 12px; font-weight: 600; cursor: pointer; }
 .chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.icon-picker-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 8px; }
+.icon-picker-grid .chip {
+  width: 100%; aspect-ratio: 1; padding: 0; font-size: 20px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+}
 .split-amounts { margin: 4px 0 10px; }
 .split-amt-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 4px 0; font-size: 13px; color: var(--card-text); }
 .split-amt-input { width: 90px; margin: 0; padding: 6px 8px; }
